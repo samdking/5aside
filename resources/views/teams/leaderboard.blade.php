@@ -12,6 +12,7 @@
 		<th>Apps</th>
 		<th>Wins</th>
 		<th>Draws</th>
+		<th>GD</th>
 		<th>Handicap Apps</th>
 		<th>Last App</th>
 	</tr>
@@ -27,6 +28,7 @@
 		<td>{{ $team->apps }}</td>
 		<td>{{ $team->wins }}</td>
 		<td>{{ $team->draws }}</td>
+		<td>{{ $team->diff }}</td>
 		<td>{{ App\Team::whereUniqueHash($team->unique_hash)->sum('handicap') }}</td>
 		<td>{{ $team->last_app }}</td>
 	</tr>

@@ -2,9 +2,14 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class Match extends Model {
-
+class Match extends Model
+{
+	protected $fillable = [
+		'date'
+	];
 	protected $dates = ['date'];
+
+	public $timestamps = false;
 
 	public function teams()
 	{
@@ -22,4 +27,30 @@ class Match extends Model {
 			->get();
 	}
 
+	public function getOpposition(Team $opposition)
+	{
+		foreach($this->teams as $team) {
+			if ($team->id !== $opposition->id) {
+				return $team;
+			}
+		}
+	}
+
+	public function teamPlayedIn(Player $player)
+	{
+		return $this->teams->first(function($key, $team) use ($player) {
+			return $team->players->contains($player);
+		});
+	}
+
+	public function overviewForTeam(Team $team)
+	{
+		if ( ! is_null($team->scored)) {
+			$score = ' ' . $team->scored . ' - ' . $this->getOpposition($team)->scored;
+		} else {
+			$score = '';
+		}
+
+		return $this->date->format('j F Y') . $score;
+	}
 }

@@ -2,14 +2,18 @@
 
 @section('content')
 
-<h1>
+<h2>
 	{!! link_to_route('matches.index', 'Matches') !!}
 	>
 	{{ $match->date->format('jS F Y') }}
-</h1>
+	@if ($match->is_short)
+		<small>(short)</small>
+	@endif
+</h2>
 
-@foreach($match->teams as $i => $team)
+@foreach($match->teams()->with('players.teams')->get() as $i => $team)
 	<div class="team {{ $team->winners ? 'winners' : ''}}">
+		<h2 class="scored">{{ $team->scored }}</h2>
 		<ul>
 		@foreach($team->players as $player)
 			<li>
@@ -17,6 +21,7 @@
 				@if ($player->first_name)
 					-->, {{ $player->first_name }}<!--
 				@endif-->
+				<span class="win-percentage">({{ $player->wins() }} wins)</span>
 			</li>
 		@endforeach
 		</ul>
@@ -25,18 +30,5 @@
 	<span class="vs">vs.</span>
 	@endif
 @endforeach
-
-<h2>First Appearances</h2>
-
-<ul>
-	@foreach($match->firstAppearances() as $player)
-		<li>
-			{!! link_to_route('players.show', $player->last_name, $player->id) !!}<!--
-			@if ($player->first_name)
-				-->, {{ $player->first_name }}<!--
-			@endif-->
-		</li>
-	@endforeach
-</ul>
 
 @stop

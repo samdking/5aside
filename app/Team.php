@@ -2,7 +2,15 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class Team extends Model {
+class Team extends Model
+{
+	protected $fillable = [
+		'scored',
+		'winners',
+		'draw',
+	];
+
+	public $timestamps = false;
 
 	public function players()
 	{
@@ -25,5 +33,12 @@ class Team extends Model {
 		}
 
 		return 'Loss';
+	}
+
+	public function opposition()
+	{
+		return $this
+			->where('match_id', $this->match_id)
+			->where('id', '!=', $this->id);
 	}
 }

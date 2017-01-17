@@ -177,6 +177,19 @@ th {
   padding: 0;
 }
 
+nav {
+  display: block;
+  background: #EEE;
+  padding: 10px;
+}
+
+nav a {
+  padding: 3px;
+}
+
+.matrix td { padding: 3px 5px; font-size: 14px;}
+.matrix .player { background: #DDD; padding: 4px;}
+
 .leaderboard {
   border-spacing: 2px;
   border-collapse: separate;
@@ -191,7 +204,7 @@ th {
 .leaderboard td,
 .leaderboard th {
   height: 18px;
-  padding: 4px 6px;
+  padding: 3px 8px;
   text-align: right;
 }
 
@@ -201,7 +214,7 @@ th {
 
 .leaderboard th {
   background: #CCC;
-  padding: 8px 5px;
+  padding: 8px;
   text-align: left;
 }
 
@@ -212,10 +225,15 @@ th {
 
 .leaderboard .name {
   text-align: left;
+  width: 120px;
 }
 
 .leaderboard .form {
-  padding: 4px;
+  padding: 4px 2px;
+}
+
+.leaderboard .form-table {
+  table-layout:fixed
 }
 
 .leaderboard .form-table td {
@@ -228,6 +246,8 @@ th {
   color: #FFF;
   line-height: 16px;
   height: 16px;
+  width: 15px;
+  font-size: 12px;
   display: block;
   padding: 2px 1px 1px;
   color: #FFF;
@@ -255,6 +275,10 @@ th {
   width: 60%;
 }
 
+.scored {
+  margin-bottom: 10px;
+}
+
 .match {
   clear: both;
 }
@@ -264,9 +288,11 @@ th {
 }
 
 .team {
+  box-sizing: border-box;
   width: 45%;
   background: #DDD;
   float: left;
+  padding: 0px 30px;
 }
 
 .vs {
@@ -278,7 +304,7 @@ th {
 }
 
 .team ul {
-  padding: 0px 30px;
+  padding: 0;
 }
 
 .team li {
@@ -298,6 +324,10 @@ th {
   padding: 10px;
 }
 
+.date small {
+  float: right;
+}
+
 .win-percentage {
   opacity: 0.6;
 }
@@ -305,3 +335,7 @@ th {
 .vs {
   float: left;
 }
+
+.player { width: 400px; position: relative; height: 30px; margin: 2px 0; line-height: 30px }
+.player .info { color: #FFF; position: absolute; }
+.player .bar { height: 100%; float: left; }

@@ -10,6 +10,20 @@
 </head>
 <body>
 
+<h1>5-a-side stats</h1>
+<nav>
+	<a href="/">Home</a> |
+	Seasons:
+		@foreach(range(0, 2) as $i)
+			<a href="{!! route('players.index', [
+				'from' => date('Y') - $i . '-01-01',
+				'to' => date('Y') - $i . '-12-31'
+			]) !!}">{{ date('Y') - $i }}</a> |
+		@endforeach
+	<a href="/players">All-time Table</a> |
+	<a href="/players/history">History</a> |
+	<a href="/matches">Matches</a>
+</nav>
 @yield('content')
 
 </body>
