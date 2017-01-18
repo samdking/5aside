@@ -74,11 +74,9 @@ class Player extends Model
 	 */
 	public function playedIn(Match $match)
 	{
-		foreach($this->teams as $team) {
-			if ($team->match_id === $match->id) {
-				return $team;
-			}
-		}
+		return $this->teams->first(function($team) use ($match) {
+			return $team->match_id === $match->id;
+		});
 	}
 
 	public function matchesPlayedAgainst($opposition)
