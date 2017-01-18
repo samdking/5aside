@@ -5,6 +5,7 @@ use DateTime;
 
 use App\Player;
 use App\Match;
+use App\Team;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\Controller;
@@ -23,13 +24,20 @@ class PlayerController extends Controller {
 	{
 		$total_matches = Match::count();
 
-		$highest_attendance = Match::select('matches.*')
+		$highest_total_players = Team::join('player_team', 'team_id', '=', 'teams.id')
+			->selectRaw('COUNT(player_team.player_id) as total_players')
+			->orderBy('total_players', 'DESC')
+			->groupBy('teams.match_id')
+			->pluck('total_players');
+
+		$highest_attendance = Match::select('date')
 			->join('teams', 'teams.match_id', '=', 'matches.id')
 			->join('player_team', 'team_id', '=', 'teams.id')
 			->selectRaw('COUNT(player_team.player_id) as total_players')
+			->having('total_players', '=', $highest_total_players)
 			->groupBy('matches.id')
-			->orderBy('total_players', 'DESC')
-			->first();
+			->orderBy('date', 'ASC')
+			->get('date');
 
 		$most_appearances = $this->getBaseQuery()
 			->selectRaw('COUNT(teams.id) AS apps')
@@ -41,12 +49,11 @@ class PlayerController extends Controller {
 			->orderBy('wins', 'DESC')
 			->first();
 
-		$average_attendance = 5;
-
 		$highest_win_percentage = $this->getBaseQuery()
 			->selectRaw('ROUND(SUM(teams.winners) / COUNT(teams.id) * 100, 1) AS win_percentage')
+			->selectRaw('COUNT(teams.id) AS matches')
 			->orderBy('win_percentage', 'DESC')
-			->havingRaw('COUNT(teams.id) > ?', [$average_attendance])
+			->havingRaw('COUNT(teams.id) > ?', [$total_matches / 4])
 			->first();
 
 		$stats = (object)[
@@ -55,7 +62,7 @@ class PlayerController extends Controller {
 			'most_appearances' => $most_appearances,
 			'most_wins' => $most_wins,
 			'highest_win_percentage' => $highest_win_percentage,
-			'average_attendance' => $average_attendance
+			'average_attendance' => FLOOR($total_matches / 4)
 		];
 
 		return view('players.summary')->withStats($stats);
