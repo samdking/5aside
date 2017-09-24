@@ -247,18 +247,6 @@ ORDER BY pts DESC, diff DESC, `win_percentage` DESC, apps DESC", [$player->id, $
 
 		$players = Player::with('teams.match')->where('id', '!=', $player->id)->get();
 
-		$records = $players->map(function($player) use ($matches) {
-			$total = 0;
-			return (object)[
-				'player' => $player,
-				'record' => $matches->map(function($team) use ($player, &$total) {
-					$teamPlayedIn = $player->playedIn($team->match);
-					$total += $teamPlayedIn ? ($teamPlayedIn->id === $team->id ? 1 : -1) : 0;
-					return $total;
-				})
-			];
-		});
-
 		$stats = $players->map(function($other) use ($player) {
 			$with = $player->matchesPlayedWith($other)->count();
 			$against = $player->matchesPlayedAgainst($other)->count();
