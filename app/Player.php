@@ -10,6 +10,25 @@ class Player extends Model
 
 	public $timestamps = false;
 
+	public function scopeSelectWinPercentage($query)
+	{
+		$query->selectRaw('ROUND(SUM(teams.winners) / COUNT(teams.id) * 100, 1) AS win_percentage')
+			->orderBy('win_percentage', 'DESC');
+	}
+
+	public function scopeSelectWins($query)
+	{
+		$query->selectRaw('SUM(teams.winners) AS wins');
+	}
+
+	public function scopeJoinTeams($query)
+	{
+		$query->select('players.*')
+			->join('player_team', 'player_team.player_id', '=', 'players.id')
+			->join('teams', 'player_team.team_id', '=', 'teams.id')
+			->groupBy('players.id');
+	}
+
 	public function teams()
 	{
 		return $this->belongsToMany('App\Team');

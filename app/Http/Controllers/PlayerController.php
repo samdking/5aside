@@ -10,16 +10,8 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\Controller;
 
-class PlayerController extends Controller {
-
-	protected function getBaseQuery()
-	{
-		return Player::select('players.*')
-			->join('player_team', 'player_team.player_id', '=', 'players.id')
-			->join('teams', 'player_team.team_id', '=', 'teams.id')
-			->groupBy('players.id');
-	}
-
+class PlayerController extends Controller
+{
 	public function summary()
 	{
 		$total_matches = Match::count();
@@ -39,20 +31,19 @@ class PlayerController extends Controller {
 			->orderBy('date', 'ASC')
 			->get('date');
 
-		$most_appearances = $this->getBaseQuery()
+		$most_appearances = Player::joinTeams()
 			->selectRaw('COUNT(teams.id) AS apps')
 			->orderBy('apps', 'DESC')
 			->first();
 
-		$most_wins = $this->getBaseQuery()
-			->selectRaw('SUM(teams.winners) AS wins')
+		$most_wins = Player::joinTeams()
+			->selectWins()
 			->orderBy('wins', 'DESC')
 			->first();
 
-		$highest_win_percentage = $this->getBaseQuery()
-			->selectRaw('ROUND(SUM(teams.winners) / COUNT(teams.id) * 100, 1) AS win_percentage')
+		$highest_win_percentage = Player::joinTeams()
+			->selectWinPercentage()
 			->selectRaw('COUNT(teams.id) AS matches')
-			->orderBy('win_percentage', 'DESC')
 			->havingRaw('COUNT(teams.id) > ?', [$total_matches / 4])
 			->first();
 
@@ -70,12 +61,11 @@ class PlayerController extends Controller {
 
 	public function index(Request $request)
 	{
-		$players = Player::with('teams')
-			->select('players.*')
+		$players = Player::joinTeams()->with('teams')
 			->selectRaw('MAX(matches.date) AS `last_app`')
 			->selectRaw('MAX(matches.id) AS `last_app_id`')
 			->selectRaw('COUNT(teams.id) AS `played`')
-			->selectRaw('SUM(teams.winners) AS `wins`')
+			->selectWins()
 			->selectRaw('SUM(teams.draw) AS `draws`')
 			->selectRaw('COUNT(teams.id) - SUM(teams.winners) - SUM(teams.draw) AS `losses`')
 			->selectRaw('SUM(teams.scored) AS goals_for')
@@ -84,24 +74,20 @@ class PlayerController extends Controller {
 			->selectRaw('AVG(opps.scored) AS gcpg')
 			->selectRaw('SUM(teams.scored) - SUM(opps.scored) AS diff')
 			->selectRaw('SUM(teams.winners) * 3 + SUM(teams.draw) AS `pts`')
-			->selectRaw('ROUND(SUM(teams.winners) / COUNT(teams.id) * 100, 1) AS `win_percentage`')
 			->selectRaw('SUM(teams.handicap) AS `handicap_apps`')
 			->selectRaw('SUM(opps.handicap) AS `advantage_apps`')
 			->selectRaw('SUM(IF(teams.winners AND teams.handicap, 1, 0)) AS `handicap_wins`')
 			->selectRaw('SUM(IF(teams.winners AND opps.handicap, 1, 0)) AS `advantage_wins`')
 			->selectRaw('SUM(IF(teams.winners = 0 AND teams.draw = 0 AND teams.handicap, 1, 0)) AS `handicap_losses`')
 			->selectRaw('SUM(IF(teams.winners = 0 AND teams.draw = 0 AND opps.handicap, 1, 0)) AS `advantage_losses`')
-			->join('player_team', 'player_team.player_id', '=', 'players.id')
-			->join('teams', 'player_team.team_id', '=', 'teams.id')
 			->join('matches', 'teams.match_id', '=', 'matches.id')
 			->join('teams AS opps', function($join) {
 				$join->on('opps.match_id', '=', 'teams.match_id')
 				     ->on('opps.id', '!=', 'teams.id');
 			})
-			->groupBy('players.id')
 			->orderBy('pts', 'DESC')
 			->orderBy('diff', 'DESC')
-			->orderBy('win_percentage', 'DESC')
+			->selectWinPercentage()
 			->orderBy('played', 'DESC')
 			->orderBy('handicap_wins', 'DESC')
 			->orderBy('handicap_apps', 'DESC')
@@ -138,11 +124,11 @@ class PlayerController extends Controller {
 	 */
 	public function show(Player $player, Request $request)
 	{
-		$player = Player::select('players.*')
+		$player = Player::joinTeams()
 			->selectRaw('MAX(matches.date) AS `last_app`')
 			->selectRaw('MAX(matches.id) AS `last_app_id`')
 			->selectRaw('COUNT(teams.id) AS `played`')
-			->selectRaw('SUM(teams.winners) AS `wins`')
+			->selectWins()
 			->selectRaw('SUM(teams.draw) AS `draws`')
 			->selectRaw('COUNT(teams.id) - SUM(teams.winners) - SUM(teams.draw) AS `losses`')
 			->selectRaw('SUM(teams.scored) AS goals_for')
@@ -151,15 +137,13 @@ class PlayerController extends Controller {
 			->selectRaw('AVG(opps.scored) AS gcpg')
 			->selectRaw('SUM(teams.scored) - SUM(opps.scored) AS diff')
 			->selectRaw('SUM(teams.winners) * 3 + SUM(teams.draw) AS `pts`')
-			->selectRaw('ROUND(SUM(teams.winners) / COUNT(teams.id) * 100, 1) AS `win_percentage`')
+			->selectWinPercentage()
 			->selectRaw('SUM(teams.handicap) AS `handicap_apps`')
 			->selectRaw('SUM(opps.handicap) AS `advantage_apps`')
 			->selectRaw('SUM(IF(teams.winners AND teams.handicap, 1, 0)) AS `handicap_wins`')
 			->selectRaw('SUM(IF(teams.winners AND opps.handicap, 1, 0)) AS `advantage_wins`')
 			->selectRaw('SUM(IF(teams.winners = 0 AND teams.draw = 0 AND teams.handicap, 1, 0)) AS `handicap_losses`')
 			->selectRaw('SUM(IF(teams.winners = 0 AND teams.draw = 0 AND opps.handicap, 1, 0)) AS `advantage_losses`')
-			->join('player_team', 'player_team.player_id', '=', 'players.id')
-			->join('teams', 'player_team.team_id', '=', 'teams.id')
 			->join('matches', 'teams.match_id', '=', 'matches.id')
 			->join('teams AS opps', function($join) {
 				$join->on('opps.match_id', '=', 'teams.match_id')
