@@ -124,6 +124,8 @@ class PlayerController extends Controller
 	 */
 	public function show(Player $player, Request $request)
 	{
+		$matchesForForm = Match::with('teams.players')->orderBy('date', 'desc')->take(10);
+
 		$player = Player::joinTeams()
 			->selectRaw('MAX(matches.date) AS `last_app`')
 			->selectRaw('MAX(matches.id) AS `last_app_id`')
@@ -153,10 +155,12 @@ class PlayerController extends Controller
 
 		if ($request->has('from')) {
 			$player->where('date', '>=', $request->from);
+			$matchesForForm->where('date', '>=', $request->from);
 		}
 
 		if ($request->has('to')) {
 			$player->where('date', '<=', $request->to);
+			$matchesForForm->where('date', '<=', $request->to);
 		}
 
 		$player = $player->first();
@@ -275,6 +279,7 @@ ORDER BY pts DESC, diff DESC, `win_percentage` DESC, apps DESC", [$player->id, $
 			'teammates' => $teammates,
 			'opponents' => $opponents,
 			'matches' => $matches,
+			'matchesForForm' => $matchesForForm->get()->sortBy('date')->sortBy('id'),
 			'stats' => $stats,
 		]);
 	}

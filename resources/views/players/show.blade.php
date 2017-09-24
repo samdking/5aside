@@ -14,7 +14,7 @@
 			<th colspan="3" class="handicap">Handicap</th>
 			<th colspan="3" class="handicap">Advantage</th>
 			<th colspan="3" class="handicap">Per Game</th>
-			<th colspan=""></th>
+			<th colspan="2"></th>
 		</tr>
 		<tr>
 			<th>Name</th>
@@ -37,6 +37,7 @@
 			<th>F</th>
 			<th>A</th>
 			<th>Last App</th>
+			<th>Form</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -69,6 +70,7 @@
 					{{ $player->last_app }}
 				</a>
 			</td>
+			@include('players/partials/form', ['matches' => $matchesForForm, 'player' => $player])
 		</tr>
 	</tbody>
 </table>
