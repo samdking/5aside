@@ -19,15 +19,9 @@ class DataController extends Controller
 					'first_name' => $player->first_name,
 					'last_name' => $player->last_name,
 					'matches' => $player->teams->count(),
-					'wins' => $player->teams->filter(function($team) {
-						return $team->winners;
-					})->count(),
-					'losses' => $player->teams->filter(function($team) {
-						return ! $team->draw && !$team->winners;
-					})->count(),
-					'draws' => $player->teams->filter(function($team) {
-						return $team->draw;
-					})->count(),
+					'wins' => $player->wins(),
+					'losses' => $player->losses(),
+					'draws' => $player->draws(),
 				];
 			}),
 			'matches' => $matches->map(function($match) {
