@@ -39,7 +39,8 @@ class DataController extends Controller
 							'handicap' => $team->handicap == 1,
 							'goals_for' => $team->scored,
 							'goals_against' => $match->getOpposition($team)->scored,
-							'players' => $team->players->pluck('id')
+							'player_ids' => $team->players->pluck('id'),
+							'player_names' => $team->players->pluck('last_name')
 						];
 					})
 				];
