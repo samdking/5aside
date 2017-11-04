@@ -9,11 +9,11 @@ class DataController extends Controller
 {
 	public function json()
 	{
-		$matches = Match::with('teams.players')->get();
+		$matches = Match::with('teams.players')->get()->keyBy('id');
 		$players = Player::with('teams')->get();
 
 		return response()->json([
-			'players' => $players->map(function($player) {
+			'players' => $players->map(function($player) use ($matches) {
 				return [
 					'id' => $player->id,
 					'first_name' => $player->first_name,
@@ -22,6 +22,8 @@ class DataController extends Controller
 					'wins' => $player->wins(),
 					'losses' => $player->losses(),
 					'draws' => $player->draws(),
+					'first_appearance' => $matches[$player->teams->first()->match_id]->date->format('Y-m-d'),
+					'last_appearance' => $matches[$player->teams->last()->match_id]->date->format('Y-m-d'),
 				];
 			}),
 			'matches' => $matches->map(function($match) {
