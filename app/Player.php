@@ -56,7 +56,9 @@ class Player extends Model
 
 	public function losses()
 	{
-		return $this->teams->where('draw', 0)->where('winners', 0)->count();
+		return $this->teams->sum(function($team) {
+			return $team->draw || $team->winners ? 0 : 1;
+		});
 	}
 
 	public function scored()
