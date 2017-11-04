@@ -66,6 +66,21 @@ class Player extends Model
 		return $this->teams->sum('scored');
 	}
 
+	public function conceded()
+	{
+		return $this->opponents()->sum('scored');
+	}
+
+	public function totalPoints()
+	{
+		return $this->teams->sum(function($team) {
+			if ($team->winners) return 3;
+			if ($team->draw) return 1;
+			return 0;
+		});
+	}
+
+
 	public function opponents()
 	{
 		return $this->teams->map(function($team) {
