@@ -9,7 +9,7 @@ class DataController extends Controller
 {
 	public function json()
 	{
-		$matches = Match::with('teams.players')->get()->keyBy('id');
+		$matches = Match::with('teams.players')->latest('date')->get()->keyBy('id');
 		$players = Player::with('teams.match')->get();
 
 		return response()->json([
