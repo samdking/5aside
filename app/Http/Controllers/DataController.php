@@ -52,7 +52,7 @@ class DataController extends Controller
 						];
 					})
 				];
-			})
+			})->values()
 		]);
 	}
 }
