@@ -48,7 +48,7 @@ class DataController extends Controller
 							'goals_for' => $team->scored,
 							'goals_against' => $match->getOpposition($team)->scored,
 							'player_ids' => $team->players->pluck('id'),
-							'player_names' => $team->players->pluck('last_name')
+							'player_names' => $team->players->map(function($p) { return $p->shortName(); })
 						];
 					})
 				];

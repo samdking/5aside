@@ -10,6 +10,11 @@ class Player extends Model
 
 	public $timestamps = false;
 
+	public function shortName()
+	{
+		return substr($this->first_name, 0, 1) . '. ' . $this->last_name;
+	}
+
 	public function scopeSelectWinPercentage($query)
 	{
 		$query->selectRaw('ROUND(SUM(teams.winners) / COUNT(teams.id) * 100, 1) AS win_percentage')
