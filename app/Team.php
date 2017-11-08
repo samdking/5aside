@@ -41,4 +41,14 @@ class Team extends Model
 			->where('match_id', $this->match_id)
 			->where('id', '!=', $this->id);
 	}
+
+	public function playerData()
+	{
+		return [
+			'ids' => $this->players->pluck('id'),
+			'names' => $this->players->map(function($p) {
+				return $p->shortName();
+			})
+		];
+	}
 }
