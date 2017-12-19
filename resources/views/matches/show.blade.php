@@ -21,7 +21,9 @@
 				@if ($player->first_name)
 					-->, {{ $player->first_name }}<!--
 				@endif-->
-				<span class="win-percentage">({{ $player->wins() }} wins)</span>
+				@if ($player->pivot->injured)
+						<span class="player--injured">(injured)</span>
+				@endif
 			</li>
 		@endforeach
 		</ul>

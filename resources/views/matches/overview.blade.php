@@ -36,7 +36,9 @@
 				@foreach($team->players as $player)
 					<li>
 						<a href="{{ route('players.show', $player->id) }}">{{ $player->last_name }}</a>
-						<span class="win-percentage">({{ $player->wins() }} wins)</span>
+						@if ($player->pivot->injured)
+							<span class="player--injured">(injured)</span>
+						@endif
 					</li>
 				@endforeach
 				</ul>

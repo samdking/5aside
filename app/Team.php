@@ -12,9 +12,37 @@ class Team extends Model
 
 	public $timestamps = false;
 
+	public function combos()
+	{
+		return $this->hasMany('App\Combo');
+	}
+
+	public function playerCombinations()
+	{
+		$num = count($this->players);
+
+		//The total number of possible combinations
+		$total = pow(2, $num);
+		$combos = [];
+
+		//Loop through each possible combination
+		for ($i = 0; $i < $total; $i++) {
+			$combo = [];
+			//For each combination check if each bit is set
+			for ($j = 0; $j < $num; $j++) {
+				//Is bit $j set in $i?
+				if (pow(2, $j) & $i) {
+					$combos[$i][] = $this->players[$j]->shortName();
+				}
+			}
+		}
+
+		return collect($combos);
+	}
+
 	public function players()
 	{
-		return $this->belongsToMany('App\Player');
+		return $this->belongsToMany('App\Player')->withPivot('injured');
 	}
 
 	public function match()
