@@ -91,6 +91,7 @@ class PlayerController extends Controller
 			->orderBy('played', 'DESC')
 			->orderBy('handicap_wins', 'DESC')
 			->orderBy('handicap_apps', 'DESC')
+			->orderBy('goals_for', 'DESC')
 			->orderBy('last_app', 'DESC')
 			->orderBy('last_name');
 
