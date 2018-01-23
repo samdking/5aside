@@ -24,7 +24,11 @@
 @foreach($matches as $match)
 	<div class="match">
 		<a class="date" href="{{ route('matches.show', $match->id) }}">
-			{{ $match->date->format('jS F Y') }}
+			{{ $match->date->format('D jS F Y') }}
+			@if ($match->venue)
+				- {{ $match->venue->name }}
+			@endif
+
 			@if ($match->is_short)
 				<small>SHORT</small>
 			@endif

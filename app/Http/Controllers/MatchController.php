@@ -13,6 +13,7 @@ class MatchController extends Controller {
 	{
 		$players = Player::all();
 		$matches = Match::with([
+			'venue',
 			'teams.players' => function($q) {
 				$q->orderBy('last_name');
 			},

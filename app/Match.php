@@ -11,6 +11,11 @@ class Match extends Model
 
 	public $timestamps = false;
 
+	public function venue()
+	{
+		return $this->belongsTo('App\Venue');
+	}
+
 	public function teams()
 	{
 		return $this->hasMany('App\Team');
