@@ -26,7 +26,7 @@
 		<a class="date" href="{{ route('matches.show', $match->id) }}">
 			{{ $match->date->format('D jS F Y') }}
 			@if ($match->venue)
-				- {{ $match->venue->name }}
+				({{ $match->venue->name }})
 			@endif
 
 			@if ($match->is_short)
