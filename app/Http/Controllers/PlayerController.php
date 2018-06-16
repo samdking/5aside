@@ -20,7 +20,7 @@ class PlayerController extends Controller
 			->selectRaw('COUNT(player_team.player_id) as total_players')
 			->orderBy('total_players', 'DESC')
 			->groupBy('teams.match_id')
-			->pluck('total_players');
+			->value('total_players');
 
 		$highest_attendance = Match::select('date')
 			->join('teams', 'teams.match_id', '=', 'matches.id')
