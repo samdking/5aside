@@ -39,7 +39,7 @@
 				<ul>
 				@foreach($team->players as $player)
 					<li>
-						<a href="{{ route('players.show', $player->id) }}">{{ $player->last_name }}</a>
+						<a href="{{ route('players.show', $player->id) }}">{{ $player->last_name ?: $player->first_name }}</a>
 						@if ($player->pivot->injured)
 							<span class="player--injured">(injured)</span>
 						@endif
