@@ -110,6 +110,8 @@ class PlayerController extends Controller
 			$matches->where('date', '<=', $request->to);
 			$heading[] = 'to ' . (new DateTime($request->to))->format('jS M Y');
 		}
+		
+		$heading[] = sprintf("(%d %s)", $matches->count(), str_plural('match', $matches->count()));
 
 		return view('players.leaderboard')->with([
 			'heading' => implode(' ', $heading),
