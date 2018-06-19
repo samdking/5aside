@@ -26,6 +26,11 @@ class Player extends Model
 		$query->selectRaw('SUM(teams.winners) AS wins');
 	}
 
+	public function scopeSelectMatches($query)
+	{
+		$query->selectRaw("COUNT(teams.match_id) AS match_count");
+	}
+
 	public function scopeJoinTeams($query)
 	{
 		$query->select('players.*')

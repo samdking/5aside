@@ -341,3 +341,6 @@ nav a {
 .player .bar { height: 100%; float: left; }
 
 .player--injured { font-style: italic; color: maroon; }
+
+.stats dt { margin-bottom: 0.25em; }
+.stats dd { margin-bottom: 0.5em; }

@@ -34,11 +34,16 @@ class PlayerController extends Controller
 		$most_appearances = Player::joinTeams()
 			->selectRaw('COUNT(teams.id) AS apps')
 			->orderBy('apps', 'DESC')
+			->get(['first_name', 'last_name', 'apps'])
+			->groupBy('apps')
 			->first();
 
 		$most_wins = Player::joinTeams()
 			->selectWins()
+			->selectMatches()
 			->orderBy('wins', 'DESC')
+			->get('first_name', 'last_name', 'wins')
+			->groupBy('wins')
 			->first();
 
 		$highest_win_percentage = Player::joinTeams()
