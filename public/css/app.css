@@ -58,6 +58,9 @@ h1 {
   font-size: 2em;
   margin: 0.67em 0;
 }
+h2 {
+  font-size: 1.5em;
+}
 mark {
   background: #ff0;
   color: #000;
@@ -214,7 +217,7 @@ nav a {
 
 .leaderboard th {
   background: #CCC;
-  padding: 8px;
+  padding: 6px 8px;
   text-align: left;
 }
 
@@ -344,3 +347,29 @@ nav a {
 
 .stats dt { margin-bottom: 0.25em; }
 .stats dd { margin-bottom: 0.5em; }
+
+.js-expanded,
+.js-expanded-row { display: none; }
+.js-expanded-table .js-expanded-row { display: table-row; }
+.js-expanded-table .js-expanded { display: table-cell }
+
+.js-inactive { display: none; }
+.js-inactive-players-table .js-inactive { display: table-row; }
+
+.leaderboard-controls { font-size: 0.9em; padding: 7px;}
+.leaderboard-controls a { cursor: pointer; color: #333; border-bottom: 1px dotted #AAA; }
+
+h2 small { font-size: 0.7em; color: #666; }
+
+@media only screen and (max-width: 600px) {
+  .leaderboard {
+    margin: 0 -20px;
+    border-width: 0;
+  }
+  .leaderboard td {
+    padding: 2px 6px;
+  }
+  .leaderboard th {
+    padding: 4px 6px;
+  }
+}
