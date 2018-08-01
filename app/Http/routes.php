@@ -26,4 +26,4 @@ Route::resource('teams', 'TeamController');
 Route::get('matches/create', 'AdminController@createMatch');
 Route::post('matches', 'AdminController@storeMatch');
 
-Route::get('data.json', 'DataController@json');
+Route::get('data.json', ['middleware' => 'cors', 'uses' => 'DataController@json']);
