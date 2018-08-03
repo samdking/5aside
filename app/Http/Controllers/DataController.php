@@ -28,7 +28,7 @@ class DataController extends Controller
 					'draws' => $player->draws(),
 					'scored' => $scored,
 					'conceded' => $conceded,
-					'diff' => $scored - $conceded,
+					'gd' => $scored - $conceded,
 					'points' => $player->totalPoints(),
 					'first_appearance' => $matches[$player->teams->first()->match_id]->date->format('Y-m-d'),
 					'last_appearance' => $matches[$player->teams->last()->match_id]->date->format('Y-m-d'),
