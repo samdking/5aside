@@ -16,6 +16,8 @@ class DataController extends Controller
 
 		return response()->json([
 			'players' => $players->map(function($player) use ($matches) {
+				$scored = $player->scored();
+				$conceded = $player->conceded();
 				return [
 					'id' => $player->id,
 					'first_name' => $player->first_name,
@@ -25,10 +27,8 @@ class DataController extends Controller
 					'losses' => $player->losses(),
 					'draws' => $player->draws(),
 					'scored' => $player->scored(),
-					'conceded' => $matches->sum(function($match) use ($player) {
-						$team = $match->teamPlayedIn($player);
-						return $team ? $match->getOpposition($team)->scored : 0;
-					}),
+					'conceded' => $player->conceded(),
+					'diff' => $scored - $conceded,
 					'points' => $player->totalPoints(),
 					'first_appearance' => $matches[$player->teams->first()->match_id]->date->format('Y-m-d'),
 					'last_appearance' => $matches[$player->teams->last()->match_id]->date->format('Y-m-d'),
