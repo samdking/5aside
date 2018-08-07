@@ -26,16 +26,3 @@ SQL;
 		return collect(\DB::select($query));
 	}
 }
-
-// $teams = $match->teams;
-// 			return [
-// 				'date' => $match->date->format('Y-m-d'),
-// 				'short' => $match->is_short == 1,
-// 				'winner' => $teams[0]->winners ? 'A' : ($teams[0]->draw ? null : 'B'),
-// 				'handicap' => $teams[0]->handicap ? 'A' : ($teams[1]->handicap ? 'B' : null),
-// 				'team_a_scored' => $teams[0]->scored,
-// 				'team_b_scored' => $teams[1]->scored,
-// 				'team_a' => $teams[0]->playerData(),
-// 				'team_b' => $teams[1]->playerData(),
-// 				'venue' => $match->venue->name
-// 			];
