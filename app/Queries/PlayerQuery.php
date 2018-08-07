@@ -35,7 +35,6 @@ $query = <<<SQL
 			SELECT matches.date AS date, MAX(matches.date), teams.id, match_id, COUNT(matches.id) AS matches, sum(draw) AS draws, sum(winners) AS wins, SUM(scored) as scored
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
-			WHERE matches.date >= ?
 			GROUP BY teams.id
 		) team_a ON team_a.id = player_team.team_id
 		INNER JOIN (
@@ -43,12 +42,13 @@ $query = <<<SQL
 			FROM teams
 			GROUP BY teams.id
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
+		WHERE date >= ? AND date <= ?
 		GROUP BY players.id
 		HAVING last_appearance >= ? AND matches >= ?
 		ORDER BY points desc, matches ASC, gd DESC, scored DESC
 SQL;
 
-		$placeholders = [$this->fromDate(), $this->inactiveDate(), $this->minMatches()];
+		$placeholders = [$this->fromDate(), $this->toDate(), $this->inactiveDate(), $this->minMatches()];
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) {
 			foreach($p as $k => $v) {
@@ -74,9 +74,18 @@ SQL;
 		return "2015-01-01";
 	}
 
+	protected function toDate()
+	{
+		if ($this->request->year) {
+			return (new DateTime)->setDate($this->request->year, 12, 31);
+		}
+
+		return new DateTime($this->request->get('to'));
+	}
+
 	protected function inactiveDate()
 	{
-		return $this->request->show_inactive ? '2015-01-01' : new DateTime('10 weeks ago');
+		return $this->request->show_inactive ? '2015-01-01' : $this->toDate()->sub(new DateInterval('P10W'));
 	}
 
 	protected function minMatches()
