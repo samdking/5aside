@@ -50,25 +50,6 @@ class DataController extends Controller
 		]);
 	}
 
-	public function combinations(Request $request)
-	{
-		$query = Combination::where('size', '>=', $request->get('minSize', 1))
-			->groupBy('string')
-			->selectRaw('combinations.*, COUNT(*) as occurences')
-			->having('occurences', '>=', $request->get('minOccurences', 0));
-
-		$query = $query->orderBy('occurences', 'desc')->orderBy('size', 'desc');
-
-		return $query->get()->map(function($combination) {
-			return [
-				'size' => $combination->size,
-				'team' => $combination->string,
-				'complete' => $combination->complete ? true : false,
-				'occurences' => $combination->occurences
-			];
-		});
-	}
-
 	protected function v1MatchData()
 	{
 		$matches = Match::with('teams.players', 'venue')->latest('date')->get()->keyBy('id');
