@@ -18,7 +18,6 @@ $query = <<<SQL
 		  venues.name AS venue
 		FROM matches
 		INNER JOIN teams AS team_a ON team_a.match_id = matches.id
-		INNER JOIN (SELECT team_id, GROUP_CONCAT(player_id) AS player_ids FROM player_team group by team_id) players_a ON team_a.id = players_a.team_id
 		INNER JOIN teams AS team_b ON team_b.match_id = matches.id and team_b.id != team_a.id
 		INNER JOIN venues on venues.id = matches.venue_id
 		GROUP BY matches.id

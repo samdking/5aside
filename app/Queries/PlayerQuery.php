@@ -26,21 +26,18 @@ $query = <<<SQL
 			SUM(conceded) AS conceded,
 			SUM(scored) - SUM(conceded) AS gd,
 			SUM(wins) * 3 + SUM(draws) AS points,
-			SUM(wins) * 3 + SUM(draws) AS points,
 			MIN(date) AS first_appearance,
 			MAX(date) AS last_appearance
 		FROM players
 		INNER JOIN player_team ON player_team.player_id = players.id
 		INNER JOIN (
-			SELECT matches.date AS date, MAX(matches.date), teams.id, match_id, COUNT(matches.id) AS matches, sum(draw) AS draws, sum(winners) AS wins, SUM(scored) as scored
+			SELECT matches.date, teams.id, teams.match_id, 1 AS matches, draw AS draws, winners AS wins, scored
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
-			GROUP BY teams.id
 		) team_a ON team_a.id = player_team.team_id
 		INNER JOIN (
-			SELECT id, match_id, sum(winners) AS losses, SUM(scored) AS conceded
+			SELECT id, match_id, winners AS losses, scored AS conceded
 			FROM teams
-			GROUP BY teams.id
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
 		WHERE date >= ? AND date <= ?
 		GROUP BY players.id
