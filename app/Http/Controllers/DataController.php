@@ -13,19 +13,10 @@ class DataController extends Controller
 {
 	public function all(Request $request)
 	{
-		$players = (new PlayerQuery($request))->get()->each(function($p) {
-			foreach($p as $k => $v) {
-				$p->$k = is_numeric($v) ? (int)$v : $v;
-			}
-		});
-		$venues = (new VenueQuery)->get(['name']);
-
-		$version = request('v', '2');
-
 		return response()->json([
-			'players' => $players,
-			'matches' => $this->{'v' . $version . 'matchData'}(),
-			'venues' => $venues,
+			'players' => (new PlayerQuery($request))->get(),
+			'matches' => $this->{'v' . request('v', '2') . 'matchData'}(),
+			'venues' => (new VenueQuery)->get(['name']),
 		]);
 	}
 
