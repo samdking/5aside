@@ -26,6 +26,7 @@ $query = <<<SQL
 			SUM(conceded) AS conceded,
 			SUM(scored) - SUM(conceded) AS gd,
 			SUM(wins) * 3 + SUM(draws) AS points,
+			ROUND((SUM(wins) * 3 + SUM(draws)) / SUM(matches), 2) AS ppg,
 			MIN(date) AS first_appearance,
 			MAX(date) AS last_appearance
 		FROM players
