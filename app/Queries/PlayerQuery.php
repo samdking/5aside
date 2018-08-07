@@ -50,7 +50,8 @@ SQL;
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) {
 			foreach($p as $k => $v) {
-				$p->$k = is_numeric($v) ? (int)$v : $v;
+				if (is_numeric($v) == false) continue;
+				$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
 			}
 		});
 	}
