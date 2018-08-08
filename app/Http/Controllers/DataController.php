@@ -15,7 +15,7 @@ class DataController extends Controller
 	{
 		return response()->json([
 			'players' => (new PlayerQuery($request))->get(),
-			'matches' => $this->{'v' . request('v', '2') . 'matchData'}(),
+			'matches' => $this->{'v' . $request->get('v', '2') . 'matchData'}(),
 			'venues' => (new VenueQuery)->get(['name']),
 		]);
 	}
