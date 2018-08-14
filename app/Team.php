@@ -72,11 +72,11 @@ class Team extends Model
 
 	public function playerData()
 	{
-		return [
-			'ids' => $this->players->pluck('id'),
-			'names' => $this->players->map(function($p) {
-				return $p->shortName();
-			})
-		];
+		return $this->players->map(function($p) {
+			return [
+				'id' => $p->id,
+				'name' => $p->shortName(),
+			];
+		});
 	}
 }
