@@ -76,7 +76,11 @@ SQL;
 	protected function toDate()
 	{
 		if ($this->request->year) {
-			return (new DateTime)->setDate($this->request->year, 12, 31);
+			$to = new DateTime;
+			if ($to->format('Y') > $this->request->year) {
+				$to->setDate($this->request->year, 12, 31);
+			}
+			return $to;
 		}
 
 		return new DateTime($this->request->get('to'));
