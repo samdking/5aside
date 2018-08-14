@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Queries\MatchQuery;
 use App\Queries\PlayerQuery;
 use App\Queries\VenueQuery;
+use App\Queries\SeasonQuery;
 use App\Match;
 use App\Combination;
 use Illuminate\Http\Request;
@@ -37,7 +38,14 @@ class DataController extends Controller
 	public function venues()
 	{
 		return response()->json([
-			"venues" => (new VenueQuery)->get(['name'])
+			'venues' => (new VenueQuery)->get(['name'])
+		]);
+	}
+
+	public function seasons(Request $request, $year)
+	{
+		return response()->json([
+			'season' => (new SeasonQuery($request, $year))->get()
 		]);
 	}
 
