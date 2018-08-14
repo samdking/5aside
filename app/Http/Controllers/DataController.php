@@ -7,6 +7,7 @@ use App\Queries\PlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
 use App\Match;
+use App\Team;
 use App\Combination;
 use Illuminate\Http\Request;
 
@@ -79,7 +80,7 @@ class DataController extends Controller
 	protected function v2MatchData()
 	{
 		$matches = (new MatchQuery)->get();
-		$teams = \App\Team::all()->groupBy('match_id');
+		$teams = Team::with('players')->get()->groupBy('match_id');
 
 		return $matches->each(function($match) use ($teams) {
 			foreach($teams[$match->id] as $i => $team) {
