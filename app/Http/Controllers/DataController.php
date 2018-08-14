@@ -23,7 +23,7 @@ class DataController extends Controller
 	public function players(Request $request)
 	{
 		return response()->json([
-			'players' => (new PlayerQuery($request))->get($request)
+			'players' => (new PlayerQuery($request))->get()
 		]);
 	}
 
