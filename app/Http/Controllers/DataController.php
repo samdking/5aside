@@ -15,7 +15,7 @@ class DataController extends Controller
 	{
 		return response()->json([
 			'players' => (new PlayerQuery($request))->get(),
-			'matches' => $this->{'v' . $request->get('v', '2') . 'matchData'}(),
+			'matches' => $this->{'v' . $request->get('v', '2') . 'matchData'}($request),
 			'venues' => (new VenueQuery)->get(['name']),
 		]);
 	}
@@ -51,7 +51,7 @@ class DataController extends Controller
 		]);
 	}
 
-	protected function v1MatchData()
+	protected function v1MatchData($request)
 	{
 		$matches = Match::with('teams.players', 'venue')->latest('date')->get()->keyBy('id');
 
