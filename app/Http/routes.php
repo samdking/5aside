@@ -26,4 +26,12 @@ Route::resource('teams', 'TeamController');
 Route::get('matches/create', 'AdminController@createMatch');
 Route::post('matches', 'AdminController@storeMatch');
 
-Route::get('data.json', ['middleware' => 'cors', 'uses' => 'DataController@json']);
+Route::group(['middleware' => 'cors'], function() {
+	Route::get('data.json', 'DataController@all');
+	Route::group(['prefix' => 'api'], function() {
+		Route::get('players', 'DataController@players');
+		Route::resource('seasons', 'DataController@seasons', ['only' => ['show', 'index']]);
+		Route::get('matches', 'DataController@matches');
+		Route::get('venues', 'DataController@venues');
+	});
+});

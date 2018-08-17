@@ -2,44 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use App\Queries\MatchQuery;
+use App\Queries\PlayerQuery;
+use App\Queries\VenueQuery;
+use App\Queries\SeasonQuery;
 use App\Match;
-use App\Player;
+use Illuminate\Http\Request;
 
 class DataController extends Controller
 {
-	public function json()
+	public function all(Request $request)
 	{
-		$matches = Match::with('teams.players')->latest('date')->get()->keyBy('id');
-		$players = Player::with('teams.match')->get();
-
-		$version = request('v', '2');
-
 		return response()->json([
-			'players' => $players->map(function($player) use ($matches) {
-				return [
-					'id' => $player->id,
-					'first_name' => $player->first_name,
-					'last_name' => $player->last_name,
-					'matches' => $player->teams->count(),
-					'wins' => $player->wins(),
-					'losses' => $player->losses(),
-					'draws' => $player->draws(),
-					'scored' => $player->scored(),
-					'conceded' => $matches->sum(function($match) use ($player) {
-						$team = $match->teamPlayedIn($player);
-						return $team ? $match->getOpposition($team)->scored : 0;
-					}),
-					'points' => $player->totalPoints(),
-					'first_appearance' => $matches[$player->teams->first()->match_id]->date->format('Y-m-d'),
-					'last_appearance' => $matches[$player->teams->last()->match_id]->date->format('Y-m-d'),
-				];
-			}),
-			'matches' => $this->{'v' . $version . 'matchData'}($matches)
+			'players' => (new PlayerQuery($request))->get(),
+			'matches' => $this->{'v' . $request->get('v', '2') . 'matchData'}(),
+			'venues' => (new VenueQuery)->get(['name']),
 		]);
 	}
 
-	protected function v1MatchData($matches)
+	public function players(Request $request)
 	{
+		return response()->json([
+			'players' => (new PlayerQuery($request))->get()
+		]);
+	}
+
+	public function matches(Request $request)
+	{
+		return response()->json([
+			'matches' => $this->v2MatchData($request)
+		]);
+	}
+
+	public function venues()
+	{
+		return response()->json([
+			'venues' => (new VenueQuery)->get(['name'])
+		]);
+	}
+
+	public function seasons(Request $request, $year = null)
+	{
+		$request->show_inactive = true;
+		$request->year = $year;
+
+		return response()->json([
+			'season' => (new SeasonQuery($request))->get()
+		]);
+	}
+
+	protected function v1MatchData()
+	{
+		$matches = Match::with('teams.players', 'venue')->latest('date')->get()->keyBy('id');
+
 		return $matches->map(function($match) {
 			return [
 				'date' => $match->date->format('Y-m-d'),
@@ -63,20 +78,8 @@ class DataController extends Controller
 		});
 	}
 
-	protected function v2MatchData($matches)
+	protected function v2MatchData($request)
 	{
-		return $matches->map(function($match) {
-			$teams = $match->teams;
-			return [
-				'date' => $match->date->format('Y-m-d'),
-				'short' => $match->is_short == 1,
-				'winner' => $teams[0]->winners ? 'A' : ($teams[0]->draw ? null : 'B'),
-				'handicap' => $teams[0]->handicap ? 'A' : ($teams[1]->handicap ? 'B' : null),
-				'team_a_scored' => $teams[0]->scored,
-				'team_b_scored' => $teams[1]->scored,
-				'team_a' => $teams[0]->playerData(),
-				'team_b' => $teams[1]->playerData(),
-			];
-		})->values();
+		return (new MatchQuery($request))->get();
 	}
 }
