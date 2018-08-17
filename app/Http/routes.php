@@ -30,7 +30,7 @@ Route::group(['middleware' => 'cors'], function() {
 	Route::get('data.json', 'DataController@all');
 	Route::group(['prefix' => 'api'], function() {
 		Route::get('players', 'DataController@players');
-		Route::resource('seasons', 'DataController@seasons', ['only' => 'show']);
+		Route::resource('seasons', 'DataController@seasons', ['only' => ['show', 'index']]);
 		Route::get('matches', 'DataController@matches');
 		Route::get('venues', 'DataController@venues');
 	});
