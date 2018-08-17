@@ -40,9 +40,10 @@ SQL;
 
 		$placeholders = [$this->request->year ?: "all", $this->fromDate(), $this->toDate()];
 
-		return collect(\DB::selectOne($query, $placeholders))->merge([
-			'leaderboard' => $this->players->get(),
-		])->merge($this->matches())->merge($this->endDate());
+		return collect(\DB::selectOne($query, $placeholders))
+			->merge(['leaderboard' => $this->players->get()])
+			->merge($this->matches())
+			->merge($this->endDate());
 	}
 
 	protected function matches()
