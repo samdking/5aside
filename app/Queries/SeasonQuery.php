@@ -71,7 +71,7 @@ SQL;
 
 		$to = new DateTime;
 
-		if ($to->format('Y') > $this->request->year) {
+		if ($this->seasonHasEnded()) {
 			$to->setDate($this->request->year, 12, 31);
 		}
 
