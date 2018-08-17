@@ -41,10 +41,13 @@ class DataController extends Controller
 		]);
 	}
 
-	public function seasons(Request $request, $year)
+	public function seasons(Request $request, $year = null)
 	{
+		$request->show_inactive = true;
+		$request->year = $year;
+
 		return response()->json([
-			'season' => (new SeasonQuery($request, $year))->get()
+			'season' => (new SeasonQuery($request))->get()
 		]);
 	}
 

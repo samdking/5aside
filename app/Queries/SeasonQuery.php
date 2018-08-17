@@ -7,41 +7,88 @@ use Illuminate\Http\Request;
 
 class SeasonQuery
 {
+	protected $request;
 	protected $players;
 	protected $matches;
-	protected $year;
 
-	public function __construct(Request $request, $year)
+	public function __construct(Request $request)
 	{
-		$request->year = $year;
-		$this->year = $year;
+		$this->request = $request;
 		$this->players = new PlayerQuery($request);
 		$this->matches = new MatchQuery($request);
 	}
 
 	public function get()
 	{
-		$players = $this->players->get();
+$query = <<<SQL
+		SELECT
+		  ? AS year,
+		  MIN(date) AS start_date,
+		  MAX(date) AS end_date,
+		  COUNT(id) AS total_matches,
+		  AVG(player_count) AS average_players,
+		  SUM(player_count) AS total_players
+		FROM matches
+		INNER JOIN (
+		  SELECT COUNT(player_team.id) AS player_count, match_id
+		  from player_team
+		  JOIN teams on teams.id = player_team.teaM_id
+		  group by match_id
+		) pt ON pt.match_id = matches.id
+		WHERE date BETWEEN ? AND ?
+SQL;
+
+		$placeholders = [$this->request->year ?: "all", $this->fromDate(), $this->toDate()];
+
+		return collect(\DB::selectOne($query, $placeholders))->merge([
+			'leaderboard' => $this->players->get(),
+		])->merge($this->matches())->merge($this->endDate());
+	}
+
+	protected function matches()
+	{
+		if ($this->request->hide_matches) return [];
 
 		return [
-			'year' => $this->year,
-			'start_date' => $players->min('first_appearance'),
-			'end_date' => $this->seasonHasEnded() ? $players->max('last_appearance') : null,
-			'total_matches' => $this->matchCount(),
-			'matches' => $this->matches->get(),
-			'leaderboard' => $players
+			'matches' => $this->matches->get()
+		];
+	}
+
+	protected function fromDate()
+	{
+		if ($this->request->year) {
+			return (new DateTime)->setDate($this->request->year, 1, 1);
+		}
+
+		return "2015-01-01";
+	}
+
+	protected function toDate()
+	{
+		if ( ! $this->request->year) {
+			return new DateTime;
+		}
+
+		$to = new DateTime;
+
+		if ($to->format('Y') > $this->request->year) {
+			$to->setDate($this->request->year, 12, 31);
+		}
+
+		return $to;
+	}
+
+	protected function endDate()
+	{
+		if ($this->seasonHasEnded()) return [];
+
+		return [
+			'end_date' => null
 		];
 	}
 
 	protected function seasonHasEnded()
 	{
-		return $this->year < (new DateTime)->format('Y');
-	}
-
-	protected function matchCount()
-	{
-		return \DB::selectOne("SELECT COUNT(id) AS count FROM matches where YEAR(date) = ?", [
-			$this->year
-		])->count;
+		return $this->request->year && $this->request->year < (new DateTime)->format('Y');
 	}
 }
