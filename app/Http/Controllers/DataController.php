@@ -7,8 +7,6 @@ use App\Queries\PlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
 use App\Match;
-use App\Team;
-use App\Combination;
 use Illuminate\Http\Request;
 
 class DataController extends Controller
@@ -29,10 +27,10 @@ class DataController extends Controller
 		]);
 	}
 
-	public function matches()
+	public function matches(Request $request)
 	{
 		return response()->json([
-			'matches' => $this->v2MatchData()
+			'matches' => $this->v2MatchData($request)
 		]);
 	}
 
@@ -77,17 +75,8 @@ class DataController extends Controller
 		});
 	}
 
-	protected function v2MatchData()
+	protected function v2MatchData($request)
 	{
-		$matches = (new MatchQuery)->get();
-		$teams = Team::with('players')->get()->groupBy('match_id');
-
-		return $matches->each(function($match) use ($teams) {
-			foreach($teams[$match->id] as $i => $team) {
-				$t = 'team_' . ['a', 'b'][$i];
-				$match->$t = $team->playerData();
-			}
-			unset($match->id);
-		});
+		return (new MatchQuery($request))->get();
 	}
 }

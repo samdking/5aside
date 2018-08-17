@@ -75,15 +75,17 @@ SQL;
 
 	protected function toDate()
 	{
-		if ($this->request->year) {
-			$to = new DateTime;
-			if ($to->format('Y') > $this->request->year) {
-				$to->setDate($this->request->year, 12, 31);
-			}
-			return $to;
+		if ( ! $this->request->year) {
+			return new DateTime($this->request->to);
 		}
 
-		return new DateTime($this->request->get('to'));
+		$to = new DateTime;
+
+		if ($to->format('Y') > $this->request->year) {
+			$to->setDate($this->request->year, 12, 31);
+		}
+
+		return $to;
 	}
 
 	protected function inactiveDate()

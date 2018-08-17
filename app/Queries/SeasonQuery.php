@@ -22,7 +22,8 @@ class SeasonQuery
 			'start_date' => $players->min('first_appearance'),
 			'end_date' => $this->seasonHasEnded() ? $players->max('last_appearance') : null,
 			'total_matches' => $this->matchCount(),
-			'players' => $players
+			'matches' => (new MatchQuery($this->request))->get(),
+			'leaderboard' => $players
 		];
 	}
 
