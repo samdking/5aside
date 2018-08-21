@@ -28,16 +28,22 @@ $query = <<<SQL
 			SUM(wins) * 3 + SUM(draws) AS points,
 			ROUND((SUM(wins) * 3 + SUM(draws)) / SUM(matches), 2) AS ppg,
 			MIN(date) AS first_appearance,
-			MAX(date) AS last_appearance
+			MAX(date) AS last_appearance,
+			SUM(IF(handicap, wins, 0)) AS handicap_wins,
+			SUM(IF(handicap, draws, 0)) AS handicap_draws,
+			SUM(IF(handicap, losses, 0)) AS handicap_losses,
+			SUM(IF(advantage, wins, 0)) AS advantage_wins,
+			SUM(IF(advantage, draws, 0)) AS advantage_draws,
+			SUM(IF(advantage, losses, 0)) AS advantage_losses
 		FROM players
 		INNER JOIN player_team ON player_team.player_id = players.id
 		INNER JOIN (
-			SELECT matches.date, teams.id, teams.match_id, 1 AS matches, draw AS draws, winners AS wins, scored
+			SELECT matches.date, teams.id, teams.match_id, 1 AS matches, draw AS draws, winners AS wins, scored, handicap
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
 		) team_a ON team_a.id = player_team.team_id
 		INNER JOIN (
-			SELECT id, match_id, winners AS losses, scored AS conceded
+			SELECT id, match_id, winners AS losses, scored AS conceded, handicap AS advantage
 			FROM teams
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
 		WHERE date >= ? AND date <= ?
@@ -50,8 +56,16 @@ SQL;
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) {
 			foreach($p as $k => $v) {
-				if (is_numeric($v) == false) continue;
-				$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
+				if (is_numeric($v)) {
+					$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
+				}
+				foreach(['handicap', 'advantage'] as $t) {
+					if (strpos($k, $t . '_') === 0) {
+						if ( ! isset($p->$t)) $p->$t = [];
+						unset($p->$k);
+						$p->$t[substr($k, strlen($t . '_'))] = $v;
+					}
+				}
 			}
 		});
 	}
