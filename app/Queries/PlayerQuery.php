@@ -26,7 +26,6 @@ $query = <<<SQL
 			SUM(conceded) AS conceded,
 			SUM(scored) - SUM(conceded) AS gd,
 			SUM(wins) * 3 + SUM(draws) AS points,
-			ROUND((SUM(wins) * 3 + SUM(draws)) / SUM(matches), 2) AS ppg,
 			MIN(date) AS first_appearance,
 			MAX(date) AS last_appearance,
 			SUM(handicap) AS handicap_matches,
@@ -36,7 +35,10 @@ $query = <<<SQL
 			SUM(advantage) AS advantage_matches,
 			SUM(advantage AND wins) AS advantage_wins,
 			SUM(advantage AND draws) AS advantage_draws,
-			SUM(advantage AND losses) AS advantage_losses
+			SUM(advantage AND losses) AS advantage_losses,
+			ROUND((SUM(wins) * 3 + SUM(draws)) / SUM(matches), 2) AS per_game_points,
+			ROUND(SUM(scored) / SUM(matches), 2) AS per_game_scored,
+			ROUND(SUM(conceded) / SUM(matches), 2) AS per_game_conceded
 		FROM players
 		INNER JOIN player_team ON player_team.player_id = players.id
 		INNER JOIN (
@@ -56,13 +58,15 @@ SQL;
 
 		$placeholders = [$this->fromDate(), $this->toDate(), $this->inactiveDate(), $this->minMatches()];
 
+		$matches = \App\Match::take(10)->latest('date');
+
 		return collect(\DB::select($query, $placeholders))->each(function($p) {
-			$p->handicap = $p->advantage = [];
+			$p->handicap = $p->advantage = $p->per_game = [];
 			foreach($p as $k => $v) {
 				if (is_numeric($v)) {
 					$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
 				}
-				foreach(['handicap', 'advantage'] as $t) {
+				foreach(['handicap', 'advantage', 'per_game'] as $t) {
 					if (strpos($k, $t . '_') === 0) {
 						unset($p->$k);
 						$p->$t[substr($k, strlen($t . '_'))] = $v;
