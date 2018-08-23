@@ -29,12 +29,14 @@ $query = <<<SQL
 			ROUND((SUM(wins) * 3 + SUM(draws)) / SUM(matches), 2) AS ppg,
 			MIN(date) AS first_appearance,
 			MAX(date) AS last_appearance,
-			SUM(IF(handicap, wins, 0)) AS handicap_wins,
-			SUM(IF(handicap, draws, 0)) AS handicap_draws,
-			SUM(IF(handicap, losses, 0)) AS handicap_losses,
-			SUM(IF(advantage, wins, 0)) AS advantage_wins,
-			SUM(IF(advantage, draws, 0)) AS advantage_draws,
-			SUM(IF(advantage, losses, 0)) AS advantage_losses
+			SUM(handicap) AS handicap_matches,
+			SUM(handicap AND wins) AS handicap_wins,
+			SUM(handicap AND draws) AS handicap_draws,
+			SUM(handicap AND losses) AS handicap_losses,
+			SUM(advantage) AS advantage_matches,
+			SUM(advantage AND wins) AS advantage_wins,
+			SUM(advantage AND draws) AS advantage_draws,
+			SUM(advantage AND losses) AS advantage_losses
 		FROM players
 		INNER JOIN player_team ON player_team.player_id = players.id
 		INNER JOIN (
