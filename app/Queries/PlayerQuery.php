@@ -58,10 +58,11 @@ SQL;
 
 		$placeholders = [$this->fromDate(), $this->toDate(), $this->inactiveDate(), $this->minMatches()];
 
-		$matches = \App\Match::take(10)->latest('date');
+		$this->matches = $this->matches();
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) {
 			$p->handicap = $p->advantage = $p->per_game = [];
+			$p->form = $this->formData($p);
 			foreach($p as $k => $v) {
 				if (is_numeric($v)) {
 					$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
@@ -73,6 +74,24 @@ SQL;
 					}
 				}
 			}
+		});
+	}
+
+	protected function formData($player)
+	{
+		return $this->matches->map(function($match) use ($player) {
+			$team = collect(['a', 'b'])->first(function($i, $letter) use ($match, $player) {
+				return collect($match->{'team_' . $letter})->pluck('id')->contains($player->id);
+			});
+
+			if (!$team)
+				return '';
+			elseif ($match->winner == strtoupper($team))
+				return 'W';
+			elseif ($match->winner)
+				return 'L';
+			else
+				return 'D';
 		});
 	}
 
@@ -106,6 +125,15 @@ SQL;
 		}
 
 		return $to;
+	}
+
+	protected function matches()
+	{
+		$matchRequest = clone $this->request;
+		$matchRequest->show = 6;
+		$matchRequest->descending = true;
+
+		return (new MatchQuery($matchRequest))->get();
 	}
 
 	protected function inactiveDate()
