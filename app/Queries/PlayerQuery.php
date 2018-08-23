@@ -57,13 +57,13 @@ SQL;
 		$placeholders = [$this->fromDate(), $this->toDate(), $this->inactiveDate(), $this->minMatches()];
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) {
+			$p->handicap = $p->advantage = [];
 			foreach($p as $k => $v) {
 				if (is_numeric($v)) {
 					$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
 				}
 				foreach(['handicap', 'advantage'] as $t) {
 					if (strpos($k, $t . '_') === 0) {
-						if ( ! isset($p->$t)) $p->$t = [];
 						unset($p->$k);
 						$p->$t[substr($k, strlen($t . '_'))] = $v;
 					}
