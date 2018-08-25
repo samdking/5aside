@@ -2,32 +2,51 @@
 
 namespace App\Queries;
 
+use DateTime;
+use App\Match;
+
 class FormQuery
 {
 	public function __construct($request)
 	{
-		$this->request = clone $request;
-		$this->request->show = 6;
-		$this->request->descending = true;
-
-		$this->matches = (new MatchQuery($this->request))->get();
+		$this->request = $request;
 	}
 
-	public function forPlayer($player)
+	public function get()
 	{
-		return $this->matches->map(function($match) use ($player) {
-			$team = collect(['a', 'b'])->first(function($i, $letter) use ($match, $player) {
-				return collect($match->{'team_' . $letter})->pluck('id')->contains($player);
-			});
+		$matches = Match::with('teams.players')
+			->whereRaw('date >= ? AND date <= ?', [$this->fromDate(), $this->toDate()])
+			->latest('date')->take(6)->get();
 
-			if (!$team)
-				return '';
-			elseif ($match->winner == strtoupper($team))
-				return 'W';
-			elseif ($match->winner)
-				return 'L';
-			else
-				return 'D';
+		return $matches->each(function($match) {
+			$match->players = $match->teams->mapWithKeys(function($team) {
+				return $team->playerResults();
+			});
 		});
+	}
+
+	protected function fromDate()
+	{
+		if ($this->request->year) {
+			return (new DateTime)->setDate($this->request->year, 1, 1);
+		}
+
+		return "2015-01-01";
+	}
+
+	protected function toDate()
+	{
+		if ( ! $this->request->year) {
+			return new DateTime($this->request->to);
+		}
+
+		$to = new DateTime;
+
+		if ($to->format('Y') > $this->request->year) {
+			$to->setDate($this->request->year, 12, 31);
+		}
+
+		return $to;
+
 	}
 }

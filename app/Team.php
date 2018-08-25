@@ -70,6 +70,13 @@ class Team extends Model
 			->where('id', '!=', $this->id);
 	}
 
+	public function playerResults()
+	{
+		return $this->players->keyBy('id')->map(function($p) {
+			return substr($this->result(), 0, 1);
+		});
+	}
+
 	public function playerData()
 	{
 		return $this->players->map(function($p) {

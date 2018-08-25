@@ -11,7 +11,16 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		//
+		\Illuminate\Support\Collection::macro('mapWithKeys', function(callable $callback) {
+			$result = [];
+			foreach ($this->items as $key => $value) {
+				$assoc = $callback($value, $key);
+				foreach ($assoc as $mapKey => $mapValue) {
+					$result[$mapKey] = $mapValue;
+				}
+			}
+			return new static($result);
+		});
 	}
 
 	/**

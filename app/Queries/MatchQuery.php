@@ -17,9 +17,7 @@ class MatchQuery
 
 	public function get()
 	{
-		$dir = $this->request->descending ? 'DESC' : 'ASC';
-
-$query = <<<SQL
+		$query = <<<SQL
 		SELECT
 		  matches.id,
 		  matches.date,
@@ -37,12 +35,11 @@ $query = <<<SQL
 		INNER JOIN player_team on player_team.team_id = team_a.id
 		WHERE date >= ? AND date <= ?
 		GROUP BY matches.id
-		ORDER BY matches.date {$dir}
-		LIMIT ?
+		ORDER BY matches.date
 SQL;
 		$teams = Team::with('players')->get()->groupBy('match_id');
 
-		$placeholders = [$this->fromDate(), $this->toDate(), $this->request->show ?: 1000];
+		$placeholders = [$this->fromDate(), $this->toDate()];
 
 		return collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
 			$match->short = (boolean)$match->short;
