@@ -21,11 +21,9 @@ class PlayerStreaksCalculator extends Command
 		$calculator->crunch($matches);
 
 		$this->info('All-time highest streaks');
-		foreach($calculator->maxCounts as $id => $topStreak) {
-			if ($topStreak == 1) continue;
-			$player = $allPlayers[$id];
+		foreach($calculator->maxStreaks() as $player) {
 			$this->line(
-				"{$player->fullName()} - {$topStreak}"
+				"{$player->fullName()} - {$player->topCount}"
 			);
 		}
 
@@ -41,9 +39,9 @@ class PlayerStreaksCalculator extends Command
 		$this->line('');
 
 		$this->info('Current streaks');
-		foreach($calculator->counts as $id => $count) {
+		foreach($calculator->currentStreaks() as $player) {
 			$this->line(
-				"{$calculator->fromDates[$id]->format('Y-m-d')}: {$allPlayers[$id]->fullName()} - {$count}"
+				"{$player->fromDate->format('Y-m-d')}: {$player->fullName()} - {$player->counter}"
 			);
 		}
 	}

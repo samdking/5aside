@@ -4,14 +4,11 @@ namespace App;
 
 class PlayerStreakCruncher
 {
-	public $counts = [];
-	public $fromDates = [];
-	protected $toDates = [];
-	public $maxCounts = [];
-	public $streaks = [];
+	public $playerStreaks;
 
 	public function __construct($players)
 	{
+		$this->playerStreaks = collect();
 		$this->players = $players;
 	}
 
@@ -21,11 +18,10 @@ class PlayerStreakCruncher
 			$this->match($match);
 		}
 
-		foreach($this->counts as $playerId => $count) {
-			$this->log($playerId);
-		}
-
-		arsort($this->maxCounts);
+		$this->playerStreaks->each(function($p) {
+			$p->refreshTopCount();
+			$this->logStreak($p);
+		});
 	}
 
 	public function match($match)
@@ -45,49 +41,40 @@ class PlayerStreakCruncher
 
 	public function appearance($playerId, $match)
 	{
-		if (array_key_exists($playerId, $this->counts)) {
-			$this->counts[$playerId]++;
-			$this->toDates[$playerId] = $match->date;
-		} else {
-			$this->counts[$playerId] = 1;
-			$this->fromDates[$playerId] = $match->date;
+		if ( ! $this->playerStreaks->has($playerId)) {
+			$this->playerStreaks[$playerId] = new PlayerStreak($this->players[$playerId]);
 		}
+
+		$this->playerStreaks[$playerId]->increment($match->date);
 	}
 
 	public function miss($playerId)
 	{
-		if ( ! array_key_exists($playerId, $this->counts)) return;
+		if ( ! $this->playerStreaks->has($playerId)) return;
 
-		$this->log($playerId);
+		$this->logStreak($this->playerStreaks[$playerId]);
 
-		unset($this->counts[$playerId]);
+		$this->playerStreaks[$playerId]->reset();
 	}
 
-	protected function log($playerId)
+	public function currentStreaks()
 	{
-		$this->logStreak($playerId);
-		$this->logMaxCount($playerId);
+		return $this->playerStreaks->filter(function($p) {
+			return $p->onStreak();
+		})->sortByDesc('counter');
 	}
 
-	protected function logStreak($playerId)
+	public function maxStreaks()
 	{
-		if ($this->counts[$playerId] < max($this->counts)) return;
-
-		$this->streaks[] = [
-			'player' => $this->players[$playerId]->fullName(),
-			'count' => $this->counts[$playerId],
-			'from' => $this->fromDates[$playerId],
-			'to' => $this->toDates[$playerId],
-		];
+		return $this->playerStreaks->filter(function($p) {
+			return $p->topCount > 1;
+		})->sortByDesc('topCount');
 	}
 
-	protected function logMaxCount($playerId)
+	protected function logStreak($playerStreak)
 	{
-		$this->maxCounts[$playerId] = max($this->maxCountForPlayer($playerId), $this->counts[$playerId]);
-	}
+		if ($playerStreak->counter < $this->playerStreaks->max('counter')) return;
 
-	protected function maxCountForPlayer($playerId)
-	{
-		if (array_key_exists($playerId, $this->maxCounts)) return $this->maxCounts[$playerId];
+		$this->streaks[] = $playerStreak->snapshot();
 	}
 }
