@@ -21,6 +21,13 @@ class Match extends Model
 		return $this->hasMany('App\Team');
 	}
 
+	public function participants()
+	{
+		return $this->teams->map(function($team) {
+			return $team->players;
+		})->flatten();
+	}
+
 	public function firstAppearances()
 	{
 		return Player::select('players.*')
