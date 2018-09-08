@@ -56,7 +56,9 @@ class PlayerStreaksCalculator extends Command
 
 		arsort($maxCountPerPlayer);
 
+		$this->info('All-time highest streaks');
 		foreach($maxCountPerPlayer as $id => $topStreak) {
+			if ($topStreak == 1) continue;
 			$player = $allPlayers[$id];
 			$this->line(
 				"{$player->fullName()} - {$topStreak}"
@@ -65,10 +67,22 @@ class PlayerStreaksCalculator extends Command
 
 		$this->line('');
 
+		$this->info('Historical streaks');
 		foreach($streaks as $streak) {
 			$player = $allPlayers[$streak['id']];
 			$this->line(
-				"{$streak['from']->format('Y-m-d')} - {$streak['to']->format('Y-m-d')}: {$player->fulLName()} ({$streak['count']})");
+				"{$streak['from']->format('Y-m-d')} - {$streak['to']->format('Y-m-d')}: {$player->fulLName()} ({$streak['count']})"
+			);
+		}
+
+		$this->line('');
+
+		$this->info('Current streaks');
+		foreach(collect($players)->sortByDesc(function($p) { return $p['count']; }) as $player) {
+			if ($player['count'] == 0) continue;
+			$this->line(
+				"{$player['from']->format('Y-m-d')}: {$allPlayers[$player['id']]->fullName()} - {$player['count']}"
+			);
 		}
 	}
 }
