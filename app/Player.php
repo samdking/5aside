@@ -15,6 +15,11 @@ class Player extends Model
 		return substr($this->first_name, 0, 1) . '. ' . $this->last_name;
 	}
 
+	public function fullName()
+	{
+		return implode(' ', array_filter([$this->first_name, $this->last_name]));
+	}
+
 	public function scopeSelectWinPercentage($query)
 	{
 		$query->selectRaw('ROUND(SUM(teams.winners) / COUNT(teams.id) * 100, 1) AS win_percentage')
