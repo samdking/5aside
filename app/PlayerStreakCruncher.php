@@ -33,6 +33,8 @@ class PlayerStreakCruncher
 			# absentees
 			$this->players->reject(function($player) use ($participants) {
 				return $participants->contains($player->id);
+			})->filter(function($player) {
+				return $player->currentStreak();
 			})->each(function($player) use ($match) {
 				$player->endStreak($match->date);
 			});

@@ -44,8 +44,6 @@ class PlayerStreak
 
 	function endStreak()
 	{
-		if (! $this->currentStreak) return;
-
 		$this->currentStreak->removePlayer($this->player);
 		$this->commitStreak();
 
