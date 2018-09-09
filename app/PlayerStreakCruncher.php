@@ -36,7 +36,7 @@ class PlayerStreakCruncher
 			})->filter(function($player) {
 				return $player->currentStreak();
 			})->each(function($player) use ($match) {
-				$player->endStreak($match->date);
+				$player->endStreak();
 			});
 
 			$this->streaks->push($streak);
