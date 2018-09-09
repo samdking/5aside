@@ -71,11 +71,11 @@ class PlayerStreakCruncher
 
 	function currentStreaks()
 	{
-		return $this->players->map(function($p) {
-			if ($p->currentStreak()) {
-				$p->commitStreak();
-				return $p->lastStreak();
-			}
+		return $this->players->filter(function($p) {
+			return $p->currentStreak();
+		})->map(function($p) {
+			$p->commitStreak();
+			return $p->lastStreak();
 		})->filter()->filter(function($streak) {
 			return $streak->count > 1;
 		})->sortByDesc('count');
