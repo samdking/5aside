@@ -35,11 +35,11 @@ class PlayerStreakCruncher
 			$this->appearance($participant, $match);
 		}
 
-		foreach($this->players as $id => $player) {
-			if (! $participants->contains($id)) {
-				$this->miss($id);
-			}
-		}
+		$this->playerStreaks->reject(function($streak) use ($participants) {
+			return $participants->contains($streak->player->id);
+		})->each(function($streak) {
+			$this->miss($streak);
+		});
 	}
 
 	public function appearance($playerId, $match)
@@ -51,11 +51,9 @@ class PlayerStreakCruncher
 		$this->playerStreaks[$playerId]->increment($match->date);
 	}
 
-	public function miss($playerId)
+	public function miss($playerStreak)
 	{
-		if ( ! $this->playerStreaks->has($playerId)) return;
-
-		$this->logStreak($this->playerStreaks[$playerId]);
+		$this->logStreak($playerStreak);
 	}
 
 	public function currentStreaks()
