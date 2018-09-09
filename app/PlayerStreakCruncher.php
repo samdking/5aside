@@ -76,7 +76,7 @@ class PlayerStreakCruncher
 		})->map(function($p) {
 			$p->commitStreak();
 			return $p->lastStreak();
-		})->filter()->filter(function($streak) {
+		})->filter(function($streak) {
 			return $streak->count > 1;
 		})->sortByDesc('count');
 	}
