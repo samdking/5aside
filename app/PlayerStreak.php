@@ -32,23 +32,21 @@ class PlayerStreak
 		return $this->streaks;
 	}
 
-	function finaliseStreak()
+	function commitStreak()
 	{
-		$this->currentStreak->setLastPlayer($this->player);
-		$this->streaks->push($this->freezeCurrentStreak());
+		$streak = $this->currentStreak->forPlayer($this->player);
+
+		$this->streaks->push($streak);
+
+		return $streak;
 	}
 
-	function freezeCurrentStreak($date = null)
-	{
-		if ($this->currentStreak) return $this->currentStreak->freezeForPlayer($this->player, $date);
-	}
-
-	function endStreak($date)
+	function endStreak()
 	{
 		if (! $this->currentStreak) return;
 
-		$this->currentStreak->removePlayer($this->player, $date);
-		$this->streaks->push($this->freezeCurrentStreak($date));
+		$this->currentStreak->removePlayer($this->player);
+		$this->commitStreak();
 
 		$this->currentStreak = null;
 	}

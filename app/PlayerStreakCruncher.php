@@ -39,8 +39,9 @@ class PlayerStreakCruncher
 
 			$this->streaks->push($streak);
 
-			$this->activeStreaks()->each(function($streak) {
+			$this->activeStreaks()->each(function($streak) use ($match) {
 				$streak->count++;
+				$streak->to = $match->date;
 				if ($streak->count == $this->activeStreaks()->max('count')) {
 					$streak->record = true;
 				}
@@ -49,7 +50,7 @@ class PlayerStreakCruncher
 
 		$this->players->each(function($player) {
 			if ($player->currentStreak()) {
-				$player->finaliseStreak();
+				$player->commitStreak();
 			}
 		});
 	}
@@ -71,7 +72,7 @@ class PlayerStreakCruncher
 	function currentStreaks()
 	{
 		return $this->players->map(function($p) {
-			return $p->freezeCurrentStreak();
+			if ($p->currentStreak()) return $p->commitStreak();
 		})->filter()->filter(function($streak) {
 			return $streak->count > 1;
 		})->sortByDesc('count');

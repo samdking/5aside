@@ -24,27 +24,20 @@ class Streak
 		$this->players++;
 	}
 
-	function removePlayer($player, $date)
+	function forPlayer($player)
+	{
+		$this->last = $player->fullName();
+
+		return clone $this;
+	}
+
+	function removePlayer($player)
 	{
 		$this->players--;
 
 		if ($this->players == 0) {
 			$this->active = false;
-			$this->to = $date;
-			$this->setLastPlayer($player);
+			$this->last = $player->fullName();
 		}
-	}
-
-	function freezeForPlayer($player, $date = null)
-	{
-		$streak = clone $this;
-		$streak->player = $player->fullName();
-		$streak->to = $date;
-		return $streak;
-	}
-
-	function setLastPlayer($player)
-	{
-		$this->last = $player->fullName();
 	}
 }

@@ -24,7 +24,7 @@ class PlayerStreaksCalculator extends Command
 		foreach($calculator->maxStreaks() as $streak) {
 			$to = $streak->to ? $streak->to->format('Y-m-d') : "current";
 			$this->line(
-				"{$streak->player} - {$streak->count} ({$to})"
+				"{$streak->last} - {$streak->count} ({$to})"
 			);
 		}
 
@@ -43,7 +43,7 @@ class PlayerStreaksCalculator extends Command
 		$this->info('Current streaks');
 		foreach($calculator->currentStreaks() as $streak) {
 			$this->line(
-				"{$streak->from->format('Y-m-d')}: {$streak->player} - {$streak->count}"
+				"{$streak->from->format('Y-m-d')}: {$streak->last} - {$streak->count}"
 			);
 		}
 	}
