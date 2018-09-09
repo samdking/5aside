@@ -13,11 +13,6 @@ class PlayerStreak
 		$this->streaks = collect();
 	}
 
-	public function fullName()
-	{
-		return $this->player->fullName();
-	}
-
 	public function increment($date)
 	{
 		if ($this->counter == 0) $this->fromDate = $date;
@@ -33,7 +28,7 @@ class PlayerStreak
 	public function logStreak()
 	{
 		$this->streaks->push([
-			'player' => $this->fullName(),
+			'player' => $this->player->fullName(),
 			'count' => $this->counter,
 			'from' => $this->fromDate,
 			'to' => $this->toDate,
