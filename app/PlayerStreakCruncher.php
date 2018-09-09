@@ -6,81 +6,81 @@ class PlayerStreakCruncher
 {
 	protected $streaks;
 	protected $players;
-	protected $playerStreaks;
 
 	public function __construct($players)
 	{
-		$this->playerStreaks = collect();
-		$this->players = $players;
+		$this->streaks = collect();
+		$this->players = $players->map(function($player) {
+			return new PlayerStreak($player);
+		})->keyBy('id');
 	}
 
 	public function crunch($matches)
 	{
-		foreach($matches as $match) {
-			$this->match($match);
-		}
+		$matches->each(function($match) {
+			$streak = new Streak($match->date);
+			$participants = $match->participants()->pluck('id');
 
-		$this->finalStreaks = $this->playerStreaks->filter(function($p) {
-			return $p->onStreak();
-		})->map(function($p) {
-			return $this->logStreak($p);
+			# attendees
+			$this->players->filter(function($player) use ($participants) {
+				return $participants->contains($player->id);
+			})->reject(function($player) {
+				return $player->currentStreak();
+			})->each(function($player) use ($streak) {
+				$player->startStreak($streak);
+			});
+
+			# absentees
+			$this->players->reject(function($player) use ($participants) {
+				return $participants->contains($player->id);
+			})->each(function($player) use ($match) {
+				$player->endStreak($match->date);
+			});
+
+			$this->streaks->push($streak);
+
+			$this->activeStreaks()->each(function($streak) {
+				$streak->count++;
+				if ($streak->count == $this->activeStreaks()->max('count')) {
+					$streak->record = true;
+				}
+			});
+		});
+
+		$this->players->each(function($player) {
+			if ($player->currentStreak()) {
+				$player->finaliseStreak();
+			}
 		});
 	}
 
-	public function match($match)
+	function maxStreaks()
 	{
-		$participants = $match->participants()->pluck('id');
-
-		foreach($participants as $participant) {
-			$this->appearance($participant, $match);
-		}
-
-		$this->playerStreaks->reject(function($streak) use ($participants) {
-			return $participants->contains($streak->player->id);
-		})->each(function($streak) {
-			$this->miss($streak);
-		});
-	}
-
-	public function appearance($playerId, $match)
-	{
-		if ( ! $this->playerStreaks->has($playerId)) {
-			$this->playerStreaks[$playerId] = new PlayerStreak($this->players[$playerId]);
-		}
-
-		$this->playerStreaks[$playerId]->increment($match->date);
-	}
-
-	public function miss($playerStreak)
-	{
-		$this->logStreak($playerStreak);
-	}
-
-	public function currentStreaks()
-	{
-		return $this->finalStreaks->sortByDesc('count');
-	}
-
-	public function historicalStreaks()
-	{
-		return $this->streaks;
-	}
-
-	public function maxStreaks()
-	{
-		return $this->playerStreaks->map(function($p) {
-			return $p->topStreak();
+		return $this->players->map(function($player) {
+			return $player->maxStreak();
 		})->sortByDesc('count');
 	}
 
-	protected function logStreak($playerStreak)
+	function historicalStreaks()
 	{
-		$streak = $playerStreak->logStreak();
+		return $this->streaks->filter(function($streak) {
+			return $streak->record;
+		})->values();
+	}
 
-		if ($streak['count'] > $this->playerStreaks->max('counter')) {
-			$this->streaks[] = $streak;
-		}
+	function currentStreaks()
+	{
+		return $this->players->map(function($p) {
+			return $p->freezeCurrentStreak();
+		})->filter()->filter(function($streak) {
+			return $streak->count > 1;
+		})->sortByDesc('count');
+	}
 
-		return $streak;
+	private function activeStreaks()
+	{
+		return $this->streaks->filter(function($s) {
+			return $s->active;
+		});
 	}
 }

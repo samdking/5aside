@@ -22,8 +22,9 @@ class PlayerStreaksCalculator extends Command
 
 		$this->info('All-time highest streaks');
 		foreach($calculator->maxStreaks() as $streak) {
+			$to = $streak->to ? $streak->to->format('Y-m-d') : "current";
 			$this->line(
-				"{$streak['player']} - {$streak['count']} ({$streak['to']->format('Y-m-d')})"
+				"{$streak->player} - {$streak->count} ({$to})"
 			);
 		}
 
@@ -31,8 +32,9 @@ class PlayerStreaksCalculator extends Command
 
 		$this->info('Historical streaks');
 		foreach($calculator->historicalStreaks() as $streak) {
+			$to = $streak->to ? $streak->to->format('Y-m-d') : "current";
 			$this->line(
-				"{$streak['from']->format('Y-m-d')} - {$streak['to']->format('Y-m-d')}: {$streak['player']} ({$streak['count']})"
+				"{$streak->from->format('Y-m-d')} - {$to}: {$streak->last} ({$streak->count})"
 			);
 		}
 
@@ -41,7 +43,7 @@ class PlayerStreaksCalculator extends Command
 		$this->info('Current streaks');
 		foreach($calculator->currentStreaks() as $streak) {
 			$this->line(
-				"{$streak['from']->format('Y-m-d')}: {$streak['player']} - {$streak['count']}"
+				"{$streak->from->format('Y-m-d')}: {$streak->player} - {$streak->count}"
 			);
 		}
 	}
