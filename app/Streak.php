@@ -11,7 +11,6 @@ class Streak
 	public $to;
 	public $active;
 	public $last;
-	public $player;
 
 	function __construct($date)
 	{
