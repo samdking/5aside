@@ -5,11 +5,12 @@ namespace App;
 class PlayerStreak
 {
 	public $counter = 0;
-	public $topCount = 0;
+	protected $streaks;
 
 	public function __construct($player)
 	{
 		$this->player = $player;
+		$this->streaks = collect();
 	}
 
 	public function fullName()
@@ -24,27 +25,24 @@ class PlayerStreak
 		$this->counter++;
 	}
 
-	public function reset()
+	public function topStreak()
 	{
-		$this->refreshTopCount();
-		$this->counter = 0;
-		$this->fromDate = null;
-		$this->toDate = null;
+		return $this->streaks->sortByDesc('count')->first();
 	}
 
-	public function refreshTopCount()
+	public function logStreak()
 	{
-		$this->topCount = max($this->topCount, $this->counter);
-	}
-
-	public function snapshot()
-	{
-		return [
+		$this->streaks->push([
 			'player' => $this->fullName(),
 			'count' => $this->counter,
 			'from' => $this->fromDate,
 			'to' => $this->toDate,
-		];
+		]);
+		$this->counter = 0;
+		$this->fromDate = null;
+		$this->toDate = null;
+
+		return $this->streaks->last();
 	}
 
 	public function onStreak()

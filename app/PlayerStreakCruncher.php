@@ -4,7 +4,9 @@ namespace App;
 
 class PlayerStreakCruncher
 {
-	public $playerStreaks;
+	protected $streaks;
+	protected $players;
+	protected $playerStreaks;
 
 	public function __construct($players)
 	{
@@ -18,9 +20,10 @@ class PlayerStreakCruncher
 			$this->match($match);
 		}
 
-		$this->playerStreaks->each(function($p) {
-			$p->refreshTopCount();
-			$this->logStreak($p);
+		$this->finalStreaks = $this->playerStreaks->filter(function($p) {
+			return $p->onStreak();
+		})->map(function($p) {
+			return $this->logStreak($p);
 		});
 	}
 
@@ -53,28 +56,33 @@ class PlayerStreakCruncher
 		if ( ! $this->playerStreaks->has($playerId)) return;
 
 		$this->logStreak($this->playerStreaks[$playerId]);
-
-		$this->playerStreaks[$playerId]->reset();
 	}
 
 	public function currentStreaks()
 	{
-		return $this->playerStreaks->filter(function($p) {
-			return $p->onStreak();
-		})->sortByDesc('counter');
+		return $this->finalStreaks->sortByDesc('count');
+	}
+
+	public function historicalStreaks()
+	{
+		return $this->streaks;
 	}
 
 	public function maxStreaks()
 	{
-		return $this->playerStreaks->filter(function($p) {
-			return $p->topCount > 1;
-		})->sortByDesc('topCount');
+		return $this->playerStreaks->map(function($p) {
+			return $p->topStreak();
+		})->sortByDesc('count');
 	}
 
 	protected function logStreak($playerStreak)
 	{
-		if ($playerStreak->counter < $this->playerStreaks->max('counter')) return;
+		$streak = $playerStreak->logStreak();
 
-		$this->streaks[] = $playerStreak->snapshot();
+		if ($streak['count'] > $this->playerStreaks->max('counter')) {
+			$this->streaks[] = $streak;
+		}
+
+		return $streak;
 	}
 }
