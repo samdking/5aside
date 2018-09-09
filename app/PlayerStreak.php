@@ -34,11 +34,12 @@ class PlayerStreak
 
 	function commitStreak()
 	{
-		$streak = $this->currentStreak->forPlayer($this->player);
+		$this->streaks->push($this->currentStreak->forPlayer($this->player));
+	}
 
-		$this->streaks->push($streak);
-
-		return $streak;
+	function lastStreak()
+	{
+		return $this->streaks->last();
 	}
 
 	function endStreak()
