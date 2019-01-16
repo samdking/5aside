@@ -15,7 +15,8 @@ class PlayerQuery
 $query = <<<SQL
 		SELECT
 			players.id,
-			players.first_name,
+			SUBSTR(players.first_name, 1, 1) AS first_name, #deprecated
+			SUBSTR(players.first_name, 1, 1) AS first_initial,
 			players.last_name,
 			SUM(matches) AS matches,
 			SUM(wins) AS wins,
