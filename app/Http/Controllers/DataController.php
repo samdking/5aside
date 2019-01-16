@@ -16,7 +16,7 @@ class DataController extends Controller
 		return response()->json([
 			'players' => (new PlayerQuery($request))->get(),
 			'matches' => $this->{'v' . $request->get('v', '2') . 'matchData'}($request),
-			'venues' => (new VenueQuery)->get(['name']),
+			'venues' => (new VenueQuery($request))->get(['name']),
 		]);
 	}
 
@@ -34,10 +34,10 @@ class DataController extends Controller
 		]);
 	}
 
-	public function venues()
+	public function venues(Request $request)
 	{
 		return response()->json([
-			'venues' => (new VenueQuery)->get(['name'])
+			'venues' => (new VenueQuery($request))->get(['name'])
 		]);
 	}
 

@@ -2,18 +2,36 @@
 
 namespace App\Queries;
 
+use Illuminate\Http\Request;
+
 class VenueQuery
 {
+	protected $request;
+	protected $matches;
+
+	public function __construct(Request $request)
+	{
+		$this->matches = new MatchQuery($request);
+	}
+
 	public function get($fields = ['*'])
 	{
 		$fields = collect($fields)->map(function($field) { return 'venues.' . $field; })->implode(', ');
 
 $query = <<<EOT
-		SELECT {$fields}, COUNT(matches.id) as matches, MIN(date) AS first_match
+		SELECT {$fields}, COUNT(matches.id) as match_count, MIN(date) AS first_match
 		FROM venues
 		INNER JOIN matches ON matches.venue_id = venues.id
 		GROUP BY venues.id
+
 EOT;
-		return \DB::select($query);
+
+		$matches = $this->matches->get();
+
+		return collect(\DB::select($query))->each(function($venue) use ($matches) {
+			$venue->matches = $matches->filter(function($match) use ($venue) {
+				return $match->venue == $venue->name;
+			});
+		});
 	}
 }
