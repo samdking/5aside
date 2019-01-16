@@ -4,7 +4,6 @@ namespace App\Queries;
 
 use Illuminate\Http\Request;
 use App\Team;
-use DateTime;
 
 class MatchQuery
 {
@@ -39,7 +38,10 @@ class MatchQuery
 SQL;
 		$teams = Team::with('players')->get()->groupBy('match_id');
 
-		$placeholders = [$this->fromDate(), $this->toDate()];
+		$placeholders = [
+			(new Filters\FromDate)->get($this->request),
+			(new Filters\ToDate)->get($this->request)
+		];
 
 		return collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
 			$match->short = (boolean)$match->short;
@@ -50,30 +52,5 @@ SQL;
 			}
 			unset($match->id);
 		});
-	}
-
-	protected function fromDate()
-	{
-		if ($this->request->year) {
-			return (new DateTime)->setDate($this->request->year, 1, 1);
-		}
-
-		return "2015-01-01";
-	}
-
-	protected function toDate()
-	{
-		if ( ! $this->request->year) {
-			return new DateTime($this->request->to);
-		}
-
-		$to = new DateTime;
-
-		if ($to->format('Y') > $this->request->year) {
-			$to->setDate($this->request->year, 12, 31);
-		}
-
-		return $to;
-
 	}
 }

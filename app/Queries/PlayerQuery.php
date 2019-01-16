@@ -2,8 +2,6 @@
 
 namespace App\Queries;
 
-use DateTime, DateInterval;
-
 class PlayerQuery
 {
 	public function __construct($request)
@@ -46,18 +44,26 @@ $query = <<<SQL
 			SELECT matches.date, teams.id, teams.match_id, 1 AS matches, draw AS draws, winners AS wins, scored, handicap
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
+			WHERE date >= ? AND date <= ?
+			ORDER BY matches.date desc
+			LIMIT ?
 		) team_a ON team_a.id = player_team.team_id
 		INNER JOIN (
 			SELECT id, match_id, winners AS losses, scored AS conceded, handicap AS advantage
 			FROM teams
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
-		WHERE date >= ? AND date <= ?
 		GROUP BY players.id
 		HAVING last_appearance >= ? AND matches >= ?
 		ORDER BY points desc, matches ASC, gd DESC, scored DESC
 SQL;
 
-		$placeholders = [$this->fromDate(), $this->toDate(), $this->inactiveDate(), $this->minMatches()];
+		$placeholders = [
+			(new Filters\FromDate)->get($this->request),
+			($toDate = new Filters\ToDate)->get($this->request),
+			$this->matchLimit(),
+			(new Filters\InactiveDate($toDate))->get($this->request),
+			$this->minMatches()
+		];
 
 		$form = $this->form->get();
 
@@ -80,41 +86,13 @@ SQL;
 		});
 	}
 
-	protected function fromDate()
+	protected function matchLimit()
 	{
-		if ($this->request->since) {
-			return $this->request->since;
+		if ($this->request->match_limit) {
+			return $this->request->match_limit * 2;
+		} else {
+			return 999;
 		}
-
-		if ($this->request->last) {
-			return (new DateTime)->sub(new DateInterval('P' . $this->request->last));
-		}
-
-		if ($this->request->year) {
-			return (new DateTime)->setDate($this->request->year, 1, 1);
-		}
-
-		return "2015-01-01";
-	}
-
-	protected function toDate()
-	{
-		if ( ! $this->request->year) {
-			return new DateTime($this->request->to);
-		}
-
-		$to = new DateTime;
-
-		if ($to->format('Y') > $this->request->year) {
-			$to->setDate($this->request->year, 12, 31);
-		}
-
-		return $to;
-	}
-
-	protected function inactiveDate()
-	{
-		return $this->request->show_inactive ? '2015-01-01' : $this->toDate()->sub(new DateInterval('P10W'));
 	}
 
 	protected function minMatches()

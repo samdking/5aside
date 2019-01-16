@@ -38,7 +38,11 @@ $query = <<<SQL
 		WHERE date BETWEEN ? AND ?
 SQL;
 
-		$placeholders = [$this->request->year ?: "all", $this->fromDate(), $this->toDate()];
+		$placeholders = [
+			$this->request->year ?: "all",
+			(new Filters\FromDate)->get($this->request),
+			(new Filters\ToDate)->get($this->request)
+		];
 
 		return collect(\DB::selectOne($query, $placeholders))
 			->merge(['leaderboard' => $this->players->get()])
@@ -53,30 +57,6 @@ SQL;
 		return [
 			'matches' => $this->matches->get()
 		];
-	}
-
-	protected function fromDate()
-	{
-		if ($this->request->year) {
-			return (new DateTime)->setDate($this->request->year, 1, 1);
-		}
-
-		return "2015-01-01";
-	}
-
-	protected function toDate()
-	{
-		if ( ! $this->request->year) {
-			return new DateTime;
-		}
-
-		$to = new DateTime;
-
-		if ($this->seasonHasEnded()) {
-			$to->setDate($this->request->year, 12, 31);
-		}
-
-		return $to;
 	}
 
 	protected function endDate()

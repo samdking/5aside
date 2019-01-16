@@ -2,7 +2,6 @@
 
 namespace App\Queries;
 
-use DateTime;
 use App\Match;
 
 class FormQuery
@@ -14,9 +13,14 @@ class FormQuery
 
 	public function get()
 	{
+		$placeholders = [
+			(new Filters\FromDate)->get($this->request),
+			(new Filters\ToDate)->get($this->request),
+		];
+
 		$matches = Match::with('teams.players')
-			->whereRaw('date >= ? AND date <= ?', [$this->fromDate(), $this->toDate()])
-			->latest('date')->take(6)->get();
+			->whereRaw('date >= ? AND date <= ?', $placeholders)
+			->latest('date')->take($this->limit())->get();
 
 		return $matches->each(function($match) {
 			$match->players = $match->teams->mapWithKeys(function($team) {
@@ -25,28 +29,8 @@ class FormQuery
 		});
 	}
 
-	protected function fromDate()
+	protected function limit()
 	{
-		if ($this->request->year) {
-			return (new DateTime)->setDate($this->request->year, 1, 1);
-		}
-
-		return "2015-01-01";
-	}
-
-	protected function toDate()
-	{
-		if ( ! $this->request->year) {
-			return new DateTime($this->request->to);
-		}
-
-		$to = new DateTime;
-
-		if ($to->format('Y') > $this->request->year) {
-			$to->setDate($this->request->year, 12, 31);
-		}
-
-		return $to;
-
+		return $this->request->get('form_matches', 6);
 	}
 }
