@@ -55,7 +55,7 @@ $query = <<<SQL
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
 		GROUP BY players.id
 		HAVING last_appearance >= ? AND matches >= ?
-		ORDER BY points desc, matches ASC, gd DESC, scored DESC
+		ORDER BY points desc, gd DESC, scored DESC, matches ASC
 SQL;
 
 		$placeholders = [
