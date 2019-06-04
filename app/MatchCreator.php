@@ -85,18 +85,20 @@ class MatchCreator
 	protected function lookupPlayer($string)
 	{
 		$data = explode(' ', $string);
-		$builder = Player::whereFirstName($data[0]);
+		
+		$firstName = array_shift($data);
+		$lastName = implode(' ', $data);
+		
+		$builder = Player::whereFirstName($firstName);
 
-		if (count($data) === 2) {
-			$builder->whereLastName($data[1]);
+		if ($lastName) {
+			$builder->whereLastName($lastName);
 		}
 
 		$player = $builder->first();
 
 		if ($player) return $player;
 
-		list($first_name, $last_name) = $data;
-
-		return Player::create(compact('first_name', 'last_name'));
+		return Player::create(['first_name' => $firstName, 'last_name' => $lastName]);
 	}
 }
