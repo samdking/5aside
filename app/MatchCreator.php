@@ -9,7 +9,7 @@ class MatchCreator
 	/**
 	 * Parse a string into a Match instance. Example format:
 	 *
-	 * YYYY-MM-DD: P1, P2, P3 5 - 3 P4, P5, P6
+	 * YYYY-MM-DD: P1, P2, P3 5 - 3 P4, P5, P6 (Venue Override)
 	 *
 	 * @param  string  $string
 	 * @return App\Match
@@ -18,14 +18,15 @@ class MatchCreator
 	{
 		$this->allPlayers = [];
 
-		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) (.+)/', $string, $matches);
+		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) (.+) ?\((.+)\)?/', $string, $matches);
 
 		if ( ! $match) throw new \Exception('Unknown format');
 
-		list(, $date, $firstTeam, $score1, $score2, $secondTeam) = $matches;
+		list(, $date, $firstTeam, $score1, $score2, $secondTeam, $venue) = $matches;
 
 		$match = Match::create([
-			'date' => new \DateTime($date)
+			'date' => new \DateTime($date),
+			'venue_id' => $this->lookupVenue($venue)->id;
 		]);
 
 		$team1 = $this->createTeam($score1, $score2);
@@ -43,6 +44,21 @@ class MatchCreator
 		$team2->save();
 
 		return $match;
+	}
+
+	/**
+	 * Looks up venue by string or gets the latest
+	 *
+	 * @param  string  $venueString
+	 * @return App\Venue
+	 */
+	private function lookupVenue($venueString)
+	{
+		if ($venueString) {
+			return Venue::whereName($venueString)->firstOrFail();
+		} else {
+			return Venue::latest();
+		}
 	}
 
 	/**
