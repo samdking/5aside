@@ -26,7 +26,7 @@ class MatchCreator
 
 		$match = Match::create([
 			'date' => new \DateTime($date),
-			'venue_id' => $this->lookupVenue($venue)->id;
+			'venue_id' => $this->lookupVenue($venue)->id
 		]);
 
 		$team1 = $this->createTeam($score1, $score2);
