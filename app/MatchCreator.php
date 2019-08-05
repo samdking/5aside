@@ -18,11 +18,13 @@ class MatchCreator
 	{
 		$this->allPlayers = [];
 
-		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) (.+) ?\((.+)\)?/', $string, $matches);
+		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) ([^\[\]]+)(?: \[(.+)\])?$/', $string, $matches);
 
 		if ( ! $match) throw new \Exception('Unknown format');
 
-		list(, $date, $firstTeam, $score1, $score2, $secondTeam, $venue) = $matches;
+		[, $date, $firstTeam, $score1, $score2, $secondTeam] = $matches;
+
+		$venue = count($matches) == 7 ? $matches[6] : null;
 
 		$match = Match::create([
 			'date' => new \DateTime($date),
@@ -57,7 +59,7 @@ class MatchCreator
 		if ($venueString) {
 			return Venue::whereName($venueString)->firstOrFail();
 		} else {
-			return Venue::latest();
+			return Venue::latest()->first();
 		}
 	}
 
