@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class Match extends Model
 {
 	protected $fillable = [
-		'date'
+		'date', 'venue_id'
 	];
 	protected $dates = ['date'];
 
