@@ -339,9 +339,9 @@ nav a {
   float: left;
 }
 
-.player { width: 400px; position: relative; height: 30px; margin: 2px 0; line-height: 30px }
+.player { display: flex; width: 400px; position: relative; height: 30px; margin: 2px 0; line-height: 30px }
 .player .info { color: #FFF; position: absolute; }
-.player .bar { height: 100%; float: left; }
+.player .bar { height: 100% }
 
 .player--injured { font-style: italic; color: maroon; }
 
