@@ -74,7 +74,7 @@ SQL;
 				return $m->players->has($p->id) ? $m->players[$p->id] : "";
 			});
 			foreach($p as $k => $v) {
-				if (is_numeric($v)) {
+				if (is_numeric($v) && $k != 'first_initial') {
 					$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
 				}
 				foreach(['handicap', 'advantage', 'per_game'] as $t) {
