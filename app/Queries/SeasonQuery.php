@@ -27,11 +27,16 @@ $query = <<<SQL
 		  MAX(date) AS end_date,
 		  COUNT(id) AS total_matches,
 		  AVG(player_count) AS average_players,
-		  SUM(player_count) AS total_players
+		  SUM(player_count) AS total_players,
+		  SUM(anon_player_count) AS total_anon_players
 		FROM matches
 		INNER JOIN (
-		  SELECT COUNT(player_team.id) AS player_count, match_id
+		  SELECT
+		    SUM(players.last_name != '(anon)') AS player_count,
+		    SUM(players.last_name = '(anon)') AS anon_player_count,
+		    match_id
 		  from player_team
+		  JOIN players on players.id = player_team.player_id
 		  JOIN teams on teams.id = player_team.teaM_id
 		  group by match_id
 		) pt ON pt.match_id = matches.id

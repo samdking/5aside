@@ -23,7 +23,7 @@ class MatchQuery
 		  matches.is_short AS short,
 		  IF(team_a.winners, "A", IF(team_b.winners, "B", null)) AS winner,
 		  IF(team_a.handicap, "A", IF(team_b.handicap, "B", null)) AS handicap,
-		  COUNT(player_team.id) AS total_players,
+		  SUM(players.last_name != '(anon)') AS total_players,
 		  team_a.scored AS team_a_scored,
 		  team_b.scored AS team_b_scored,
 		  venues.name AS venue
@@ -32,6 +32,7 @@ class MatchQuery
 		INNER JOIN teams AS team_b ON team_b.match_id = matches.id and team_b.id != team_a.id
 		INNER JOIN venues on venues.id = matches.venue_id
 		INNER JOIN player_team on player_team.team_id = team_a.id
+		INNER JOIN players on players.id = player_team.player_id
 		WHERE date >= ? AND date <= ?
 		GROUP BY matches.id
 		ORDER BY matches.date
