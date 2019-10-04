@@ -23,7 +23,7 @@ class MatchQuery
 		  matches.is_short AS short,
 		  IF(team_a.winners, "A", IF(team_b.winners, "B", null)) AS winner,
 		  IF(team_a.handicap, "A", IF(team_b.handicap, "B", null)) AS handicap,
-		  SUM(players.last_name != '(anon)') AS total_players,
+		  CAST(SUM(players.last_name != '(anon)') AS SIGNED) AS total_players,
 		  team_a.scored AS team_a_scored,
 		  team_b.scored AS team_b_scored,
 		  venues.name AS venue

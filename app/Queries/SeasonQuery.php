@@ -32,8 +32,8 @@ $query = <<<SQL
 		FROM matches
 		INNER JOIN (
 		  SELECT
-		    SUM(players.last_name != '(anon)') AS player_count,
-		    SUM(players.last_name = '(anon)') AS anon_player_count,
+		    CAST(SUM(players.last_name != '(anon)') AS SIGNED) AS player_count,
+		    CAST(SUM(players.last_name = '(anon)') AS SIGNED) AS anon_player_count,
 		    match_id
 		  from player_team
 		  JOIN players on players.id = player_team.player_id
