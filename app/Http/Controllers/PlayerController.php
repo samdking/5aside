@@ -253,12 +253,6 @@ ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `
 
 		$matches = $matches->get();
 
-		if ($request->has('from')) {
-			$player->teams = $matches->filter(function($team) use ($request) {
-				return $team->match->date >= $request->from;
-			});
-		}
-
 		$players = Player::with('teams.match')->where('id', '!=', $player->id)->get();
 
 		$stats = $players->map(function($other) use ($player) {
