@@ -251,7 +251,10 @@ ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `
 			});
 		}
 
+
 		$matches = $matches->get();
+
+		$player->teams = $matches;
 
 		$players = Player::with('teams.match')->where('id', '!=', $player->id)->get();
 
