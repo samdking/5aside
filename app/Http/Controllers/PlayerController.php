@@ -245,6 +245,12 @@ ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `
 			});
 		}
 
+		if ($request->has('to')) {
+			$matches->whereHas('match', function($q) use ($request) {
+				$q->where('date', '<=', $request->to);
+			});
+		}
+
 		$matches = $matches->get();
 
 		if ($request->has('from')) {
