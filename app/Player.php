@@ -125,17 +125,18 @@ class Player extends Model
 		});
 	}
 
-	public function matchesPlayedAgainst($opposition)
+	public function playedAgainstCount($opposition)
 	{
-		return $this->teams->map(function($team) use ($opposition) {
-			return $opposition->teams->keyBy('match_id')->get($team->match_id);
-		})->filter(function($team) {
-			return $team && ! $this->teams->contains($team);
-		})->values('match');
+		$oppsByMatch = $opposition->teams->keyBy('match_id');
+
+		return $this->teams->filter(function($team) use ($oppsByMatch) {
+			$opp = $oppsByMatch->get($team->match_id);
+			return $opp && $opp->id != $team->id;
+		})->count();
 	}
 
-	public function matchesPlayedWith($teammate)
+	public function playedWithCount($teammate)
 	{
-		return $this->teams->intersect($teammate->teams)->values('match');
+		return $this->teams->intersect($teammate->teams)->count();
 	}
 }

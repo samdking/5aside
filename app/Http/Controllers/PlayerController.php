@@ -259,8 +259,8 @@ ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `
 		$players = Player::with('teams.match')->where('id', '!=', $player->id)->get();
 
 		$stats = $players->map(function($other) use ($player) {
-			$with = $player->matchesPlayedWith($other)->count();
-			$against = $player->matchesPlayedAgainst($other)->count();
+			$with = $player->playedWithCount($other);
+			$against = $player->playedAgainstCount($other);
 			return (object)[
 				'id' => $other->id,
 				'player' => $other->first_name . ' ' . $other->last_name,
