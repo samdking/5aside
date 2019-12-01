@@ -80,10 +80,11 @@ class Team extends Model
 	public function playerData()
 	{
 		return $this->players->map(function($p) {
-			return [
+			return array_filter([
 				'id' => $p->id,
 				'name' => $p->shortName(),
-			];
+				'injured' => (boolean)$p->pivot->injured,
+			]);
 		});
 	}
 }
