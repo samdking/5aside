@@ -77,13 +77,13 @@ class Team extends Model
 		});
 	}
 
-	public function playerData($showInjuryFlag = false)
+	public function playerData()
 	{
 		return $this->players->map(function($p) {
 			return array_filter([
 				'id' => $p->id,
 				'name' => $p->shortName(),
-				'injured' => $showInjuryFlag ? $p->pivot->injured : null,
+				'injured' => (boolean)$p->pivot->injured,
 			]);
 		});
 	}

@@ -49,7 +49,7 @@ SQL;
 
 			foreach($teams[$match->id] as $i => $team) {
 				$t = 'team_' . ['a', 'b'][$i];
-				$match->$t = $team->playerData($this->request->injury_flag);
+				$match->$t = $team->playerData();
 			}
 			unset($match->id);
 		});
