@@ -14,7 +14,7 @@
 <nav>
 	<a href="/">Home</a> |
 	Seasons:
-		@foreach(range(0, 3) as $i)
+		@foreach(range(0, 5) as $i)
 			<a href="{!! route('players.index', [
 				'from' => date('Y') - $i . '-01-01',
 				'to' => date('Y') - $i . '-12-31'
