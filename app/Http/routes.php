@@ -11,20 +11,18 @@
 |
 */
 
-Route::get('/', 'PlayerController@summary');
+Route::group(['middleware' => ['web']], function() {
+	Route::get('/', 'PlayerController@summary');
 
-Route::model('matches', 'App\Match');
-Route::model('players', 'App\Player');
-Route::model('teams', 'App\Team');
+	Route::resource('matches', 'MatchController');
+	Route::get('players/history', 'PlayerController@history');
+	Route::get('players/matrix', 'PlayerController@matrix');
+	Route::resource('players', 'PlayerController');
+	Route::resource('teams', 'TeamController');
 
-Route::resource('matches', 'MatchController');
-Route::get('players/history', 'PlayerController@history');
-Route::get('players/matrix', 'PlayerController@matrix');
-Route::resource('players', 'PlayerController');
-Route::resource('teams', 'TeamController');
-
-Route::get('matches/create', 'AdminController@createMatch');
-Route::post('matches', 'AdminController@storeMatch');
+	Route::get('matches/create', 'AdminController@createMatch');
+	Route::post('matches', 'AdminController@storeMatch');
+});
 
 Route::group(['middleware' => 'cors'], function() {
 	Route::get('data.json', 'DataController@all');
