@@ -18,21 +18,23 @@ class MatchCreator
 	{
 		$this->allPlayers = [];
 
-		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) ([^\[\]]+)(?: \[(.+)\])?$/', $string, $matches);
+		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) ([^\[\]]+)(?: \[(.+)\])?( <VOID>)?$/', $string, $matches);
 
 		if ( ! $match) throw new \Exception('Unknown format');
 
-		[, $date, $firstTeam, $score1, $score2, $secondTeam] = $matches;
+		[, $date, $firstTeam, $score1, $score2, $secondTeam, $void] = $matches;
 
 		$venue = count($matches) == 7 ? $matches[6] : null;
 
+		$void = !is_null($void);
+
 		$match = Match::create([
 			'date' => new \DateTime($date),
-			'venue_id' => $this->lookupVenue($venue)->id
+			'venue_id' => $this->lookupVenue($venue)->id,
+			'void' => $void
 		]);
 
-		$team1 = $this->createTeam($score1, $score2);
-		$team2 = $this->createTeam($score2, $score1);
+		[$team1, $team2] = $this->createTeams($score1, $score2, $void);
 
 		$match->teams()->saveMany([$team1, $team2]);
 
@@ -64,20 +66,22 @@ class MatchCreator
 	}
 
 	/**
-	 * Create a team instance from a string of players
+	 * Returns an array of created team instances from 2 scores
 	 *
-	 * @param  string  $string
 	 * @param  int  $score1
 	 * @param  int  $score2
-	 * @return App\Team
+	 * @param  boolean  @void
+	 * @return Illuminate\Support\Collection
 	 */
-	private function createTeam($score1, $score2)
+	private function createTeams($score1, $score2, $void)
 	{
-		return new Team([
-			'scored' => $score1,
-			'winners' => $score1 > $score2,
-			'draw' => $score1 == $score2,
-		]);
+		return collect([$score1, $score2], [$score2, $score1])->map(function($scores) {
+			return new Team([
+				'scored' => $scores[0],
+				'winners' => $void ? null : $scores[0] > $scores[1],
+				'draw' => $void ? null : $scores[0] == $scores[1],
+			]);
+		});
 	}
 
 	/**
@@ -103,10 +107,10 @@ class MatchCreator
 	protected function lookupPlayer($string)
 	{
 		$data = explode(' ', $string);
-		
+
 		$firstName = array_shift($data);
 		$lastName = implode(' ', $data);
-		
+
 		$builder = Player::whereFirstName($firstName);
 
 		if ($lastName) {
