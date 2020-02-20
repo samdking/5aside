@@ -9,7 +9,7 @@ class MatchCreator
 	/**
 	 * Parse a string into a Match instance. Example format:
 	 *
-	 * YYYY-MM-DD: P1, P2, P3 5 - 3 P4, P5, P6 (Venue Override)
+	 * YYYY-MM-DD: P1, P2, P3 5 - 3 P4, P5, P6 [Venue] <VOID>
 	 *
 	 * @param  string  $string
 	 * @return App\Match
@@ -18,7 +18,7 @@ class MatchCreator
 	{
 		$this->allPlayers = [];
 
-		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) ([^\[\]]+)(?: \[(.+)\])?( <VOID>)?$/', $string, $matches);
+		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) ([^\[\]<>]+)(?: \[(.+)\])?(?: (<VOID>))?$/', $string, $matches);
 
 		if ( ! $match) throw new \Exception('Unknown format');
 
