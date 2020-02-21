@@ -147,7 +147,7 @@ return [
 		'App\Providers\AppServiceProvider',
 		'App\Providers\EventServiceProvider',
 		'App\Providers\RouteServiceProvider',
-		'App\Providers\BroadcastServiceProvider',
+	#	'App\Providers\BroadcastServiceProvider',
 
 	#	Barryvdh\Debugbar\ServiceProvider::class,
 		Barryvdh\Cors\ServiceProvider::class,
