@@ -25,8 +25,8 @@ class MatchQuery
 		  IF(team_a.winners, "A", IF(team_b.winners, "B", null)) AS winner,
 		  IF(team_a.handicap, "A", IF(team_b.handicap, "B", null)) AS handicap,
 		  CAST(SUM(players.last_name != '(anon)') AS SIGNED) AS total_players,
-		  IF(is_void, null, team_a.scored) AS team_a_scored,
-		  IF(is_void, null, team_b.scored) AS team_b_scored,
+		  team_a.scored AS team_a_scored,
+		  team_b.scored AS team_b_scored,
 		  venues.name AS venue
 		FROM matches
 		INNER JOIN teams AS team_a ON team_a.match_id = matches.id
