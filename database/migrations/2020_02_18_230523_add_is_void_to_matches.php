@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddVoidToMatches extends Migration
+class AddIsVoidToMatches extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +15,7 @@ class AddVoidToMatches extends Migration
     {
         Schema::table('matches', function ($table)
         {
-            $table->boolean('void');
+            $table->boolean('is_void');
         });
     }
 
@@ -27,7 +28,7 @@ class AddVoidToMatches extends Migration
     {
         Schema::table('matches', function ($table)
         {
-            $table->dropColumn('void');
+            $table->dropColumn('is_void');
         });
     }
 }
