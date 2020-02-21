@@ -42,7 +42,15 @@ $query = <<<SQL
 		FROM players
 		INNER JOIN player_team ON player_team.player_id = players.id
 		INNER JOIN (
-			SELECT matches.date, teams.id, teams.match_id, 1 AS matches, draw AS draws, winners AS wins, scored, handicap
+			SELECT
+				matches.date,
+				teams.id,
+				teams.match_id,
+				1 AS matches,
+				draw AS draws,
+				winners AS wins,
+				IF(matches.is_void, null, scored) AS scored,
+				IF(matches.is_void, null, handicap) AS handicap
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
 			WHERE date >= ? AND date <= ?
@@ -50,8 +58,14 @@ $query = <<<SQL
 			LIMIT ?
 		) team_a ON team_a.id = player_team.team_id
 		INNER JOIN (
-			SELECT id, match_id, winners AS losses, scored AS conceded, handicap AS advantage
+			SELECT
+				teams.id,
+				teams.match_id,
+				winners AS losses,
+				IF(matches.is_void, null, scored) AS conceded,
+				IF(matches.is_void, null, handicap) AS advantage
 			FROM teams
+			INNER JOIN matches on matches.id = teams.match_id
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
 		GROUP BY players.id
 		HAVING last_appearance >= ? AND matches >= ?
