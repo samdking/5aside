@@ -85,7 +85,7 @@ SQL;
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($form) {
 			$p->handicap = $p->advantage = $p->per_game = [];
 			$p->form = $form->map(function($m) use ($p) {
-				return $m->players->has($p->id) ? $m->players[$p->id] : "";
+				return $m->players->get($p->id, "");
 			});
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {

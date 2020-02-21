@@ -23,9 +23,7 @@ class FormQuery
 			->latest('date')->take($this->limit())->get();
 
 		return $matches->each(function($match) {
-			$match->players = $match->teams->mapWithKeys(function($team) {
-				return $team->playerResults();
-			});
+			$match->players = $match->playerResults();
 		});
 	}
 
