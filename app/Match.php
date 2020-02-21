@@ -43,7 +43,7 @@ class Match extends Model
 
 	public function teamPlayedIn(Player $player)
 	{
-		return $this->teams->first(function($key, $team) use ($player) {
+		return $this->teams->first(function($team) use ($player) {
 			return $team->players->contains($player);
 		});
 	}
