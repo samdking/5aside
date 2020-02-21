@@ -59,12 +59,17 @@ class Match extends Model
 		return $this->date->format('j F Y') . $score;
 	}
 
+	public function resultForTeam(Team $team)
+	{
+		return $this->is_void ? "Void" : $team->result();
+	}
+
 	public function playerResults()
 	{
 		return $this->teams->mapWithKeys(function($team) {
-			$result = substr($team->result(), 0, 1);
+			$result = $this->resultForTeam($team);
 			return $team->players->keyBy('id')->map(function($p) use ($result) {
-				return $this->is_void ? "V" : $result;
+				return $result;
 			});
 		});
 	}

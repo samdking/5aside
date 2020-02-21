@@ -22,7 +22,7 @@
 
 <div class="matches">
 @foreach($matches as $match)
-	<div class="match">
+	<div class="match{{ $match->is_void ? ' void' : '' }}">
 		<a class="date" href="{{ route('matches.show', $match->id) }}">
 			{{ $match->date->format('D jS F Y') }}
 			@if ($match->venue)
@@ -35,7 +35,7 @@
 		</a><!--
 		@foreach($match->teams as $i => $team)
 			--><div class="team{{ $team->winners ? ' winners' : '' }}">
-				<h2 class="scored">{{ $team->scored }}</h2>
+				<h2 class="scored">{{ $match->is_void ? "V" : $team->scored }}</h2>
 				<ul>
 				@foreach($team->players as $player)
 					<li>
