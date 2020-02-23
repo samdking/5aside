@@ -55,7 +55,7 @@
 			<td>{{ $player->losses }}</td>
 			<td>{{ $player->goals_for }}</td>
 			<td>{{ $player->goals_against }}</td>
-			<td>{{ $player->diff }}</td>
+			<td>{{ $player->goals_for - $player->goals_against }}</td>
 			<td>{{ ($player->wins * 3) + $player->draws }}</td>
 			<td>{{ $player->win_percentage }}%</td>
 			<td class="js-expanded">{{ $player->handicap_apps }}</td>
