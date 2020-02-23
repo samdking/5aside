@@ -43,7 +43,7 @@ class Match extends Model
 
 	public function teamPlayedIn(Player $player)
 	{
-		return $this->teams->first(function($key, $team) use ($player) {
+		return $this->teams->first(function($team, $key) use ($player) {
 			return $team->players->contains($player);
 		});
 	}
@@ -57,7 +57,7 @@ class Match extends Model
 		}
 
 		return $this->date->format('j F Y') . $score;
-	}
+	}	
 
 	public function resultForTeam(Team $team)
 	{
@@ -66,11 +66,13 @@ class Match extends Model
 
 	public function playerResults()
 	{
-		return $this->teams->mapWithKeys(function($team) {
+		[$teamA, $teamB] = $this->teams->map(function($team) {
 			$result = $this->resultForTeam($team);
 			return $team->players->keyBy('id')->map(function($p) use ($result) {
 				return $result;
 			});
 		});
+
+		return $teamA->union($teamB);
 	}
 }

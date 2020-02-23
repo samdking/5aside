@@ -22,8 +22,8 @@ class FormQuery
 			->whereRaw('date >= ? AND date <= ?', $placeholders)
 			->latest('date')->take($this->limit())->get();
 
-		return $matches->each(function($match) {
-			$match->players = $match->playerResults();
+		return $matches->map(function($match) {
+			return $match->playerResults();
 		});
 	}
 

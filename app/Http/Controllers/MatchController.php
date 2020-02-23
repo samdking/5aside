@@ -25,7 +25,7 @@ class MatchController extends Controller {
 
 		$matches = $matches->filter(function($match) use ($teammates) {
 			return $match->teams->filter(function($team) use ($teammates) {
-				return count(array_intersect($team->players->lists('id')->all(), $teammates)) == count($teammates);
+				return count(array_intersect($team->players->pluck('id')->all(), $teammates)) == count($teammates);
 			})->count() > 0;
 		});
 
