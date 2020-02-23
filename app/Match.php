@@ -57,5 +57,14 @@ class Match extends Model
 		}
 
 		return $this->date->format('j F Y') . $score;
+	}	
+
+	public function playerResults()
+	{
+		$teams = $this->teams->map(function($team) {
+			return $team->playerResults();
+		});
+
+		return $teams[0]->union($teams[1]);
 	}
 }
