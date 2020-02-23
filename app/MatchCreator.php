@@ -41,8 +41,10 @@ class MatchCreator
 		$team1->players()->sync($this->parsePlayers($firstTeam));
 		$team2->players()->sync($this->parsePlayers($secondTeam));
 
-		$team1->handicap = $team1->players->count() < $team2->players->count();
-		$team2->handicap = $team2->players->count() < $team1->players->count();
+		if (!$void) {
+			$team1->handicap = $team1->players->count() < $team2->players->count();
+			$team2->handicap = $team2->players->count() < $team1->players->count();
+		}
 
 		$team1->save();
 		$team2->save();
