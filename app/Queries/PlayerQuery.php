@@ -28,6 +28,7 @@ $query = <<<SQL
 			SUM(wins) * 3 + SUM(draws) AS points,
 			MIN(date) AS first_appearance,
 			MAX(date) AS last_appearance,
+			SUM(void_matches) AS void_matches,
 			SUM(handicap) AS handicap_matches,
 			SUM(handicap AND wins) AS handicap_wins,
 			SUM(handicap AND draws) AS handicap_draws,
@@ -42,7 +43,16 @@ $query = <<<SQL
 		FROM players
 		INNER JOIN player_team ON player_team.player_id = players.id
 		INNER JOIN (
-			SELECT matches.date, teams.id, teams.match_id, 1 AS matches, draw AS draws, winners AS wins, scored, handicap
+			SELECT
+				matches.date,
+				teams.id,
+				teams.match_id,
+				1 AS matches,
+				is_void AS void_matches,
+				draw AS draws,
+				winners AS wins,
+				IF(matches.is_void, 0, scored) AS scored,
+				IF(matches.is_void, 0, handicap) AS handicap
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
 			WHERE date >= ? AND date <= ?
@@ -50,8 +60,14 @@ $query = <<<SQL
 			LIMIT ?
 		) team_a ON team_a.id = player_team.team_id
 		INNER JOIN (
-			SELECT id, match_id, winners AS losses, scored AS conceded, handicap AS advantage
+			SELECT
+				teams.id,
+				teams.match_id,
+				winners AS losses,
+				IF(matches.is_void, 0, scored) AS conceded,
+				IF(matches.is_void, 0, handicap) AS advantage
 			FROM teams
+			INNER JOIN matches on matches.id = teams.match_id
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
 		GROUP BY players.id
 		HAVING last_appearance >= ? AND matches >= ?
@@ -71,7 +87,7 @@ SQL;
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($form) {
 			$p->handicap = $p->advantage = $p->per_game = [];
 			$p->form = $form->map(function($players) use ($p) {
-				return $players->has($p->id) ? $players[$p->id] : "";
+				return $players->get($p->id, "");
 			});
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {

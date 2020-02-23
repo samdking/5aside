@@ -17,7 +17,7 @@ class Player extends Model
 
 	public function scopeSelectWinPercentage($query)
 	{
-		$query->selectRaw('ROUND(SUM(teams.winners) / COUNT(teams.id) * 100, 1) AS win_percentage')
+		$query->selectRaw('ROUND(SUM(teams.winners) / SUM(!is_void) * 100, 1) AS win_percentage')
 			->orderBy('win_percentage', 'DESC');
 	}
 

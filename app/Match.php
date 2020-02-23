@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class Match extends Model
 {
 	protected $fillable = [
-		'date', 'venue_id'
+		'date', 'venue_id', 'is_void'
 	];
 	protected $dates = ['date'];
 
@@ -59,12 +59,20 @@ class Match extends Model
 		return $this->date->format('j F Y') . $score;
 	}	
 
+	public function resultForTeam(Team $team)
+	{
+		return $this->is_void ? "Void" : $team->result();
+	}
+
 	public function playerResults()
 	{
-		$teams = $this->teams->map(function($team) {
-			return $team->playerResults();
+		[$teamA, $teamB] = $this->teams->map(function($team) {
+			$result = $this->resultForTeam($team);
+			return $team->players->keyBy('id')->map(function($p) use ($result) {
+				return $result;
+			});
 		});
 
-		return $teams[0]->union($teams[1]);
+		return $teamA->union($teamB);
 	}
 }

@@ -39,6 +39,7 @@ class PlayerController extends Controller
 			->first();
 
 		$most_wins = Player::joinTeams()
+			->join('matches', 'teams.match_id', '=', 'matches.id')
 			->selectWins()
 			->selectMatches()
 			->orderBy('wins', 'DESC')
@@ -47,6 +48,7 @@ class PlayerController extends Controller
 			->first();
 
 		$highest_win_percentage = Player::joinTeams()
+			->join('matches', 'teams.match_id', '=', 'matches.id')
 			->selectWinPercentage()
 			->selectRaw('COUNT(teams.id) AS matches')
 			->havingRaw('COUNT(teams.id) > ?', [$total_matches / 4])
@@ -72,9 +74,9 @@ class PlayerController extends Controller
 			->selectRaw('COUNT(teams.id) AS `played`')
 			->selectWins()
 			->selectRaw('SUM(teams.draw) AS `draws`')
-			->selectRaw('COUNT(teams.id) - SUM(teams.winners) - SUM(teams.draw) AS `losses`')
-			->selectRaw('SUM(teams.scored) AS goals_for')
-			->selectRaw('SUM(opps.scored) AS goals_against')
+			->selectRaw('SUM(opps.winners) AS `losses`')
+			->selectRaw('SUM(IF(is_void, null, teams.scored)) AS goals_for')
+			->selectRaw('SUM(IF(is_void, null, opps.scored)) AS goals_against')
 			->selectRaw('AVG(teams.scored) AS gspg')
 			->selectRaw('AVG(opps.scored) AS gcpg')
 			->selectRaw('SUM(teams.scored) - SUM(opps.scored) AS diff')
@@ -140,9 +142,9 @@ class PlayerController extends Controller
 			->selectRaw('COUNT(teams.id) AS `played`')
 			->selectWins()
 			->selectRaw('SUM(teams.draw) AS `draws`')
-			->selectRaw('COUNT(teams.id) - SUM(teams.winners) - SUM(teams.draw) AS `losses`')
-			->selectRaw('SUM(teams.scored) AS goals_for')
-			->selectRaw('SUM(opps.scored) AS goals_against')
+			->selectRaw('SUM(opps.winners) AS `losses`')
+			->selectRaw('SUM(IF(is_void, null, teams.scored)) AS goals_for')
+			->selectRaw('SUM(IF(is_void, null, opps.scored)) AS goals_against')
 			->selectRaw('AVG(teams.scored) AS gspg')
 			->selectRaw('AVG(opps.scored) AS gcpg')
 			->selectRaw('SUM(teams.scored) - SUM(opps.scored) AS diff')

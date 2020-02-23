@@ -273,6 +273,9 @@ nav a {
   background: #777777;
 }
 
+.form-table .void {
+  background: orange;
+}
 
 .matches {
   width: 60%;
@@ -288,6 +291,10 @@ nav a {
 
 .team.winners {
   background: lightgreen;
+}
+
+.match.void .team {
+  background: #ffd17c;
 }
 
 .team {

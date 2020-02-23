@@ -21,6 +21,7 @@ class MatchQuery
 		  matches.id,
 		  matches.date,
 		  matches.is_short AS short,
+		  matches.is_void AS void,
 		  IF(team_a.winners, "A", IF(team_b.winners, "B", null)) AS winner,
 		  IF(team_a.handicap, "A", IF(team_b.handicap, "B", null)) AS handicap,
 		  CAST(SUM(players.last_name != '(anon)') AS SIGNED) AS total_players,
@@ -46,6 +47,7 @@ SQL;
 
 		return collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
 			$match->short = (boolean)$match->short;
+			$match->void = (boolean)$match->void;
 
 			foreach($teams[$match->id] as $i => $team) {
 				$t = 'team_' . ['a', 'b'][$i];
