@@ -39,6 +39,7 @@ class PlayerController extends Controller
 			->first();
 
 		$most_wins = Player::joinTeams()
+			->join('matches', 'teams.match_id', '=', 'matches.id')
 			->selectWins()
 			->selectMatches()
 			->orderBy('wins', 'DESC')
@@ -47,6 +48,7 @@ class PlayerController extends Controller
 			->first();
 
 		$highest_win_percentage = Player::joinTeams()
+			->join('matches', 'teams.match_id', '=', 'matches.id')
 			->selectWinPercentage()
 			->selectRaw('COUNT(teams.id) AS matches')
 			->havingRaw('COUNT(teams.id) > ?', [$total_matches / 4])
