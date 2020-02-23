@@ -51,8 +51,8 @@ $query = <<<SQL
 				is_void AS void_matches,
 				draw AS draws,
 				winners AS wins,
-				IF(matches.is_void, null, scored) AS scored,
-				IF(matches.is_void, null, handicap) AS handicap
+				IF(matches.is_void, 0, scored) AS scored,
+				IF(matches.is_void, 0, handicap) AS handicap
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
 			WHERE date >= ? AND date <= ?
@@ -64,8 +64,8 @@ $query = <<<SQL
 				teams.id,
 				teams.match_id,
 				winners AS losses,
-				IF(matches.is_void, null, scored) AS conceded,
-				IF(matches.is_void, null, handicap) AS advantage
+				IF(matches.is_void, 0, scored) AS conceded,
+				IF(matches.is_void, 0, handicap) AS advantage
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
