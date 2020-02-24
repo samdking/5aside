@@ -22,11 +22,12 @@ class MatchCreator
 
 		if ( ! $match) throw new \Exception('Unknown format');
 
-		[, $date, $firstTeam, $score1, $score2, $secondTeam, $void] = $matches;
+
+		[, $date, $firstTeam, $score1, $score2, $secondTeam] = $matches;
 
 		$venue = count($matches) == 7 ? $matches[6] : null;
 
-		$void = !is_null($void);
+		$void = count($matches) == 8;
 
 		$match = Match::create([
 			'date' => new \DateTime($date),
