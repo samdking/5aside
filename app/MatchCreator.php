@@ -78,7 +78,7 @@ class MatchCreator
 	 */
 	private function createTeams($score1, $score2, $void)
 	{
-		return collect([$score1, $score2], [$score2, $score1])->map(function($scores) use ($void) {
+		return collect([[$score1, $score2], [$score2, $score1]])->map(function($scores) use ($void) {
 			return new Team([
 				'scored' => $scores[0],
 				'winners' => $void ? null : $scores[0] > $scores[1],
