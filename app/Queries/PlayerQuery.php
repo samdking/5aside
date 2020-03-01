@@ -37,7 +37,7 @@ $query = <<<SQL
 			SUM(advantage AND wins) AS advantage_wins,
 			SUM(advantage AND draws) AS advantage_draws,
 			SUM(advantage AND losses) AS advantage_losses,
-			ROUND((SUM(wins) * 3 + SUM(draws)) / SUM(matches) - SUM(void_matches), 2) AS per_game_points,
+			ROUND((SUM(wins) * 3 + SUM(draws)) / (SUM(matches) - SUM(void_matches)), 2) AS per_game_points,
 			ROUND(AVG(scored), 2) AS per_game_scored,
 			ROUND(AVG(conceded), 2) AS per_game_conceded,
 			ROUND(SUM(wins) / (SUM(matches) - SUM(void_matches)) * 100, 2) AS win_percentage
