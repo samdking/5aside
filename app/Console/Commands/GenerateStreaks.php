@@ -1,23 +1,25 @@
 <?php
 
-namespace App\Commands;
+namespace App\Console\Commands;
 
+use Illuminate\Console\Command;
 use App\Match;
 use App\Player;
+use App\PlayerStreak;
 
 class GenerateStreaks extends Command
 {
-	protected $signature = 'combinations:generate';
+	protected $signature = 'streaks:generate';
 
 	public function handle()
 	{
 		$this->generatePlayerStreaks()->each(function($ps) {
-			$this->info($ps->player->name);
+			$this->info($ps->player->shortName());
 
-			collect($ps->streaks)->each(function($type, $streaks) {
-				$this->info(type);
-				collect($streaks)->each(function($streak) {
-					$this->info(" - #{$streak->from} - #{$streak->to ?: 'current'}: #{$streak->counter}");
+			collect($ps->streaks)->each(function($streaks, $type) {
+				$this->info($type);
+				collect($streaks)->groupBy('counter')->sortKeys()->last()->each(function($streak) {
+					$this->info(" - {$streak->from} - " . ($streak->to ?: 'current') . ": {$streak->counter}");
 				});
 			});
 
