@@ -11,7 +11,7 @@ class GenerateStreaks extends Command
 
 	public function handle()
 	{
-		$this->generatePlayerStreaks()->->each(function($ps) {
+		$this->generatePlayerStreaks()->each(function($ps) {
 			$this->info($ps->player->name);
 
 			collect($ps->streaks)->each(function($type, $streaks) {
