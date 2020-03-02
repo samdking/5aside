@@ -86,7 +86,7 @@ class Match extends Model
 	public function wasLostBy($player)
 	{
 		$team = $this->teamPlayedIn($player);
-		$opposition = $team && $this->getOpposition($team);
+		$opposition = $team ? $this->getOpposition($team) : null;
 
 		return $opposition && $opposition->winners;
 	}

@@ -2,11 +2,13 @@
 
 namespace App;
 
-use Illuminate\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
-class Streak extends Model
+class Streak
 {
 	public $counter = 0;
+	public $from;
+	public $to;
 
 	public function __construct($from = null)
 	{

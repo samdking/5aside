@@ -2,12 +2,13 @@
 
 namespace App;
 
-use Illuminate\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
 class PlayerStreak extends Model
 {
-	public $streaks;
 	public $player;
+	public $streaks = [
+	];
 	protected $currentStreak = [];
 
 	public function __construct($player)
@@ -59,17 +60,16 @@ class PlayerStreak extends Model
 
 	protected function miss($type, $match)
 	{
-		if ($this->currentStreak[$type])
+		if (array_key_exists($type, $this->currentStreak))
 			$this->clearCurrentStreak($type, $match);
 	}
 
 	protected function currentStreak($type, $match = null)
 	{
-		if ($this->currentStreak[$type]) return $this->currentStreak[$type];
+		if (array_key_exists($type, $this->currentStreak)) return $this->currentStreak[$type];
 
-		$this->currentStreak[$type] = (new Streak($match->date))->tap(function($streak) use($type) {
-			if (!$this->streaks[$type]) $this->streaks[$type] = []
-			$this->streaks[$type][] = $streak
+		$this->currentStreak[$type] = tap(new Streak($match->date), function($streak) use ($type, $match) {
+			$this->streaks[$type][] = $streak;
 		});
 
 		return $this->currentStreak[$type];
@@ -78,6 +78,6 @@ class PlayerStreak extends Model
 	protected function clearCurrentStreak($type, $match)
 	{
 		$this->currentStreak[$type]->finish($match->date);
-		$this->currentStreak[$type] = null;
+		unset($this->currentStreak[$type]);
 	}
 }
