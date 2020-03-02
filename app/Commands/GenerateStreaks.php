@@ -16,7 +16,9 @@ class GenerateStreaks extends Command
 
 		Match::all()->each(function($match) use ($playerStreaks) {
 			$playerStreaks->each(function($ps) use ($match) {
-				if ($match->wasWonBy($ps->player)) {
+				if ($match->is_void) {
+					$ps->void($match);
+				} elseif ($match->wasWonBy($ps->player)) {
 					$ps->win($match);
 				} elseif ($match->wasLostBy($ps->player)) {
 					$ps->lose($match);

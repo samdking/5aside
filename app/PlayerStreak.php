@@ -42,6 +42,11 @@ class PlayerStreak extends Model
 		$this->miss('defeats', $match);
 	}
 
+	public function void($match)
+	{
+		$this->hit('apps', $match);
+	}
+
 	public function noShow($match)
 	{
 		$this->miss('apps', $match);
