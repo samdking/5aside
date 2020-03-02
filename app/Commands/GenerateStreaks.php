@@ -12,6 +12,22 @@ class GenerateStreaks extends Command
 
 	public function handle()
 	{
+		$this->generatePlayerStreaks()->->each(function($ps) {
+			$this->info($ps->player->name);
+
+			$ps->streaks->each(function($type, $streaks) {
+				$this->info(type);
+				$streaks->each(function($streak) {
+					$this->info(" - #{$streak->from} - #{$streak->to ?: 'current'}: #{$streak->counter}");
+				});
+			});
+
+			$this->info("");
+		});
+	}
+
+	protected function generatePlayerStreaks()
+	{
 		$playerStreaks = Player::all()->map(function($player) { return new PlayerStreak($player); });
 
 		Match::all()->each(function($match) use ($playerStreaks) {
@@ -30,17 +46,6 @@ class GenerateStreaks extends Command
 			});
 		});
 
-		$playerStreaks->each(function($ps) {
-			$this->info($ps->player->name);
-
-			$ps->streaks->each(function($type, $streaks) {
-				$this->info(type);
-				$streaks->each(function($streak) {
-					$this->info(" - #{$streak->from} - #{$streak->to ?: 'current'}: #{$streak->counter}");
-				});
-			});
-
-			$this->info("");
-		});
+		return $playerStreaks;
 	}
 }
