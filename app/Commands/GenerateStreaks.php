@@ -29,7 +29,7 @@ class GenerateStreaks extends Command
 	{
 		$playerStreaks = Player::all()->map(function($player) { return new PlayerStreak($player); });
 
-		Match::all()->each(function($match) use ($playerStreaks) {
+		Match::with('teams.players')->orderBy('date')->get()->each(function($match) use ($playerStreaks) {
 			$playerStreaks->each(function($ps) use ($match) {
 				if ($match->is_void) {
 					$ps->void($match);
