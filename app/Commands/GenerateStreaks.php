@@ -8,7 +8,6 @@ use App\Player;
 class GenerateStreaks extends Command
 {
 	protected $signature = 'combinations:generate';
-	protected $counter = 0;
 
 	public function handle()
 	{
