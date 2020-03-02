@@ -12,9 +12,17 @@ class Team extends Model
 
 	public $timestamps = false;
 
+	public static function boot()
+	{
+		parent::boot();
+		static::saving(function($team) {
+			$team->createCombinations();
+		});
+	}
+
 	public function combos()
 	{
-		return $this->hasMany('App\Combo');
+		return $this->hasMany('App\Combination');
 	}
 
 	public function playerCombinations()
@@ -32,12 +40,28 @@ class Team extends Model
 			for ($j = 0; $j < $num; $j++) {
 				//Is bit $j set in $i?
 				if (pow(2, $j) & $i) {
-					$combos[$i][] = $this->players[$j]->shortName();
+					$combos[$i][$this->players[$j]->id] = $this->players[$j]->shortName();
 				}
 			}
 		}
 
 		return collect($combos);
+	}
+
+	public function createCombinations()
+	{
+		return $this->playerCombinations()->map(function($players) {
+			$players = collect($players);
+			$combo = $this->combos()->create([
+				'string' => $players->implode(' '),
+				'size' => $players->count(),
+				'scored' => $this->scored,
+				'complete_team' => $this->players->count() == $players->count()
+			]);
+			$combo->players()->attach($players->keys()->toArray());
+			return $combo;
+		});
+
 	}
 
 	public function players()
