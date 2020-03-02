@@ -2,9 +2,7 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
-
-class PlayerStreak extends Model
+class PlayerStreak
 {
 	public $player;
 	public $streaks = [
