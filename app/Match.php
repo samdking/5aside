@@ -57,7 +57,7 @@ class Match extends Model
 		}
 
 		return $this->date->format('j F Y') . $score;
-	}	
+	}
 
 	public function resultForTeam(Team $team)
 	{
@@ -74,5 +74,27 @@ class Match extends Model
 		});
 
 		return $teamA->union($teamB);
+	}
+
+	public function wasWonBy($player)
+	{
+		$team = $this->teamPlayedIn($player);
+
+		return $team && $team->winners;
+	}
+
+	public function wasLostBy($player)
+	{
+		$team = $this->teamPlayedIn($player);
+		$opposition = $team && $this->getOpposition($team);
+
+		return $opposition && $opposition->winners;
+	}
+
+	public function wasDrawnBy($player)
+	{
+		$team = $this->teamPlayedIn($player);
+
+		return $team && $team->draw;
 	}
 }
