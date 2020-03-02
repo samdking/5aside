@@ -33,8 +33,10 @@ class GenerateStreaks extends Command
 			return new PlayerStreak($player);
 		});
 
-		Match::with('teams.players')->orderBy('date')->get()->each(function($match) use ($playerStreaks) {
-			$playerStreaks->each(function($ps) use ($match) {
+		$matches = Match::with('teams.players')->orderBy('date')->get();
+
+		return $matches->reduce(function($playerStreaks, $match) {
+			return $playerStreaks->each(function($ps) use ($match) {
 				if ($match->is_void) {
 					$ps->void($match);
 				} elseif ($match->wasWonBy($ps->player)) {
@@ -47,8 +49,6 @@ class GenerateStreaks extends Command
 					$ps->noShow($match);
 				}
 			});
-		});
-
-		return $playerStreaks;
+		}, $playerStreaks);
 	}
 }
