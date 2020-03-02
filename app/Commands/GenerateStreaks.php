@@ -27,7 +27,9 @@ class GenerateStreaks extends Command
 
 	protected function generatePlayerStreaks()
 	{
-		$playerStreaks = Player::all()->map(function($player) { return new PlayerStreak($player); });
+		$playerStreaks = Player::all()->map(function($player) {
+			return new PlayerStreak($player);
+		});
 
 		Match::with('teams.players')->orderBy('date')->get()->each(function($match) use ($playerStreaks) {
 			$playerStreaks->each(function($ps) use ($match) {
