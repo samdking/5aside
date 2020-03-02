@@ -14,9 +14,9 @@ class GenerateStreaks extends Command
 		$this->generatePlayerStreaks()->->each(function($ps) {
 			$this->info($ps->player->name);
 
-			$ps->streaks->each(function($type, $streaks) {
+			collect($ps->streaks)->each(function($type, $streaks) {
 				$this->info(type);
-				$streaks->each(function($streak) {
+				collect($streaks)->each(function($streak) {
 					$this->info(" - #{$streak->from} - #{$streak->to ?: 'current'}: #{$streak->counter}");
 				});
 			});
