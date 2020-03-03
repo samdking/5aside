@@ -5,8 +5,7 @@ namespace App;
 class PlayerStreak
 {
 	public $player;
-	public $streaks = [
-	];
+	public $streaks = [];
 	protected $currentStreak = [];
 
 	public function __construct($player)

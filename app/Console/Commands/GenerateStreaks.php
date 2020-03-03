@@ -3,9 +3,11 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Match;
+use ILluminate\Support\Fluent;
 use App\Player;
 use App\PlayerStreak;
+use App\ResultStreak;
+use App\Queries\ResultQuery;
 
 class GenerateStreaks extends Command
 {
@@ -33,11 +35,13 @@ class GenerateStreaks extends Command
 			return new PlayerStreak($player);
 		});
 
-		$matches = Match::with('teams.players')->orderBy('date')->get();
+		$results = (new ResultQuery(new Fluent))->get()->map(function($result) {
+			return new ResultStreak($result);
+		});
 
-		return $matches->reduce(function($playerStreaks, $match) {
+		return $results->reduce(function($playerStreaks, $match) {
 			return $playerStreaks->each(function($ps) use ($match) {
-				if ($match->is_void) {
+				if ($match->wasVoid()) {
 					$ps->void($match);
 				} elseif ($match->wasWonBy($ps->player)) {
 					$ps->win($match);
