@@ -58,19 +58,25 @@ class PlayerStreak
 
 	protected function miss($type, $match)
 	{
-		if (array_key_exists($type, $this->currentStreak))
+		if ($this->onCurrentStreak($type))
 			$this->clearCurrentStreak($type, $match);
 	}
 
-	protected function currentStreak($type, $match = null)
+	protected function currentStreak($type, $match)
 	{
-		if (array_key_exists($type, $this->currentStreak)) return $this->currentStreak[$type];
+		if ($this->onCurrentStreak($type)) {
+			return $this->currentStreak[$type];
+		}
 
-		$this->currentStreak[$type] = tap(new Streak($match->date), function($streak) use ($type, $match) {
+		return tap(new Streak($match->date), function($streak) use ($type) {
+			$this->currentStreak[$type] = $streak;
 			$this->streaks[$type][] = $streak;
 		});
+	}
 
-		return $this->currentStreak[$type];
+	protected function onCurrentStreak($type)
+	{
+		return array_key_exists($type, $this->currentStreak);
 	}
 
 	protected function clearCurrentStreak($type, $match)
