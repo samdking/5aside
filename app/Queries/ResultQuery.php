@@ -4,7 +4,7 @@ namespace App\Queries;
 
 use Illuminate\Http\Request;
 
-class MatchQuery
+class ResultQuery
 {
 	protected $request;
 

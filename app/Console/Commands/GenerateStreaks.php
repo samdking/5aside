@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use ILluminate\Support\Fluent;
+use Illuminate\Support\Fluent;
 use App\Player;
 use App\PlayerStreak;
 use App\ResultStreak;
