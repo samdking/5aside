@@ -11,7 +11,7 @@ use App\Queries\ResultQuery;
 
 class GenerateStreaks extends Command
 {
-	protected $signature = 'streaks:generate';
+	protected $signature = 'streaks:generate {playerId?}';
 
 	public function handle()
 	{
@@ -31,7 +31,9 @@ class GenerateStreaks extends Command
 
 	protected function generatePlayerStreaks()
 	{
-		$playerStreaks = Player::all()->map(function($player) {
+		$players = $this->argument('playerId') ? Player::find([$this->argument('playerId')]) : Player::all();
+
+		$playerStreaks = $players->map(function($player) {
 			return new PlayerStreak($player);
 		});
 
