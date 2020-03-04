@@ -37,7 +37,7 @@ SQL;
 
 		return collect(\DB::select($query, $placeholders))->each(function($match) {
 			foreach(['winners', 'losers', 'draw'] as $prop) {
-				$match->{$prop} = explode(',', $match->{$prop});
+				$match->{$prop} = collect(explode(',', $match->{$prop}));
 			}
 		});
 	}

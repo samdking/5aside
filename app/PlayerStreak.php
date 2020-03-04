@@ -5,12 +5,14 @@ namespace App;
 class PlayerStreak
 {
 	public $player;
+	public $id;
 	public $streaks = [];
 	protected $currentStreak = [];
 
 	public function __construct($player)
 	{
 		$this->player = $player;
+		$this->id = $player->id;
 	}
 
 	public function win($match)

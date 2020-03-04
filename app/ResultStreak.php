@@ -16,16 +16,16 @@ class ResultStreak
 
 	public function wasWonBy($player)
 	{
-		return collect($this->match->winners)->contains($player->player->id);
+		return $this->match->winners->contains($player->id);
 	}
 
 	public function wasLostBy($player)
 	{
-		return collect($this->match->losers)->contains($player->player->id);
+		return $this->match->losers->contains($player->id);
 	}
 
 	public function wasDrawnby($player)
 	{
-		return collect($this->match->draw)->contains($player->player->id);
+		return $this->match->draw->contains($player->id);
 	}
 }
