@@ -43,17 +43,7 @@ class GenerateStreaks extends Command
 
 		return $results->reduce(function($playerStreaks, $match) {
 			return $playerStreaks->each(function($ps) use ($match) {
-				if ($match->wasVoid()) {
-					$ps->void($match);
-				} elseif ($match->wasWonBy($ps->player)) {
-					$ps->win($match);
-				} elseif ($match->wasLostBy($ps->player)) {
-					$ps->lose($match);
-				} elseif ($match->wasDrawnBy($ps->player)) {
-					$ps->draw($match);
-				} else {
-					$ps->noShow($match);
-				}
+				$match->calculateStreakFor($ps);
 			});
 		}, $playerStreaks);
 	}

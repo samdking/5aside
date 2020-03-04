@@ -12,6 +12,21 @@ class ResultStreak
 		$this->date = $match->date;
 	}
 
+	public function calculateStreakFor($player)
+	{
+		if ($this->wasVoid()) {
+			$player->void($this);
+		} elseif ($this->wasWonBy($player)) {
+			$player->win($this);
+		} elseif ($this->wasLostBy($player)) {
+			$player->lose($this);
+		} elseif ($this->wasDrawnBy($player)) {
+			$player->draw($this);
+		} else {
+			$player->noShow($this);
+		}
+	}
+
 	public function wasVoid()
 	{
 		return $this->match->void;
