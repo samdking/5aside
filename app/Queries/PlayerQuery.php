@@ -12,6 +12,8 @@ class PlayerQuery
 
 	public function get()
 	{
+		$where = $this->request->player ? "WHERE players.id = {$this->request->player}" : "";
+
 $query = <<<SQL
 		SELECT
 			players.id,
@@ -70,6 +72,7 @@ $query = <<<SQL
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
+		{$where}
 		GROUP BY players.id
 		HAVING last_appearance >= ? AND matches >= ?
 		ORDER BY points desc, gd DESC, scored DESC, matches ASC
@@ -85,7 +88,7 @@ SQL;
 
 		$form = $this->form->get();
 
-		return collect(\DB::select($query, $placeholders))->each(function($p) use ($form) {
+		return collect(\DB::select($query, $placeholders))->each(function($p, $index) use ($form) {
 			$p->handicap = $p->advantage = $p->per_game = [];
 			$p->form = $form->map(function($players) use ($p) {
 				return $players->get($p->id, "");
