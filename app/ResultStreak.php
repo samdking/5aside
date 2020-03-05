@@ -12,7 +12,7 @@ class ResultStreak
 		$this->date = $match->date;
 	}
 
-	public function calculateStreakFor($player)
+	public function updateStreakFor(PlayerStreak $player)
 	{
 		if ($this->wasVoid()) {
 			$player->void($this);

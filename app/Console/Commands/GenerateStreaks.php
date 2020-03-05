@@ -43,7 +43,7 @@ class GenerateStreaks extends Command
 
 		return $results->reduce(function($playerStreaks, $match) {
 			return $playerStreaks->each(function($ps) use ($match) {
-				$match->calculateStreakFor($ps);
+				$match->updateStreakFor($ps);
 			});
 		}, $playerStreaks);
 	}
