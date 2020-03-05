@@ -88,7 +88,7 @@ SQL;
 
 		$form = $this->form->get();
 
-		return collect(\DB::select($query, $placeholders))->each(function($p, $index) use ($form) {
+		return collect(\DB::select($query, $placeholders))->each(function($p) use ($form) {
 			$p->handicap = $p->advantage = $p->per_game = [];
 			$p->form = $form->map(function($players) use ($p) {
 				return $players->get($p->id, "");
