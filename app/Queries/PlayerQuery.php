@@ -75,7 +75,7 @@ $query = <<<SQL
 		{$where}
 		GROUP BY players.id
 		HAVING last_appearance >= ? AND matches >= ?
-		ORDER BY points desc, gd DESC, scored DESC, matches ASC
+		ORDER BY points desc, gd DESC, matches ASC, scored DESC
 SQL;
 
 		$placeholders = [

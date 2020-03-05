@@ -17,8 +17,9 @@ class FinishQuery
 		SELECT 
 		  year(date) AS year,
 		  players.*,
-		  sum(teams.winners) * 3 + sum(teams.draw) AS pts,
-		  sum(teams.scored) - sum(opps.scored) AS gd
+		  SUM(teams.winners) * 3 + SUM(teams.draw) AS pts,
+		  SUM(teams.scored) - SUM(opps.scored) AS gd,
+		  COUNT(teams.id) as apps
 		FROM matches
 		INNER JOIN teams ON teams.match_id = matches.id
 		INNER JOIN teams opps ON opps.match_id = matches.id AND teams.id != opps.id
@@ -26,7 +27,7 @@ class FinishQuery
 		INNER JOIN players ON players.id = pt.player_id
 		WHERE is_void = 0 AND date >= ? AND YEAR(date) < YEAR(?)
 		GROUP BY year(date), players.id
-		ORDER BY year, pts DESC, gd DESC
+		ORDER BY year, pts DESC, gd DESC, apps ASC
 SQL;
 
 		$placeholders = [
