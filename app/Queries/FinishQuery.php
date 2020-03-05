@@ -15,21 +15,26 @@ class FinishQuery
 	{
 		$query = <<<SQL
 		SELECT 
-		  year(date) as year,
+		  year(date) AS year,
 		  players.*,
-		  sum(teams.winners) * 3 + sum(teams.draw) as pts,
-		  sum(teams.scored) - sum(opps.scored) as gd
-		from matches
-		join teams on teams.match_id = matches.id
-		join teams opps on opps.match_id = matches.id AND teams.id != opps.id 
-		join player_team pt on pt.team_id = teams.id
-		join players on players.id = pt.player_id
-		where is_void = 0 AND YEAR(date) < YEAR(CURDATE())
-		group by year(date), players.id
-		order by year, pts desc, gd desc
+		  sum(teams.winners) * 3 + sum(teams.draw) AS pts,
+		  sum(teams.scored) - sum(opps.scored) AS gd
+		FROM matches
+		INNER JOIN teams ON teams.match_id = matches.id
+		INNER JOIN teams opps ON opps.match_id = matches.id AND teams.id != opps.id
+		INNER JOIN player_team pt ON pt.team_id = teams.id
+		INNER JOIN players ON players.id = pt.player_id
+		WHERE is_void = 0 AND date >= ? AND YEAR(date) < YEAR(?)
+		GROUP BY year(date), players.id
+		ORDER BY year, pts DESC, gd DESC
 SQL;
 
-		$allStandings = collect(\DB::select($query))->groupBy('year')->each(function($standings, $year) {
+		$placeholders = [
+			(new Filters\FromDate)->get($this->request),
+			(new Filters\ToDate)->get($this->request)
+		];
+
+		$allStandings = collect(\DB::select($query, $placeholders))->groupBy('year')->each(function($standings, $year) {
 			$standings->each(function($player, $index) {
 				$player->rank = $index + 1;
 				unset($player->year);

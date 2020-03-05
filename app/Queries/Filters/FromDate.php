@@ -13,6 +13,10 @@ class FromDate
 			return $request->since;
 		}
 
+		if ($request->from) {
+			return $request->from;
+		}
+
 		if ($request->last) {
 			return (new DateTime)->sub(new DateInterval('P' . $request->last));
 		}
