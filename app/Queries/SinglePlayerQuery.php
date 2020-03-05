@@ -21,8 +21,6 @@ class SinglePlayerQuery extends PlayerQuery
 			return null;
 		}
 
-		unset($player->rank);
-
 		$finishes = $this->finishes->get();
 
 		if ($this->request->year) {
