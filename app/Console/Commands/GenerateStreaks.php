@@ -17,8 +17,8 @@ class GenerateStreaks extends Command
 
 			collect($ps->streaks)->each(function($streaks, $type) {
 				$this->info($type);
-				collect($streaks)->groupBy('counter')->sortKeys()->last()->each(function($streak) {
-					$this->info(" - {$streak->from} - " . ($streak->to ?: 'current') . ": {$streak->counter}");
+				collect($streaks)->groupBy('count')->sortKeys()->last()->each(function($streak) {
+					$this->info(" - {$streak->from} - " . ($streak->to ?: 'current') . ": {$streak->count}");
 				});
 			});
 
