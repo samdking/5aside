@@ -6,7 +6,7 @@ class SinglePlayerQuery extends PlayerQuery
 {
 	public function __construct($request)
 	{
-		$this->finishes = new FinishQuery($request);
+		$this->rank = new RankQuery($request);
 
 		$request->show_inactive = true;
 
@@ -21,7 +21,7 @@ class SinglePlayerQuery extends PlayerQuery
 			return null;
 		}
 
-		$finishes = $this->finishes->get()->map(function($standings, $year) {
+		$ranking = $this->rank->get()->map(function($standings, $year) {
 			$player = $standings->first(function($player) {
 				return $player->id == $this->request->player;
 			});
@@ -29,11 +29,7 @@ class SinglePlayerQuery extends PlayerQuery
 			return $player ? $player->rank : null;
 		});
 
-		if ($this->request->year) {
-			$player->rank = $finishes[$this->request->year];
-		} else {
-			$player->finishes = $finishes;
-		}
+		$player->ranking = $ranking;
 
 		return $player;
 	}

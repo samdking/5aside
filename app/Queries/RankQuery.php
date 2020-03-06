@@ -2,7 +2,7 @@
 
 namespace App\Queries;
 
-class FinishQuery
+class RankQuery
 {
 	protected $request;
 
@@ -25,7 +25,7 @@ class FinishQuery
 		INNER JOIN teams opps ON opps.match_id = matches.id AND teams.id != opps.id
 		INNER JOIN player_team pt ON pt.team_id = teams.id
 		INNER JOIN players ON players.id = pt.player_id
-		WHERE is_void = 0 AND date >= ? AND YEAR(date) < YEAR(?)
+		WHERE is_void = 0 AND date >= ? AND date <= ?
 		GROUP BY year(date), players.id
 		ORDER BY year, pts DESC, gd DESC, apps ASC
 SQL;
