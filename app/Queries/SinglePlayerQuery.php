@@ -21,15 +21,13 @@ class SinglePlayerQuery extends PlayerQuery
 			return null;
 		}
 
-		$ranking = $this->rank->get()->map(function($standings, $year) {
+		$player->ranking = $this->rank->get()->map(function($standings, $year) {
 			$player = $standings->first(function($player) {
 				return $player->id == $this->request->player;
 			});
 
 			return $player ? $player->rank : null;
 		});
-
-		$player->ranking = $ranking;
 
 		return $player;
 	}
