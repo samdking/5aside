@@ -1,6 +1,7 @@
 <?php namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Collection;
 
 class AppServiceProvider extends ServiceProvider {
 
@@ -11,7 +12,13 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		//
+		Collection::macro('sortKeys', function($options = SORT_REGULAR, $descending = false) {
+			$items = $this->items;
+
+			$descending ? krsort($items, $options) : ksort($items, $options);
+
+			return new static($items);
+		});
 	}
 
 	/**

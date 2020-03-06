@@ -57,7 +57,7 @@ class Match extends Model
 		}
 
 		return $this->date->format('j F Y') . $score;
-	}	
+	}
 
 	public function resultForTeam(Team $team)
 	{
