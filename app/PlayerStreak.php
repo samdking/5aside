@@ -54,13 +54,13 @@ class PlayerStreak
 
 	protected function hit($type, $match)
 	{
-		$this->currentStreak($type, $match)->increment();
+		$this->currentStreak($type, $match)->extend($match->date);
 	}
 
 	protected function miss($type, $match)
 	{
 		if ($this->onCurrentStreak($type))
-			$this->clearCurrentStreak($type, $match);
+			$this->clearCurrentStreak($type);
 	}
 
 	protected function currentStreak($type, $match)
@@ -80,9 +80,8 @@ class PlayerStreak
 		return array_key_exists($type, $this->currentStreak);
 	}
 
-	protected function clearCurrentStreak($type, $match)
+	protected function clearCurrentStreak($type)
 	{
-		$this->currentStreak[$type]->finish($match->date);
 		unset($this->currentStreak[$type]);
 	}
 }

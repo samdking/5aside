@@ -13,13 +13,9 @@ class Streak
 		$this->from = $from;
 	}
 
-	public function increment()
-	{
-		$this->counter++;
-	}
-
-	public function finish($date)
+	public function extend($date)
 	{
 		$this->to = $date;
+		$this->counter++;
 	}
 }
