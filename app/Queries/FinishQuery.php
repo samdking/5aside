@@ -14,7 +14,7 @@ class FinishQuery
 	public function get()
 	{
 		$query = <<<SQL
-		SELECT 
+		SELECT
 		  year(date) AS year,
 		  players.*,
 		  SUM(teams.winners) * 3 + SUM(teams.draw) AS pts,
@@ -35,23 +35,11 @@ SQL;
 			(new Filters\ToDate)->get($this->request)
 		];
 
-		$allStandings = collect(\DB::select($query, $placeholders))->groupBy('year')->each(function($standings, $year) {
+		return collect(\DB::select($query, $placeholders))->groupBy('year')->each(function($standings, $year) {
 			$standings->each(function($player, $index) {
 				$player->rank = $index + 1;
 				unset($player->year);
 			});
-		});
-
-		if ( ! $this->request->player) {
-			return $allStandings;
-		}
-
-		return $allStandings->map(function($standings, $year) {
-			$player = $standings->first(function($player) {
-				return $player->id == $this->request->player;
-			});
-
-			return $player ? $player->rank : null;
 		});
 	}
 }
