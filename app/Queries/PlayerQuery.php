@@ -100,7 +100,7 @@ SQL;
 				foreach(['handicap', 'advantage', 'per_game'] as $t) {
 					if (strpos($k, $t . '_') === 0) {
 						unset($p->$k);
-						$p->$t[substr($k, strlen($t . '_'))] = $v;
+						$p->$t[substr($k, strlen($t . '_'))] = (int)$v;
 					}
 				}
 			}
