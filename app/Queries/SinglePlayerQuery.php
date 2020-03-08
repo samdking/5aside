@@ -33,8 +33,8 @@ class SinglePlayerQuery extends PlayerQuery
 			return $player ? $player->rank : null;
 		});
 
-		$player->streaks = collect($this->streaks->get()->first()->streaks)->map(function($streaks, $type) {
-			return collect($streaks)->groupBy('count')->sortKeys()->last();
+		$player->streaks = $this->streaks->get()->map(function($streaksForYear, $year) {
+			return $streaksForYear->first()->topStreaksByType();
 		});
 
 		return $player;

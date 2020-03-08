@@ -18,7 +18,8 @@ class ResultQuery
 		$query = <<<SQL
 		SELECT
 		  matches.date,
-		  matches.is_void AS void,
+		  YEAR(matches.date) AS year,
+		  GROUP_CONCAT(IF(matches.is_void, pt.player_id, null)) AS voided,
 		  GROUP_CONCAT(IF(teams.winners, pt.player_id, null)) AS winners,
 		  GROUP_CONCAT(IF(teams.winners = 0 and teams.draw = 0, pt.player_id, null)) AS losers,
 		  GROUP_CONCAT(IF(teams.draw, pt.player_id, null)) AS draw
@@ -36,7 +37,7 @@ SQL;
 		];
 
 		return collect(\DB::select($query, $placeholders))->each(function($match) {
-			foreach(['winners', 'losers', 'draw'] as $prop) {
+			foreach(['voided', 'winners', 'losers', 'draw'] as $prop) {
 				$match->{$prop} = collect(explode(',', $match->{$prop}));
 			}
 		});

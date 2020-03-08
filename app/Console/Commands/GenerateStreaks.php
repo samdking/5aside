@@ -8,16 +8,16 @@ use App\Queries\PlayerStreakQuery;
 
 class GenerateStreaks extends Command
 {
-	protected $signature = 'streaks:generate {player?}';
+	protected $signature = 'streaks:generate {player?} {--year=}';
 
 	public function handle()
 	{
-		$this->generatePlayerStreaks()->each(function($ps) {
+		$this->generatePlayerStreaks()["all"]->each(function($ps) {
 			$this->info($ps->player->shortName());
 
-			collect($ps->streaks)->each(function($streaks, $type) {
+			$ps->topStreaksByType()->each(function($streaks, $type) {
 				$this->info($type);
-				collect($streaks)->groupBy('count')->sortKeys()->last()->each(function($streak) {
+				$streaks->each(function($streak) {
 					$this->info(" - {$streak->from} - " . ($streak->to ?: 'current') . ": {$streak->count}");
 				});
 			});
@@ -28,7 +28,7 @@ class GenerateStreaks extends Command
 
 	protected function generatePlayerStreaks()
 	{
-		$query = new PlayerStreakQuery(new Fluent($this->arguments()));
+		$query = new PlayerStreakQuery(new Fluent($this->arguments() + $this->options()));
 
 		return $query->get();
 	}
