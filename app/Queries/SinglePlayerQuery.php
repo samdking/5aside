@@ -21,9 +21,9 @@ class SinglePlayerQuery extends PlayerQuery
 	{
 		$player = parent::get()->first();
 
-		if ( ! $player) {
-			return null;
-		}
+		if ( ! $player) return null;
+
+		unset($player->first_name);
 
 		$player->ranking = $this->rank->get()->map(function($standings, $year) {
 			$player = $standings->first(function($player) {
