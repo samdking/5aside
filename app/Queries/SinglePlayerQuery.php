@@ -11,6 +11,7 @@ class SinglePlayerQuery extends PlayerQuery
 	{
 		$this->rank = new RankQuery($request);
 		$this->streaks = new PlayerStreakQuery($request);
+		$this->results = new PlayerResultQuery($request);
 
 		$request->show_inactive = true;
 
@@ -36,6 +37,8 @@ class SinglePlayerQuery extends PlayerQuery
 		$player->streaks = $this->streaks->get()->map(function($streaksForYear, $year) {
 			return $streaksForYear->first()->topStreaksByType();
 		});
+
+		$player->results = $this->results->get();
 
 		return $player;
 	}
