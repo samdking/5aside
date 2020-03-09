@@ -97,12 +97,12 @@ SQL;
 			});
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {
-					$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
+					$p->$k = $v = strpos($v, '.') === false ? (int)$v : (float)$v;
 				}
 				foreach(['handicap', 'advantage', 'per_game'] as $t) {
 					if (strpos($k, $t . '_') === 0) {
 						unset($p->$k);
-						$p->$t[substr($k, strlen($t . '_'))] = (int)$v;
+						$p->$t[substr($k, strlen($t . '_'))] = $v;
 					}
 				}
 			}
