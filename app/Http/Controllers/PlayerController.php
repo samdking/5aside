@@ -77,6 +77,7 @@ class PlayerController extends Controller
 			->selectRaw('SUM(opps.winners) AS `losses`')
 			->selectRaw('SUM(IF(is_void, null, teams.scored)) AS goals_for')
 			->selectRaw('SUM(IF(is_void, null, opps.scored)) AS goals_against')
+			->selectRaw('SUM(IF(is_void, null, teams.scored)) - SUM(IF(is_void, null, opps.scored)) AS gd')
 			->selectRaw('AVG(teams.scored) AS gspg')
 			->selectRaw('AVG(opps.scored) AS gcpg')
 			->selectRaw('SUM(teams.winners) * 3 + SUM(teams.draw) AS `pts`')
@@ -92,7 +93,8 @@ class PlayerController extends Controller
 				     ->on('opps.id', '!=', 'teams.id');
 			})
 			->orderBy('pts', 'DESC')
-			->orderBy('goals_for', 'DESC')
+			->orderBy('gd', 'DESC')
+			->orderBy('goals_for', 'ASC')
 			->orderBy('goals_against', 'ASC')
 			->selectWinPercentage()
 			->orderBy('played', 'DESC')
