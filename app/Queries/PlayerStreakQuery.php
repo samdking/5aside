@@ -21,18 +21,22 @@ class PlayerStreakQuery
 	{
 		$players = $this->request->player ? Player::find([$this->request->player]) : Player::all();
 
-		$playerStreaks = $players->map(function($player) {
-			return new PlayerStreak($player);
-		});
-
 		$results = $this->results->get()->map(function($result) {
 			return new ResultStreak($result);
 		});
 
-		return $results->reduce(function($playerStreaks, $match) {
-			return $playerStreaks->each(function($ps) use ($match) {
-				$match->updateStreakFor($ps);
-			});
-		}, $playerStreaks);
+		$resultsByYear = collect(["all" => $results])->union($results->groupBy('year'));
+
+		return $resultsByYear->map(function($results) use ($players) {
+			return $results->reduce(function($playerStreaks, $match) {
+				return $playerStreaks->each(function($ps) use ($match) {
+					$match->updateStreakFor($ps);
+				});
+			}, $players->map(function($player) {
+				return new PlayerStreak($player);
+			}))->filter(function($playerStreak) {
+				return $playerStreak->active();
+			})->values();
+		});
 	}
 }

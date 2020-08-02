@@ -10,11 +10,12 @@ class ResultStreak
 	{
 		$this->match = $match;
 		$this->date = $match->date;
+		$this->year = $match->year;
 	}
 
 	public function updateStreakFor(PlayerStreak $player)
 	{
-		if ($this->wasVoid()) {
+		if ($this->wasVoid($player)) {
 			$player->void($this);
 		} elseif ($this->wasWonBy($player)) {
 			$player->win($this);
@@ -27,9 +28,9 @@ class ResultStreak
 		}
 	}
 
-	public function wasVoid()
+	public function wasVoid($player)
 	{
-		return $this->match->void;
+		return $this->match->voided->contains($player->id);
 	}
 
 	public function wasWonBy($player)

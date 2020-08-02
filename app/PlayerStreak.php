@@ -6,7 +6,7 @@ class PlayerStreak
 {
 	public $player;
 	public $id;
-	public $streaks = [];
+	protected $streaks = [];
 	protected $currentStreak = [];
 
 	public function __construct($player)
@@ -50,6 +50,18 @@ class PlayerStreak
 	public function noShow($match)
 	{
 		$this->miss('apps', $match);
+	}
+
+	public function topStreaksByType()
+	{
+		return collect($this->streaks)->map(function($streaks, $type) {
+			return collect($streaks)->groupBy('count')->sortKeys()->last();
+		});
+	}
+
+	public function active()
+	{
+		return array_key_exists("apps", $this->streaks);
 	}
 
 	protected function hit($type, $match)

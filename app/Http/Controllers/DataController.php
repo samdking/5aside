@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Queries\MatchQuery;
 use App\Queries\PlayerQuery;
+use App\Queries\SinglePlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
 use App\Match;
@@ -17,6 +18,13 @@ class DataController extends Controller
 			'players' => (new PlayerQuery($request))->get(),
 			'matches' => $this->{'v' . $request->get('v', '2') . 'matchData'}($request),
 			'venues' => (new VenueQuery($request))->get(['name']),
+		]);
+	}
+
+	public function player(Request $request)
+	{
+		return response()->json([
+			'player' => (new SinglePlayerQuery($request))->get()
 		]);
 	}
 

@@ -4,7 +4,7 @@ namespace App;
 
 class Streak
 {
-	public $counter = 0;
+	public $count = 0;
 	public $from;
 	public $to;
 
@@ -16,6 +16,6 @@ class Streak
 	public function extend($date)
 	{
 		$this->to = $date;
-		$this->counter++;
+		$this->count++;
 	}
 }

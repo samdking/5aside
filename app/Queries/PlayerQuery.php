@@ -12,6 +12,8 @@ class PlayerQuery
 
 	public function get()
 	{
+		$where = $this->request->player ? "WHERE players.id = {$this->request->player}" : "";
+
 $query = <<<SQL
 		SELECT
 			players.id,
@@ -33,10 +35,12 @@ $query = <<<SQL
 			SUM(handicap AND wins) AS handicap_wins,
 			SUM(handicap AND draws) AS handicap_draws,
 			SUM(handicap AND losses) AS handicap_losses,
+			SUM(IF(handicap, scored, 0)) - SUM(IF(handicap, conceded, 0)) AS handicap_gd,
 			SUM(advantage) AS advantage_matches,
 			SUM(advantage AND wins) AS advantage_wins,
 			SUM(advantage AND draws) AS advantage_draws,
 			SUM(advantage AND losses) AS advantage_losses,
+			SUM(IF(advantage, scored, 0)) - SUM(IF(advantage, conceded, 0)) AS advantage_gd,
 			ROUND((SUM(wins) * 3 + SUM(draws)) / (SUM(matches) - SUM(void_matches)), 2) AS per_game_points,
 			ROUND(AVG(scored), 2) AS per_game_scored,
 			ROUND(AVG(conceded), 2) AS per_game_conceded,
@@ -70,9 +74,10 @@ $query = <<<SQL
 			FROM teams
 			INNER JOIN matches on matches.id = teams.match_id
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
+		{$where}
 		GROUP BY players.id
 		HAVING last_appearance >= ? AND matches >= ?
-		ORDER BY points desc, gd DESC, scored DESC, matches ASC
+		ORDER BY points desc, gd DESC, matches ASC, scored DESC
 SQL;
 
 		$placeholders = [
@@ -92,7 +97,7 @@ SQL;
 			});
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {
-					$p->$k = strpos($v, '.') === false ? (int)$v : (float)$v;
+					$p->$k = $v = strpos($v, '.') === false ? (int)$v : (float)$v;
 				}
 				foreach(['handicap', 'advantage', 'per_game'] as $t) {
 					if (strpos($k, $t . '_') === 0) {
