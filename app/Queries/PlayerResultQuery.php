@@ -36,13 +36,14 @@ class PlayerResultQuery
 		INNER JOIN venues ON venues.id = matches.venue_id
 		INNER JOIN player_team ON player_team.team_id = teams.id
 		INNER JOIN players ON players.id = player_team.player_id
-		WHERE date >= ? AND date <= ?
+		WHERE date >= ? AND date <= ? AND players.id = ?
 		GROUP BY matches.id
 		ORDER BY matches.date, matches.id
 SQL;
 		$placeholders = [
 			(new Filters\FromDate)->get($this->request),
-			(new Filters\ToDate)->get($this->request)
+			(new Filters\ToDate)->get($this->request),
+			$this->request->player
 		];
 
 		$teams = Team::with('players')->get()->keyBy('id');
