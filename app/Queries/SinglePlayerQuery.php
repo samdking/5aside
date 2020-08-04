@@ -35,7 +35,9 @@ class SinglePlayerQuery extends PlayerQuery
 		});
 
 		$player->streaks = $this->streaks->get()->map(function($streaksForYear, $year) {
-			return $streaksForYear->first()->topStreaksByType();
+			if ($streak = $streaksForYear->first()) {
+				return $streaksForYear->first()->topStreaksByType();
+			}
 		});
 
 		$player->results = $this->results->get();
