@@ -48,11 +48,9 @@ SQL;
 		return collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
 			$match->short = (boolean)$match->short;
 			$match->voided = (boolean)$match->voided;
+			$match->team_a = $teams[$match->id][0]->playerData();
+			$match->team_b = $teams[$match->id][1]->playerData();
 
-			foreach($teams[$match->id] as $i => $team) {
-				$t = 'team_' . ['a', 'b'][$i];
-				$match->$t = $team->playerData();
-			}
 			unset($match->id);
 		});
 	}
