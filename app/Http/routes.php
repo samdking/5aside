@@ -29,7 +29,8 @@ Route::group(['middleware' => 'cors'], function() {
 	Route::group(['prefix' => 'api'], function() {
 		Route::get('players', 'DataController@players');
 		Route::get('players/{player}', 'DataController@player');
-		Route::resource('seasons', 'DataController@seasons', ['only' => ['show', 'index']]);
+		Route::get('seasons', 'DataController@seasons');
+		Route::get('seasons/{season}', 'DataController@seasons');
 		Route::get('matches', 'DataController@matches');
 		Route::get('venues', 'DataController@venues');
 	});
