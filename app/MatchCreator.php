@@ -95,7 +95,7 @@ class MatchCreator
 	 */
 	private function parsePlayers($string)
 	{
-		$players = new \Illuminate\Database\Eloquent\Collection(explode(',', trim($string)));
+		$players = collect(explode(',', trim($string)));
 
 		return $players->map(function($player) {
 			$player = trim($player);
@@ -120,7 +120,7 @@ class MatchCreator
 			$builder->whereLastName($lastName);
 		}
 
-		$player = $builder->first();
+		$player = $builder->latest('id')->first();
 
 		if ($player) return $player;
 
