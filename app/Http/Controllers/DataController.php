@@ -7,6 +7,7 @@ use App\Queries\PlayerQuery;
 use App\Queries\SinglePlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
+use App\Queries\TopStreakQuery;
 use App\Match;
 use Illuminate\Http\Request;
 
@@ -56,6 +57,18 @@ class DataController extends Controller
 
 		return response()->json([
 			'season' => (new SeasonQuery($request))->get()
+		]);
+	}
+
+	public function streaks(Request $request)
+	{
+		$topStreaks = new TopStreakQuery($request);
+
+		return response()->json([
+			'streaks' => [
+				'type' => $topStreaks->type(),
+				'rankings' => $topStreaks->get()
+			]
 		]);
 	}
 

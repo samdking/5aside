@@ -59,6 +59,13 @@ class PlayerStreak
 		});
 	}
 
+	public function sortedStreaksForType($type)
+	{
+		if (! array_key_exists($type, $this->streaks)) return collect();
+
+		return collect($this->streaks[$type])->sortByDesc('count')->values();
+	}
+
 	public function active()
 	{
 		return array_key_exists("apps", $this->streaks);
