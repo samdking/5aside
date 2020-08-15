@@ -2,45 +2,39 @@
 
 namespace App\Queries;
 
-class SinglePlayerQuery extends PlayerQuery
+class SinglePlayerQuery
 {
 	protected $rank;
 	protected $streaks;
 
 	public function __construct($request)
 	{
+		$request->show_inactive = true;
+
+		$this->player = new PlayerQuery($request);
 		$this->rank = new RankQuery($request);
 		$this->streaks = new PlayerStreakQuery($request);
 		$this->results = new PlayerResultQuery($request);
-
-		$request->show_inactive = true;
-
-		parent::__construct($request);
 	}
 
 	public function get()
 	{
-		$player = parent::get()->first();
+		$player = $this->player->get()->first();
 
 		if ( ! $player) return null;
 
 		unset($player->first_name);
 
-		$player->ranking = $this->rank->get()->map(function($standings, $year) {
-			$player = $standings->first(function($player) {
-				return $player->id == $this->request->player;
-			});
+		$player->streaks = $this->streaks->getByYear('all')->topStreaksByType();
 
-			return $player ? $player->rank : null;
-		});
-
-		$player->streaks = $this->streaks->get()->map(function($streaksForYear, $year) {
-			if ($streak = $streaksForYear->first()) {
-				return $streaksForYear->first()->topStreaksByType();
+		$player->seasons = $this->player->getSeasons()->each(function($season, $year) {
+			foreach(['id' ,'year', 'first_name', 'first_initial', 'last_name'] as $attr) {
+				unset($season->$attr);
 			}
+			$season->ranking = $this->rank->getByYear($year)->rank;
+			$season->results = $this->results->getByYear($year);
+			$season->streaks = $this->streaks->getByYear($year)->topStreaksByType();
 		});
-
-		$player->results = $this->results->get();
 
 		return $player;
 	}

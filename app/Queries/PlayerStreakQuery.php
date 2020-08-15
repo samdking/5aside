@@ -10,6 +10,7 @@ class PlayerStreakQuery
 {
 	protected $request;
 	protected $results;
+	protected $query;
 
 	public function __construct($request)
 	{
@@ -17,7 +18,21 @@ class PlayerStreakQuery
 		$this->results = new ResultQuery($request);
 	}
 
+	public function getByYear($year)
+	{
+		return $this->get()->get($year);
+	}
+
 	public function get()
+	{
+		if (is_null($this->query)) {
+			$this->query = $this->query();
+		}
+
+		return $this->query;
+	}
+
+	protected function query()
 	{
 		$players = $this->request->player ? Player::find([$this->request->player]) : Player::all();
 
@@ -27,16 +42,18 @@ class PlayerStreakQuery
 
 		$resultsByYear = collect(["all" => $results])->union($results->groupBy('year'));
 
-		return $resultsByYear->map(function($results) use ($players) {
+		$playerStreaks = $resultsByYear->map(function($results) use ($players) {
 			return $results->reduce(function($playerStreaks, $match) {
 				return $playerStreaks->each(function($ps) use ($match) {
 					$match->updateStreakFor($ps);
 				});
 			}, $players->map(function($player) {
 				return new PlayerStreak($player);
-			}))->filter(function($playerStreak) {
-				return $playerStreak->active();
-			})->values();
+			}))->values();
 		});
+
+		if (is_null($this->request->player)) return $playerStreaks;
+
+		return $playerStreaks->map->first();
 	}
 }

@@ -59,11 +59,6 @@ class PlayerStreak
 		});
 	}
 
-	public function active()
-	{
-		return array_key_exists("apps", $this->streaks);
-	}
-
 	protected function hit($type, $match)
 	{
 		$this->currentStreak($type, $match)->extend($match->date);

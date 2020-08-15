@@ -5,13 +5,28 @@ namespace App\Queries;
 class RankQuery
 {
 	protected $request;
+	protected $query;
 
 	public function __construct($request)
 	{
 		$this->request = $request;
 	}
 
+	public function getByYear($year)
+	{
+		return $this->get()->get($year);
+	}
+
 	public function get()
+	{
+		if (is_null($this->query)) {
+			$this->query = $this->query();
+		}
+
+		return $this->query;
+	}
+
+	protected function query()
 	{
 		$query = <<<SQL
 		SELECT
@@ -35,10 +50,18 @@ SQL;
 			(new Filters\ToDate)->get($this->request)
 		];
 
-		return collect(\DB::select($query, $placeholders))->groupBy('year')->each(function($standings, $year) {
+		$allPlayers = collect(\DB::select($query, $placeholders))->groupBy('year')->each(function($standings, $year) {
 			$standings->each(function($player, $index) {
 				$player->rank = $index + 1;
 				unset($player->year);
+			});
+		});
+
+		if (is_null($this->request->player)) return $allPlayers;
+
+		return $allPlayers->map(function($players) {
+			return $players->first(function($player) {
+				return $this->request->player == $player->id;
 			});
 		});
 	}
