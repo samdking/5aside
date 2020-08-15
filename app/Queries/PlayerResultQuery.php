@@ -17,7 +17,9 @@ class PlayerResultQuery
 
 	public function getByYear($year)
 	{
-		return $this->get()->groupBy('year')->get($year);
+		return $this->get()->groupBy('year')->get($year)->each(function($result) {
+			unset($result->year);
+		});
 	}
 
 	public function get()
