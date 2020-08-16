@@ -55,7 +55,7 @@ class PlayerResultQuery
 		INNER JOIN player_team ON player_team.team_id = teams.id
 		INNER JOIN players ON players.id = player_team.player_id
 		WHERE date >= ? AND date <= ? AND players.id = ?
-		GROUP BY matches.id
+		GROUP BY teams.id, opps.id
 		ORDER BY matches.date, matches.id
 SQL;
 		$placeholders = [
