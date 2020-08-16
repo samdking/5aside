@@ -13,6 +13,8 @@ class InactiveDate
 
 	function get($request)
 	{
-		return $request->show_inactive ? '2015-01-01' : $this->toDate->get($request)->sub(new DateInterval('P10W'));
+		if ($request->show_inactive || $request->player) return '2015-01-01';
+
+		return $this->toDate->get($request)->sub(new DateInterval('P10W'));
 	}
 }

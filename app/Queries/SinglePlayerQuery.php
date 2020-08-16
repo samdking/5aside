@@ -9,8 +9,6 @@ class SinglePlayerQuery
 
 	public function __construct($request)
 	{
-		$request->show_inactive = true;
-
 		$this->player = new PlayerQuery($request);
 		$this->rank = new RankQuery($request);
 		$this->streaks = new PlayerStreakQuery($request);
