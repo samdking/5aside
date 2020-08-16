@@ -21,23 +21,22 @@ class MatchQuery
 		  matches.id,
 		  YEAR(matches.date) AS year,
 		  matches.date,
+		  YEAR(matches.date) AS year,
 		  matches.is_short AS short,
 		  matches.is_void AS voided,
-		  IF(team_a.winners, "A", IF(team_b.winners, "B", null)) AS winner,
-		  IF(team_a.handicap, "A", IF(team_b.handicap, "B", null)) AS handicap,
+		  teams.winners as winner,
+		  teams.handicap,
 		  CAST(SUM(players.last_name != '(anon)') AS SIGNED) AS total_players,
-		  team_a.scored AS team_a_scored,
-		  team_b.scored AS team_b_scored,
+		  teams.scored AS scored,
 		  venues.name AS venue
 		FROM matches
-		INNER JOIN teams AS team_a ON team_a.match_id = matches.id
-		INNER JOIN teams AS team_b ON team_b.match_id = matches.id and team_b.id != team_a.id
+		INNER JOIN teams ON teams.match_id = matches.id
 		INNER JOIN venues on venues.id = matches.venue_id
-		INNER JOIN player_team on player_team.team_id = team_a.id
+		INNER JOIN player_team on player_team.team_id = teams.id
 		INNER JOIN players on players.id = player_team.player_id
 		WHERE date >= ? AND date <= ?
-		GROUP BY matches.id
-		ORDER BY matches.date
+		GROUP BY matches.id, teams.id
+		ORDER BY matches.date, teams.id
 SQL;
 		$teams = Team::with('players')->get()->groupBy('match_id');
 
@@ -46,14 +45,28 @@ SQL;
 			(new Filters\ToDate)->get($this->request)
 		];
 
-		return collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
-			$match->short = (boolean)$match->short;
-			$match->voided = (boolean)$match->voided;
+		return collect(\DB::select($query, $placeholders))->groupBy('id')->map(function($t) use ($teams) {
+			$match = (object)[
+				'year' => $t[0]->year,
+				'date' => $t[0]->date,
+				'short' => (boolean)$t[0]->short,
+				'voided' => (boolean)$t[0]->voided,
+				'winner' => $t[0]->winner ? 'A' : ($t[1]->winner ? 'B' : null),
+				'handicap' => $t[0]->handicap ? 'A' : ($t[1]->handicap ? 'B' : null),
+				'total_players' => $t->sum('total_players'),
+				'team_a_scored' => $t[0]->scored,
+				'team_b_scored' => $t[1]->scored,
+				'venue' => $t[0]->venue,
+			];
+
+			$matchId = $t[0]->id;
+
 			if ( ! $this->request->hide_teams) {
-				$match->team_a = $teams[$match->id][0]->playerData();
-				$match->team_b = $teams[$match->id][1]->playerData();
+				$match->team_a = $teams[$matchId][0]->playerData();
+				$match->team_b = $teams[$matchId][1]->playerData();
 			}
-			unset($match->id);
-		});
+
+			return $match;
+		})->values();
 	}
 }
