@@ -66,6 +66,6 @@ SQL;
 			}
 
 			return $match;
-		});
+		})->values();
 	}
 }
