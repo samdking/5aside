@@ -19,6 +19,7 @@ class MatchQuery
 		$query = <<<SQL
 		SELECT
 		  matches.id,
+		  YEAR(matches.date) AS year,
 		  matches.date,
 		  matches.is_short AS short,
 		  matches.is_void AS voided,
@@ -48,9 +49,10 @@ SQL;
 		return collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
 			$match->short = (boolean)$match->short;
 			$match->voided = (boolean)$match->voided;
-			$match->team_a = $teams[$match->id][0]->playerData();
-			$match->team_b = $teams[$match->id][1]->playerData();
-
+			if ( ! $this->request->hide_teams) {
+				$match->team_a = $teams[$match->id][0]->playerData();
+				$match->team_b = $teams[$match->id][1]->playerData();
+			}
 			unset($match->id);
 		});
 	}
