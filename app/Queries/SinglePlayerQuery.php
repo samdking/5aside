@@ -25,6 +25,7 @@ class SinglePlayerQuery
 
 		unset($player->first_name);
 
+		$player->results = $this->results->get();
 		$player->streaks = $this->streaks->getByYear('all')->topStreaksByType();
 
 		$player->seasons = $this->player->getSeasons()->each(function($season, $year) {
