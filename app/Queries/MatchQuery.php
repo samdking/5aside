@@ -20,7 +20,7 @@ class MatchQuery
 		SELECT
 		  matches.id,
 		  matches.date,
-		  YEAR(mates.date) AS year,
+		  YEAR(matches.date) AS year,
 		  matches.is_short AS short,
 		  matches.is_void AS voided,
 		  teams.winners as winner,
