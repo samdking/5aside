@@ -103,7 +103,7 @@ class MatchCreator
 				throw new \Exception($player . ' already appears in a team');
 			}
 			$this->allPlayers[] = $player;
-			return $this->lookupPlayer($player);
+			return $this->lookupPlayer($player)->id;
 		});
 	}
 
