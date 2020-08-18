@@ -10,15 +10,31 @@ class PlayerQuery
 		$this->form = new FormQuery($request);
 	}
 
-	public function get()
+	public function getSeasons()
 	{
-		$where = $this->request->player ? "WHERE players.id = {$this->request->player}" : "";
+		return $this->get(true)->keyBy('year');
+	}
+
+	public function get($groupByYear = false)
+	{
+		if ($groupByYear) {
+			$yearField = "YEAR(date)";
+			$group = "year";
+			$order = "year";
+		} else {
+			$yearField = "null";
+			$group = "players.id";
+			$order = "points desc, gd DESC, matches ASC, scored DESC";
+		}
+
+		$where = $this->request->player ? "WHERE players.id = ?" : "";
 
 $query = <<<SQL
 		SELECT
 			players.id,
 			SUBSTR(players.first_name, 1, 1) AS first_name, #deprecated
 			SUBSTR(players.first_name, 1, 1) AS first_initial,
+			{$yearField} AS year,
 			players.last_name,
 			SUM(matches) AS matches,
 			SUM(wins) AS wins,
@@ -75,26 +91,26 @@ $query = <<<SQL
 			INNER JOIN matches on matches.id = teams.match_id
 		) team_b ON team_b.match_id = team_a.match_id AND team_a.id != team_b.id
 		{$where}
-		GROUP BY players.id
+		GROUP BY {$group}
 		HAVING last_appearance >= ? AND matches >= ?
-		ORDER BY points desc, gd DESC, matches ASC, scored DESC
+		ORDER BY {$order}
 SQL;
 
-		$placeholders = [
+		$placeholders = array_values(array_filter([
 			(new Filters\FromDate)->get($this->request),
 			($toDate = new Filters\ToDate)->get($this->request),
 			$this->matchLimit(),
+			$this->request->player,
 			(new Filters\InactiveDate($toDate))->get($this->request),
 			$this->minMatches()
-		];
+		]));
 
-		$form = $this->form->get();
-
-		return collect(\DB::select($query, $placeholders))->each(function($p) use ($form) {
+		return collect(\DB::select($query, $placeholders))->each(function($p) use ($groupByYear) {
 			$p->handicap = $p->advantage = $p->per_game = [];
-			$p->form = $form->map(function($players) use ($p) {
+			$p->form = $this->form->get($p->year)->map(function($players) use ($p) {
 				return $players->get($p->id, "");
 			});
+			if ( ! $groupByYear) unset($p->year);
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {
 					$p->$k = $v = strpos($v, '.') === false ? (int)$v : (float)$v;

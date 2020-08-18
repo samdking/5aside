@@ -26,12 +26,10 @@ $query = <<<EOT
 
 EOT;
 
-		$matches = $this->matches->get();
+		$matches = $this->matches->get()->groupBy('venue');
 
 		return collect(\DB::select($query))->each(function($venue) use ($matches) {
-			$venue->matches = $matches->filter(function($match) use ($venue) {
-				return $match->venue == $venue->name;
-			});
+			$venue->matches = $matches->get($venue->name);
 		});
 	}
 }

@@ -8,18 +8,36 @@ use App\Team;
 class PlayerResultQuery
 {
 	protected $request;
+	protected $query;
 
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
 	}
 
+	public function getByYear($year)
+	{
+		return $this->get()->groupBy('year')->get($year)->each(function($result) {
+			unset($result->year);
+		});
+	}
+
 	public function get()
+	{
+		if (is_null($this->query)) {
+			$this->query = $this->query();
+		}
+
+		return $this->query;
+	}
+
+	protected function query()
 	{
 		$query = <<<SQL
 		SELECT
 		  matches.id,
 		  matches.date,
+		  YEAR(matches.date) AS year,
 		  matches.is_short AS short,
 		  matches.is_void AS voided,
 		  IF(teams.winners, "Win", IF(opps.winners, "Loss", IF (teams.draw, "Draw", ""))) AS result,
@@ -37,7 +55,7 @@ class PlayerResultQuery
 		INNER JOIN player_team ON player_team.team_id = teams.id
 		INNER JOIN players ON players.id = player_team.player_id
 		WHERE date >= ? AND date <= ? AND players.id = ?
-		GROUP BY matches.id
+		GROUP BY teams.id, opps.id
 		ORDER BY matches.date, matches.id
 SQL;
 		$placeholders = [

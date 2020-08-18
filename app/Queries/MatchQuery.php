@@ -19,6 +19,7 @@ class MatchQuery
 		$query = <<<SQL
 		SELECT
 		  matches.id,
+		  YEAR(matches.date) AS year,
 		  matches.date,
 		  YEAR(matches.date) AS year,
 		  matches.is_short AS short,
