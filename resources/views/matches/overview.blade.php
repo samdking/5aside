@@ -18,7 +18,9 @@
 					{{ $player->shortName() }}
 				</label>
 			@endforeach
-			<br><br>
+			@unless $loop.last
+				<br><br>
+			@endunless
 		@endforeach
 	</fieldset>
 </form>
