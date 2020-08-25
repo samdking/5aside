@@ -18,7 +18,7 @@
 					{{ $player->shortName() }}
 				</label>
 			@endforeach
-			@unless($loop.last)
+			@unless($loop->last)
 				<br><br>
 			@endunless
 		@endforeach
