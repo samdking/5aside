@@ -7,15 +7,18 @@
 <form>
 	<fieldset style="margin: 1em 0">
 		<legend>Teammates</legend>
-		@foreach($players as $player)
-			<label>
-				{!! Form::checkbox('teammates[]',
-					$player->id,
-					in_array($player->id, Request::get('teammates', [])),
-					['onclick' => 'this.form.submit()']
-				) !!}
-				{{ $player->last_name }}
-			</label>
+		@foreach($players->groupBy('recent') as $players)
+			@foreach($players as $player)
+				<label style="margin-right: 8px">
+					{!! Form::checkbox('teammates[]',
+						$player->id,
+						in_array($player->id, Request::get('teammates', [])),
+						['onclick' => 'this.form.submit()']
+					) !!}
+					{{ $player->shortName() }}
+				</label>
+			@endforeach
+			<br><br>
 		@endforeach
 	</fieldset>
 </form>
