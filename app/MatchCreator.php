@@ -115,8 +115,7 @@ class MatchCreator
 		$lastName = implode(' ', $data);
 
 		$builder = Player::mostRecentlyPlayed()
-			->whereFirstName($firstName)
-			->first();
+			->whereFirstName($firstName);
 
 		if ($lastName) {
 			$builder->whereLastName($lastName);
