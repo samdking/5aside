@@ -90,9 +90,13 @@
 @foreach($matches as $team)
 	<li>
 		{!! link_to_route('matches.show', $team->match->date->format('jS F Y'), $team->match_id) !!}
-		- {{ $team->result() }}
-		@if ($team->scored)
-			({{ $team->scored }}-{{ $team->match->getOpposition($team)->scored }})
+		@if ($team->match->is_void)
+			- Void
+		@else
+			- {{ $team->result() }}
+			@if ($team->scored)
+				({{ $team->scored }}-{{ $team->match->getOpposition($team)->scored }})
+			@endif
 		@endif
 
 		@if ($team->match->is_short)
