@@ -114,13 +114,13 @@ class MatchCreator
 		$firstName = array_shift($data);
 		$lastName = implode(' ', $data);
 
-		$builder = Player::whereFirstName($firstName);
+		$builder = Player::whereFirstName($firstName)->mostRecentlyPlayed();
 
 		if ($lastName) {
 			$builder->whereLastName($lastName);
 		}
 
-		$player = $builder->latest('id')->first();
+		$player = $builder->first();
 
 		if ($player) return $player;
 

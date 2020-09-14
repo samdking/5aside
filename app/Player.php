@@ -39,6 +39,14 @@ class Player extends Model
 			->groupBy('players.id');
 	}
 
+	public function scopeMostRecentlyPlayed($query)
+	{
+		$query->joinTeams()
+			->join('matches', 'matches.id', '=', 'teams.match_id')
+			->selectRaw('players.*, max(matches.date) AS last_played')
+			->orderByDesc('last_played');
+	}
+
 	public function teams()
 	{
 		return $this->belongsToMany('App\Team');
