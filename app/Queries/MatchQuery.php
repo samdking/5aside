@@ -56,6 +56,7 @@ SQL;
 				'total_players' => $t->sum('total_players'),
 				'team_a_scored' => $t[0]->scored,
 				'team_b_scored' => $t[1]->scored,
+				'total_goals' => $t->sum->scored,
 				'venue' => $t[0]->venue,
 			];
 

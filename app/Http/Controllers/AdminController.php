@@ -12,14 +12,15 @@ class AdminController extends Controller
 		return view('matches.create');
 	}
 
-	public function storeMatch(Request $request)
+	public function storeMatch(Request $request, MatchCreator $creator)
 	{
-		\DB::transaction(function() use ($request) {
-			$creator = new MatchCreator;
+		$match = null;
+
+		\DB::transaction(function() use ($request, $creator, &$match) {
 			$match = $creator->parse($request->get('match'));
 			$match->push();
 		});
 
-		return redirect()->back();
+		return redirect()->route('matches.show', [$match->id]);
 	}
 }
