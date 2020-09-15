@@ -53,15 +53,15 @@ EOT;
 
 			$venue->highest_attendance_matches = $matches->filter(function($match) use ($venue) {
 				return $match->total_players == $venue->highest_attendance;
-			})->values();
+			})->reverse()->values();
 
 			$venue->highest_scoring_matches = $matches->filter(function($match) use ($venue) {
 				return $match->total_goals == $venue->highest_scoring_match;
-			})->values();
+			})->reverse()->values();
 
 			$venue->lowest_scoring_matches = $matches->filter(function($match) use ($venue) {
 				return $match->total_goals == $venue->lowest_scoring_match;
-			})->values();
+			})->reverse()->values();
 
 			$venue->matches = $matches;
 		});
