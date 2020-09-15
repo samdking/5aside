@@ -19,7 +19,7 @@ class VenueQuery
 		$fields = collect($fields)->map(function($field) { return 'venues.' . $field; })->implode(', ');
 
 $query = <<<EOT
-		SELECT {$fields}, COUNT(DISTINCT matches.id) as total_matches, MIN(date) AS first_match
+		SELECT {$fields}, COUNT(DISTINCT matches.id) as total_matches, MAX(date) as most_recent_match, MIN(date) AS first_match
 		FROM venues
 		INNER JOIN matches ON matches.venue_id = venues.id
 		GROUP BY venues.id
