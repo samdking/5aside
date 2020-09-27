@@ -21,6 +21,7 @@ class SeasonQuery
 		$result = isset($this->query[!!$year]) ? $this->query[!!$year] : $this->query($year);
 
 		return collect($year ? $result->get($year) : $result)
+			->merge($this->year($year))
 			->map(function($value) {
 				return is_numeric($value) ? (int)$value : $value;
 			})
@@ -65,6 +66,15 @@ SQL;
 		} else {
 			return $this->query[false] = \DB::selectOne($query, $placeholders);
 		}
+	}
+
+	protected function year($year)
+	{
+		if ($year) return [];
+
+		return [
+			'year' => 'all'
+		];
 	}
 
 	protected function endDate($year)

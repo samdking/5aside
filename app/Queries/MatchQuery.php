@@ -17,11 +17,7 @@ class MatchQuery
 
 	public function getForYear($year)
 	{
-		if (is_null($this->query)) {
-			$this->query = $this->query();
-		}
-
-		return $this->query->groupBy('year')->get($year);
+		return $this->get()->groupBy('year')->get($year);
 	}
 
 	public function get()

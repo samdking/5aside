@@ -23,19 +23,9 @@ class SingleSeasonQuery
 	public function get($year = null)
 	{
 		return $this->seasons->get($year)
-			->merge($this->year($year))
 			->merge($this->stats($year))
 			->merge($this->leaderboard())
 			->merge($this->matches($year));
-	}
-
-	protected function year($year)
-	{
-		if ($year) return [];
-
-		return [
-			'year' => 'all'
-		];
 	}
 
 	protected function leaderboard()
