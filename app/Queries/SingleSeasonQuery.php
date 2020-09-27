@@ -14,8 +14,8 @@ class SingleSeasonQuery
 
 	public function __construct(Request $request)
 	{
-        $this->request = $request;
-        $this->seasons = new SeasonQuery($request);
+		$this->request = $request;
+		$this->seasons = new SeasonQuery($request);
 		$this->players = new PlayerQuery($request);
 		$this->matches = new MatchQuery($request);
 	}
