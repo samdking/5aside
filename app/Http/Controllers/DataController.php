@@ -65,7 +65,7 @@ class DataController extends Controller
 		$request->show_inactive = true;
 		$request->year = $year;
 
-		response()->json([
+		return response()->json([
 			'season' => (new SingleSeasonQuery($request))->get($year)
 		]);
 	}
