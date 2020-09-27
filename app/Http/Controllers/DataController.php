@@ -7,6 +7,7 @@ use App\Queries\PlayerQuery;
 use App\Queries\SinglePlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
+use App\Queries\AllSeasonsQuery;
 use App\Match;
 use Illuminate\Http\Request;
 
@@ -47,6 +48,20 @@ class DataController extends Controller
 		return response()->json([
 			'venues' => (new VenueQuery($request))->get(['name'])
 		]);
+	}
+
+	public function allSeasons(Request $request)
+	{
+		$request->hide_teams = true;
+		$request->hide_leaderboard = true;
+
+		return response()->json([
+			'seasons' => (new AllSeasonsQuery($request))->get()->prepend(
+				(new SeasonQuery($request))->get(),
+				'all'
+			)
+		]);
+
 	}
 
 	public function seasons(Request $request, $year = null)

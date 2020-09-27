@@ -54,8 +54,8 @@ SQL;
 			->map(function($value) {
 				return is_numeric($value) ? (int)$value : $value;
 			})
-			->merge($this->leaderboard())
 			->merge($this->stats())
+			->merge($this->leaderboard())
 			->merge($this->matches())
 			->merge($this->endDate());
 	}

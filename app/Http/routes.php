@@ -30,6 +30,7 @@ Route::group(['middleware' => 'cors'], function() {
 		Route::get('players', 'DataController@players');
 		Route::get('players/{player}', 'DataController@player');
 		Route::get('seasons', 'DataController@seasons');
+		Route::get('seasons/all', 'DataController@allSeasons');
 		Route::get('seasons/{season}', 'DataController@seasons');
 		Route::get('matches', 'DataController@matches');
 		Route::get('venues', 'DataController@venues');
