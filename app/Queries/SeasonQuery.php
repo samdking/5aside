@@ -3,6 +3,7 @@
 namespace App\Queries;
 
 use DateTime;
+use App\MatchStats;
 use Illuminate\Http\Request;
 
 class SeasonQuery
@@ -37,7 +38,7 @@ $query = <<<SQL
 		    match_id
 		  from player_team
 		  JOIN players on players.id = player_team.player_id
-		  JOIN teams on teams.id = player_team.teaM_id
+		  JOIN teams on teams.id = player_team.team_id
 		  group by match_id
 		) pt ON pt.match_id = matches.id
 		WHERE date BETWEEN ? AND ?
@@ -50,9 +51,27 @@ SQL;
 		];
 
 		return collect(\DB::selectOne($query, $placeholders))
-			->merge(['leaderboard' => $this->players->get()])
+			->map(function($value) {
+				return is_numeric($value) ? (int)$value : $value;
+			})
+			->merge($this->leaderboard())
+			->merge($this->stats())
 			->merge($this->matches())
 			->merge($this->endDate());
+	}
+
+	protected function leaderboard()
+	{
+		if ($this->request->hide_leaderboard) return [];
+
+		return [
+			'leaderboard' => $this->players->get()
+		];
+	}
+
+	protected function stats()
+	{
+		return (new MatchStats($this->matches->get()))->get();
 	}
 
 	protected function matches()
