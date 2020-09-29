@@ -43,8 +43,14 @@ class Match extends Model
 
 	public function teamPlayedIn(Player $player)
 	{
-		return $this->teams->first(function($team, $key) use ($player) {
-			return $team->players->contains($player);
+		$players = func_num_args() > 1 ? func_get_args() : [$player];
+
+		return $this->teams->first(function($team, $key) use ($players) {
+			foreach($players as $player) {
+				if (! $team->players->contains($player)) return;
+			}
+
+			return $team;
 		});
 	}
 

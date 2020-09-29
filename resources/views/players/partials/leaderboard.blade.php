@@ -3,7 +3,7 @@
 		<tr>
 			<th colspan="10"></th>
 			<th colspan="3" class="handicap">Handicap</th>
-			<th></th>
+			<th colspan="2"></th>
 		</tr>
 		<tr>
 			<th>Player</th>
@@ -20,6 +20,7 @@
 			<th>W</th>
 			<th>L</th>
 			<th>Last App</th>
+			<th>Form</th>
 		</tr>
 	</thead>
 	@foreach ($players as $player)
@@ -40,6 +41,25 @@
 		<td>{{ $player->handicap_wins }}</td>
 		<td>{{ $player->handicap_losses }}</td>
 		<td>{{ $player->last_app }}</td>
+
+		<td class="form">
+			<table class="form-table">
+				<tr>
+					@foreach($matchesForForm as $match)
+						<td>
+							@if ($team = $match->teamPlayedIn($mainPlayer, $player))
+								{!! link_to_route('matches.show', substr($match->resultForTeam($team), 0, 1), $match->id, [
+									'title' => $match->overviewForTeam($team),
+									'class' => 'match ' . strtolower($match->resultForTeam($team))
+								]) !!}
+							@else
+								<span class="match absense"></span>
+							@endif
+						</td>
+					@endforeach
+				</tr>
+			</table>
+		</td>
 	</tr>
 	@endforeach
 </table>

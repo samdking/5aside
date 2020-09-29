@@ -78,11 +78,11 @@
 
 <h3>Teammates</h3>
 
-@include('players.partials.leaderboard', ['players' => $teammates])
+@include('players.partials.leaderboard', ['mainPlayer' => $player, 'players' => App\Player::hydrate($teammates)])
 
 <h3>Opponents</h3>
 
-@include('players.partials.leaderboard', ['players' => $opponents])
+@include('players.partials.leaderboard', ['mainPlayer' => $player, 'players' => App\Player::hydrate($opponents)])
 
 <h3>Appearances ({{ $matches->count() }})</h3>
 
