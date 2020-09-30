@@ -14,18 +14,15 @@ class Team extends Model
 
 	public function scopeLimitByDateRange($query, $request)
 	{
+		$query->join('matches', 'matches.id', '=', 'teams.match_id');
+
 		if ($request->has('from')) {
-			$query->whereHas('match', function($q) use ($request) {
-				$q->where('date', '>=', $request->from);
-			});
+			$query->where('matches.date', '>=', $request->from);
 		}
 
 		if ($request->has('to')) {
-			$query->whereHas('match', function($q) use ($request) {
-				$q->where('date', '<=', $request->to);
-			});
+			$query->where('date', '<=', $request->to);
 		}
-
 	}
 
 	public function combos()
