@@ -1,4 +1,4 @@
-<table class="leaderboard">
+<table class="leaderboard" id="leaderboard-{{ md5($method) }}">
 	<thead>
 		<tr>
 			<th colspan="10"></th>
@@ -24,7 +24,7 @@
 		</tr>
 	</thead>
 	@foreach ($players as $player)
-	<tr>
+	<tr class="{{ $matchesForForm->first()->date->greaterThan($player->last_app) ? "js-inactive" : "" }}">
 		<td class="name">
 			{!! link_to_route('players.show', $player->first_name . ' ' . $player->last_name, $player->id) !!}
 		</td>
@@ -63,3 +63,6 @@
 	</tr>
 	@endforeach
 </table>
+<div class="leaderboard-controls">
+	<a onclick="document.getElementById('leaderboard-{{ md5($method) }}').classList.toggle('js-inactive-players-table')">Toggle active players</a>
+</div>
