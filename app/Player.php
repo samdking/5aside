@@ -147,4 +147,24 @@ class Player extends Model
 	{
 		return $this->teams->intersect($teammate->teams)->count();
 	}
+
+	public function teamPlayedWith(Match $match, Player $player)
+	{
+		return $match->teams->first(function($team) use ($player) {
+			return $team->players->contains($player) && $team->players->contains($this);
+		});
+	}
+
+	public function teamPlayedAgainst(Match $match, Player $player)
+	{
+		$myTeam = $match->teams->first(function($team) {
+			return $team->players->contains($this);
+		});
+
+		$otherTeam = $match->teams->first(function($team) use ($player, $myTeam) {
+			return $team != $myTeam && $team->players->contains($player);
+		});
+
+		return $myTeam && $otherTeam ? $myTeam : null;
+	}
 }

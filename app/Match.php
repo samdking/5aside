@@ -43,7 +43,7 @@ class Match extends Model
 
 	public function teamPlayedIn(Player $player)
 	{
-		$players = func_num_args() > 1 ? func_get_args() : [$player];
+		$players = func_get_args();
 
 		return $this->teams->first(function($team, $key) use ($players) {
 			foreach($players as $player) {

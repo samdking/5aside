@@ -47,7 +47,7 @@
 				<tr>
 					@foreach($matchesForForm as $match)
 						<td>
-							@if ($team = $match->teamPlayedIn($mainPlayer, $player))
+							@if ($team = $mainPlayer->$method($match, $player))
 								{!! link_to_route('matches.show', substr($match->resultForTeam($team), 0, 1), $match->id, [
 									'title' => $match->overviewForTeam($team),
 									'class' => 'match ' . strtolower($match->resultForTeam($team))
