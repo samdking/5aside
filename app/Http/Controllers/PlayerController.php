@@ -68,7 +68,7 @@ class PlayerController extends Controller
 
 	public function index(Request $request)
 	{
-		$players = Player::joinTeams()->with('teams')
+		$players = Player::joinTeams()
 			->selectRaw('MAX(matches.date) AS `last_app`')
 			->selectRaw('MAX(matches.id) AS `last_app_id`')
 			->selectRaw('COUNT(teams.id) AS `played`')
