@@ -21,7 +21,7 @@ class Team extends Model
 		}
 
 		if ($request->has('to')) {
-			$query->where('date', '<=', $request->to);
+			$query->where('matches.date', '<=', $request->to);
 		}
 	}
 
