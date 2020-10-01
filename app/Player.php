@@ -128,8 +128,8 @@ class Player extends Model
 	 */
 	public function playedIn(Match $match)
 	{
-		return $this->teams->first(function($team) use ($match) {
-			return $team->match_id === $match->id;
+		return $match->teams->first(function($team) {
+			return $team->players->contains($this);
 		});
 	}
 
@@ -157,14 +157,8 @@ class Player extends Model
 
 	public function teamPlayedAgainst(Match $match, Player $player)
 	{
-		$myTeam = $match->teams->first(function($team) {
-			return $team->players->contains($this);
-		});
-
-		$otherTeam = $match->teams->first(function($team) use ($player, $myTeam) {
-			return $team != $myTeam && $team->players->contains($player);
-		});
-
-		return $myTeam && $otherTeam ? $myTeam : null;
+		return $match->teams->every(function($team) use ($player) {
+			return $team->players->contains($this) xor $team->players->contains($player);
+		}) ? $this->playedIn($match) : null;
 	}
 }
