@@ -68,7 +68,7 @@ class PlayerController extends Controller
 
 	public function index(Request $request)
 	{
-		$players = Player::joinTeams()->with('teams')
+		$players = Player::joinTeams()
 			->selectRaw('MAX(matches.date) AS `last_app`')
 			->selectRaw('MAX(matches.id) AS `last_app_id`')
 			->selectRaw('COUNT(teams.id) AS `played`')
@@ -241,26 +241,13 @@ WHERE player_team.player_id = ? AND matches.date >= ? AND matches.date <= ?
 GROUP BY opponents.id
 ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, opponents.last_name ASC", [$player->id, $request->get('from', '2015-01-01'), $request->get('to', new DateTime)]);
 
-		$matches = $player->teams()->with('match.teams');
-
-		if ($request->has('from')) {
-			$matches->whereHas('match', function($q) use ($request) {
-				$q->where('date', '>=', $request->from);
-			});
-		}
-
-		if ($request->has('to')) {
-			$matches->whereHas('match', function($q) use ($request) {
-				$q->where('date', '<=', $request->to);
-			});
-		}
-
-
-		$matches = $matches->get();
+		$matches = $player->teams()->with('match.teams')->limitByDateRange($request)->get();
 
 		$player->teams = $matches;
 
-		$players = Player::with('teams.match')->where('id', '!=', $player->id)->get();
+		$players = Player::with(['teams' => function($query) use ($request) {
+			$query->limitByDateRange($request);
+		}])->where('id', '!=', $player->id)->get();
 
 		$stats = $players->map(function($other) use ($player) {
 			$with = $player->playedWithCount($other);

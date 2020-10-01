@@ -12,6 +12,19 @@ class Team extends Model
 
 	public $timestamps = false;
 
+	public function scopeLimitByDateRange($query, $request)
+	{
+		$query->join('matches', 'matches.id', '=', 'teams.match_id');
+
+		if ($request->has('from')) {
+			$query->where('matches.date', '>=', $request->from);
+		}
+
+		if ($request->has('to')) {
+			$query->where('matches.date', '<=', $request->to);
+		}
+	}
+
 	public function combos()
 	{
 		return $this->hasMany('App\Combo');

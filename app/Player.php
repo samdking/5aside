@@ -128,8 +128,8 @@ class Player extends Model
 	 */
 	public function playedIn(Match $match)
 	{
-		return $this->teams->first(function($team) use ($match) {
-			return $team->match_id === $match->id;
+		return $match->teams->first(function($team) {
+			return $team->players->contains($this);
 		});
 	}
 
@@ -146,5 +146,19 @@ class Player extends Model
 	public function playedWithCount($teammate)
 	{
 		return $this->teams->intersect($teammate->teams)->count();
+	}
+
+	public function teamPlayedWith(Match $match, Player $player)
+	{
+		return $match->teams->first(function($team) use ($player) {
+			return $team->players->contains($player) && $team->players->contains($this);
+		});
+	}
+
+	public function teamPlayedAgainst(Match $match, Player $player)
+	{
+		return $match->teams->every(function($team) use ($player) {
+			return $team->players->contains($this) xor $team->players->contains($player);
+		}) ? $this->playedIn($match) : null;
 	}
 }
