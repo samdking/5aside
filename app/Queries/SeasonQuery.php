@@ -3,26 +3,38 @@
 namespace App\Queries;
 
 use DateTime;
+use App\MatchStats;
 use Illuminate\Http\Request;
 
 class SeasonQuery
 {
 	protected $request;
-	protected $players;
-	protected $matches;
+	protected $query = [];
 
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
-		$this->players = new PlayerQuery($request);
-		$this->matches = new MatchQuery($request);
 	}
 
-	public function get()
+	public function get($year = null)
 	{
+		$result = isset($this->query[!!$year]) ? $this->query[!!$year] : $this->query($year);
+
+		return collect($year ? $result->get($year) : $result)
+			->merge($this->year($year))
+			->map(function($value) {
+				return is_numeric($value) ? (int)$value : $value;
+			})
+			->merge($this->endDate($year));
+	}
+
+	protected function query($year)
+	{
+		$groupBy = $year ? 'GROUP BY year' : '';
+
 $query = <<<SQL
 		SELECT
-		  ? AS year,
+		  YEAR(date) AS year,
 		  MIN(date) AS start_date,
 		  MAX(date) AS end_date,
 		  COUNT(id) AS total_matches,
@@ -37,44 +49,45 @@ $query = <<<SQL
 		    match_id
 		  from player_team
 		  JOIN players on players.id = player_team.player_id
-		  JOIN teams on teams.id = player_team.teaM_id
+		  JOIN teams on teams.id = player_team.team_id
 		  group by match_id
 		) pt ON pt.match_id = matches.id
 		WHERE date BETWEEN ? AND ?
+		{$groupBy}
 SQL;
 
 		$placeholders = [
-			$this->request->year ?: "all",
 			(new Filters\FromDate)->get($this->request),
 			(new Filters\ToDate)->get($this->request)
 		];
 
-		return collect(\DB::selectOne($query, $placeholders))
-			->merge(['leaderboard' => $this->players->get()])
-			->merge($this->matches())
-			->merge($this->endDate());
+		if ($year) {
+			return $this->query[true] = collect(\DB::select($query, $placeholders))->keyBy('year');
+		} else {
+			return $this->query[false] = \DB::selectOne($query, $placeholders);
+		}
 	}
 
-	protected function matches()
+	protected function year($year)
 	{
-		if ($this->request->hide_matches) return [];
+		if ($year) return [];
 
 		return [
-			'matches' => $this->matches->get()
+			'year' => 'all'
 		];
 	}
 
-	protected function endDate()
+	protected function endDate($year)
 	{
-		if ($this->seasonHasEnded()) return [];
+		if ($this->seasonHasEnded($year)) return [];
 
 		return [
 			'end_date' => null
 		];
 	}
 
-	protected function seasonHasEnded()
+	protected function seasonHasEnded($year)
 	{
-		return $this->request->year && $this->request->year < (new DateTime)->format('Y');
+		return $year && $year < (new DateTime)->format('Y');
 	}
 }
