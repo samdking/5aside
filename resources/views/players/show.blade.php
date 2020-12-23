@@ -111,13 +111,11 @@
 <div class="stats">
 @foreach($stats as $player)
 	<div class="player">
-		<span class="info" style="left: 5px">{{ $player->with }}</span>
-		<span class="info" style="right: 5px">{{ $player->against }}</span>
 		<span class="info" style="text-align: center; width: 100%">
 			<a href="{{ route('players.show', [$player->id] + Request::all()) }}#stats" style="padding: 2px 4px; color: #FFF; background: rgba(0, 0, 0, 0.6); font-size: 14px">{{ $player->player }}</a>
 		</span>
-		<span class="bar" style="width: {{ $player->percentage }}%; background: green"></span>
-		<span class="bar" style="width: {{ 100 - $player->percentage }}%; background: red"></span>
+		<span class="bar with" style="width: {{ $player->percentage }}%">{{ $player->with }}</span>
+		<span class="bar against" style="width: {{ 100 - $player->percentage }}%">{{ $player->against }}</span>
 	</div>
 @endforeach
 </div>
