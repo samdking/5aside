@@ -7,6 +7,7 @@ use App\Queries\PlayerQuery;
 use App\Queries\SinglePlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
+use App\Queries\PointsPerGameQuery;
 use App\Match;
 use Illuminate\Http\Request;
 
@@ -56,6 +57,13 @@ class DataController extends Controller
 
 		return response()->json([
 			'season' => (new SeasonQuery($request))->get()
+		]);
+	}
+
+	public function ppg(Request $request)
+	{
+		return response()->json([
+			'players' => (new PointsPerGameQuery($request))->get()
 		]);
 	}
 
