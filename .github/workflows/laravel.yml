@@ -3,10 +3,10 @@ name: Laravel
 on:
   push:
     branches: 
-      - github-actions
+      - master
   pull_request:
     branches:
-      - github-actions
+      - master
 
 jobs:
   laravel-tests:
