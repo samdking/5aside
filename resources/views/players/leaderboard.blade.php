@@ -3,7 +3,7 @@
 @section('content')
 
 <h2>
-	{{ $heading or 'Player Leaderboard' }}
+	{{ $heading ?? 'Player Leaderboard' }}
 </h2>
 
 <table class="leaderboard">
