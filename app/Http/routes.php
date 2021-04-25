@@ -24,14 +24,12 @@ Route::group(['middleware' => ['web']], function() {
 	Route::post('matches', 'AdminController@storeMatch');
 });
 
-Route::group(['middleware' => 'cors'], function() {
-	Route::get('data.json', 'DataController@all');
-	Route::group(['prefix' => 'api'], function() {
-		Route::get('players', 'DataController@players');
-		Route::get('players/{player}', 'DataController@player');
-		Route::get('seasons', 'DataController@seasons');
-		Route::get('seasons/{season}', 'DataController@seasons');
-		Route::get('matches', 'DataController@matches');
-		Route::get('venues', 'DataController@venues');
-	});
+Route::get('data.json', 'DataController@all');
+Route::group(['prefix' => 'api'], function() {
+	Route::get('players', 'DataController@players');
+	Route::get('players/{player}', 'DataController@player');
+	Route::get('seasons', 'DataController@seasons');
+	Route::get('seasons/{season}', 'DataController@seasons');
+	Route::get('matches', 'DataController@matches');
+	Route::get('venues', 'DataController@venues');
 });

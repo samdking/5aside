@@ -135,7 +135,6 @@ return [
 	#	'App\Providers\BroadcastServiceProvider',
 
 	#	Barryvdh\Debugbar\ServiceProvider::class,
-		Barryvdh\Cors\ServiceProvider::class,
 
 	],
 
