@@ -228,7 +228,7 @@ nav a {
 
 .leaderboard .name {
   text-align: left;
-  width: 120px;
+  min-width: 120px;
 }
 
 .leaderboard .form {
