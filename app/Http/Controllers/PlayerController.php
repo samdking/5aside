@@ -185,7 +185,7 @@ class PlayerController extends Controller
   SUM(player.winners) AS `wins`,
   SUM(player.draw) AS `draws`,
   SUM(player.winners) * 3 + SUM(player.draw) AS pts,
-  COUNT(player.team_id) - SUM(player.winners) - SUM(player.draw) AS `losses`,
+  SUM(player.lose) AS `losses`,
   SUM(player.goals_for) AS `goals_for`,
   SUM(player.goals_against) AS `goals_against`,
   SUM(player.goals_for) - SUM(player.goals_against) AS `diff`,
