@@ -41,8 +41,10 @@ EOT;
 			$venue->highest_scoring_match = $matches->max->total_goals;
 
 			$venue->lowest_scoring_match = $matches
-				->filter(function($match) {
-					return ! is_null($match->team_a_scored);
+				->reject(function($match) {
+					return is_null($match->team_a_scored);
+				})->reject(function($match) {
+					return $match->voided;
 				})->min->total_goals;
 
 			$venue->highest_attendance_matches = $matches->filter(function($match) use ($venue) {
