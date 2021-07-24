@@ -46,6 +46,7 @@ $query = <<<SQL
 			SUM(wins) * 3 + SUM(draws) AS points,
 			MIN(date) AS first_appearance,
 			MAX(date) AS last_appearance,
+			max(team_a.match_id) AS last_app_id,
 			SUM(void_matches) AS void_matches,
 			SUM(handicap) AS handicap_matches,
 			SUM(handicap AND wins) AS handicap_wins,

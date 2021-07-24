@@ -42,34 +42,34 @@
 	</thead>
 	<tbody>
 		@foreach($players as $i => $player)
-		<tr class="{{ $matches->first()->date->greaterThan($player->last_app) ? "js-inactive" : "" }}">
+		<tr class="{{ $matches->first()->date->greaterThan($player->last_appearance) ? "js-inactive" : "" }}">
 			<td class="number">{{ $i+1 }}</td>
 			<td class="name">
 				<a href="{{ route('players.show', [$player->id] + Request::all()) }}">
 					{{ $player->first_name . ' ' . $player->last_name }}
 				</a>
 			</td>
-			<td>{{ $player->played }}</td>
+			<td>{{ $player->matches }}</td>
 			<td>{{ $player->wins }}</td>
 			<td>{{ $player->draws }}</td>
 			<td>{{ $player->losses }}</td>
-			<td>{{ $player->goals_for }}</td>
-			<td>{{ $player->goals_against }}</td>
-			<td>{{ $player->goals_for - $player->goals_against }}</td>
-			<td>{{ ($player->wins * 3) + $player->draws }}</td>
+			<td>{{ $player->scored }}</td>
+			<td>{{ $player->conceded }}</td>
+			<td>{{ $player->gd }}</td>
+			<td>{{ $player->points }}</td>
 			<td>{{ $player->win_percentage }}%</td>
-			<td class="js-expanded">{{ $player->handicap_apps }}</td>
-			<td class="js-expanded">{{ $player->handicap_wins }}</td>
-			<td class="js-expanded">{{ $player->handicap_losses }}</td>
-			<td class="js-expanded">{{ $player->advantage_apps }}</td>
-			<td class="js-expanded">{{ $player->advantage_wins }}</td>
-			<td class="js-expanded">{{ $player->advantage_losses }}</td>
-			<td class="js-expanded">{{ round((($player->wins * 3) + $player->draws) / $player->played, 2) }}
-			<td class="js-expanded">{{ round($player->gspg, 1) }}</td>
-			<td class="js-expanded">{{ round($player->gcpg, 1) }}</td>
+			<td class="js-expanded">{{ $player->handicap['matches'] }}</td>
+			<td class="js-expanded">{{ $player->handicap['wins'] }}</td>
+			<td class="js-expanded">{{ $player->handicap['losses'] }}</td>
+			<td class="js-expanded">{{ $player->advantage['matches'] }}</td>
+			<td class="js-expanded">{{ $player->advantage['wins'] }}</td>
+			<td class="js-expanded">{{ $player->advantage['losses'] }}</td>
+			<td class="js-expanded">{{ round($player->per_game['points'], 2) }}
+			<td class="js-expanded">{{ round($player->per_game['scored'], 1) }}</td>
+			<td class="js-expanded">{{ round($player->per_game['conceded'], 1) }}</td>
 			<td>
 				<a href="{{ route('matches.show', $player->last_app_id) }}">
-					{{ $player->last_app }}
+					{{ $player->last_appearance }}
 				</a>
 			</td>
 			@include('players/partials/form', ['matches' => $matches, 'player' => $player])

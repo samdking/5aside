@@ -48,6 +48,13 @@ class Match extends Model
 		});
 	}
 
+	public function overviewFromResult($result)
+	{
+		$scores = $this->teams->pluck('scored')->sort();
+
+		return $this->date->format('j F Y') . ' ' . ($result == 'Win' ? $scores->reverse() : $scores)->join(' - ');
+	}
+
 	public function overviewForTeam(Team $team)
 	{
 		if ( ! is_null($team->scored)) {
