@@ -108,7 +108,6 @@ class PlayerController extends Controller
 	 */
 	public function show(Request $request)
 	{
-		$request['show_inactive'] = true;
 		$request['form_matches'] = 10;
 
 		$matchesForForm = Match::with('teams.players')->orderBy('date', 'desc')->take(10);
