@@ -84,35 +84,31 @@
 
 @include('players.partials.leaderboard', ['method' => 'teamPlayedAgainst', 'mainPlayer' => $playerObj, 'players' => App\Player::hydrate($opponents)])
 
-<h3>Appearances ({{ $matches->count() }})</h3>
+<h3>Appearances ({{ $player->results->count() }})</h3>
 
 <ol class="matches">
-@foreach($matches as $team)
+@foreach($player->results as $match)
 	<li>
-		{!! link_to_route('matches.show', $team->match->date->format('jS F Y'), $team->match_id) !!}
-		@if ($team->match->is_void)
+		{!! link_to_route('matches.show', DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y'), $match->id) !!}
+		@if ($match->voided)
 			- Void
 		@else
-			- {{ $team->result() }}
-			@if ($team->scored)
-				({{ $team->scored }}-{{ $team->match->getOpposition($team)->scored }})
+			- {{ $match->result }}
+			@if ($match->scored)
+				({{ $match->scored }}-{{ $match->conceded }})
 			@endif
-		@endif
-
-		@if ($team->match->is_short)
-			*
 		@endif
 	</li>
 @endforeach
 </ol>
 
-<h3 id="stats">Played with / against (minimum <strong>{{ round($matches->count() / 4) }}</strong> matches)</h3>
+<h3 id="stats">Played with / against (minimum <strong>{{ round($player->results->count() / 4) }}</strong> matches)</h3>
 
 <div class="stats">
 @foreach($stats as $player)
 	<div class="player">
 		<span class="info" style="text-align: center; width: 100%">
-			<a href="{{ route('players.show', [$player->id] + Request::all()) }}#stats" style="padding: 2px 4px; color: #FFF; background: rgba(0, 0, 0, 0.6); font-size: 14px">{{ $player->player }}</a>
+			<a href="{{ route('players.show', [$player->id] + Request::all()) }}#stats" style="padding: 2px 4px; color: #FFF; background: rgba(0, 0, 0, 0.6); font-size: 14px">{{ $player->first_name }} {{ $player->last_name }}</a>
 		</span>
 		<span class="bar with" style="width: {{ $player->percentage }}%">{{ $player->with }}</span>
 		<span class="bar against" style="width: {{ 100 - $player->percentage }}%">{{ $player->against }}</span>

@@ -76,7 +76,7 @@ SQL;
 				$match->opponents = $teams[$match->opponent_id]->playerData();
 			}
 
-			unset($match->id, $match->team_id, $match->opponent_id);
+			unset($match->team_id, $match->opponent_id);
 		});
 	}
 }

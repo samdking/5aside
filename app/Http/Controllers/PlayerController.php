@@ -11,6 +11,10 @@ use Illuminate\Support\Str;
 
 use App\Http\Controllers\Controller;
 
+use App\Queries\PlayedWithAgainst;
+use App\Queries\PlayerQuery;
+use App\Queries\SinglePlayerQuery;
+
 class PlayerController extends Controller
 {
 	public function summary()
@@ -72,7 +76,7 @@ class PlayerController extends Controller
 		$request['show_inactive'] = true;
 		$request['form_matches'] = 10;
 
-		$players = (new \App\Queries\PlayerQuery($request));
+		$players = (new PlayerQuery($request));
 
 		$matches = Match::with('teams.players')->orderBy('date', 'desc')->take(10);
 
@@ -102,16 +106,14 @@ class PlayerController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function show(Player $player, Request $request)
+	public function show(Request $request)
 	{
-		$request['player'] = $player->id;
 		$request['show_inactive'] = true;
 		$request['form_matches'] = 10;
-		$playerObj = $player;
 
 		$matchesForForm = Match::with('teams.players')->orderBy('date', 'desc')->take(10);
 
-		$player = new \App\Queries\SinglePlayerQuery($request);
+		$player = new SinglePlayerQuery($request);
 
 		if ($request->has('from')) {
 			$matchesForForm->where('date', '>=', $request->from);
@@ -187,33 +189,17 @@ WHERE player_team.player_id = ? AND matches.date >= ? AND matches.date <= ?
 GROUP BY opponents.id
 ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, opponents.last_name ASC", [$player->id, $request->get('from', '2015-01-01'), $request->get('to', new DateTime)]);
 
-		$matches = $playerObj->teams()->with('match.teams')->limitByDateRange($request)->get();
+		$playerObj = Player::find($request->player);
 
-		$players = Player::with(['teams' => function($query) use ($request) {
-			$query->limitByDateRange($request);
-		}])->where('id', '!=', $player->id)->get();
-
-		$stats = $players->map(function($other) use ($playerObj) {
-			$with = $playerObj->playedWithCount($other);
-			$against = $playerObj->playedAgainstCount($other);
-			return (object)[
-				'id' => $other->id,
-				'player' => $other->first_name . ' ' . $other->last_name,
-				'with' => $with,
-				'against' => $against,
-				'diff' => $with - $against,
-				'percentage' => $with ? round($with / ($with + $against) * 100, 2) : 0,
-			];
-		})->sortByDesc('percentage')->reject(function($p) use ($matches) {
-			return ($p->against + $p->with) < $matches->count() / 4;
-		});
+		$stats = (new PlayedWithAgainst($request))->get()->reject(function($p) use ($player) {
+            return ($p->against + $p->with) < $player->results->count() / 4;
+        });
 
 		return view('players.show')->with([
 			'player' => $player,
 			'playerObj' => $playerObj,
 			'teammates' => $teammates,
 			'opponents' => $opponents,
-			'matches' => $matches,
 			'matchesForForm' => $matchesForForm->get()->sortBy('date')->sortBy('id'),
 			'stats' => $stats,
 		]);
