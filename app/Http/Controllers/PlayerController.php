@@ -7,6 +7,7 @@ use App\Player;
 use App\Match;
 use App\Team;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 use App\Http\Controllers\Controller;
 
@@ -68,7 +69,7 @@ class PlayerController extends Controller
 
 	public function index(Request $request)
 	{
-		$players = Player::joinTeams()->with('teams')
+		$players = Player::joinTeams()
 			->selectRaw('MAX(matches.date) AS `last_app`')
 			->selectRaw('MAX(matches.id) AS `last_app_id`')
 			->selectRaw('COUNT(teams.id) AS `played`')
@@ -119,8 +120,8 @@ class PlayerController extends Controller
 			$matches->where('date', '<=', $request->to);
 			$heading[] = 'to ' . (new DateTime($request->to))->format('jS M Y');
 		}
-		
-		$heading[] = sprintf("(%d %s)", $matches->count(), str_plural('match', $matches->count()));
+
+		$heading[] = sprintf("(%d %s)", $matches->count(), Str::plural('match', $matches->count()));
 
 		return view('players.leaderboard')->with([
 			'heading' => implode(' ', $heading),
@@ -184,7 +185,7 @@ class PlayerController extends Controller
   SUM(player.winners) AS `wins`,
   SUM(player.draw) AS `draws`,
   SUM(player.winners) * 3 + SUM(player.draw) AS pts,
-  COUNT(player.team_id) - SUM(player.winners) - SUM(player.draw) AS `losses`,
+  SUM(player.lose) AS `losses`,
   SUM(player.goals_for) AS `goals_for`,
   SUM(player.goals_against) AS `goals_against`,
   SUM(player.goals_for) - SUM(player.goals_against) AS `diff`,
@@ -241,26 +242,13 @@ WHERE player_team.player_id = ? AND matches.date >= ? AND matches.date <= ?
 GROUP BY opponents.id
 ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, opponents.last_name ASC", [$player->id, $request->get('from', '2015-01-01'), $request->get('to', new DateTime)]);
 
-		$matches = $player->teams()->with('match.teams');
-
-		if ($request->has('from')) {
-			$matches->whereHas('match', function($q) use ($request) {
-				$q->where('date', '>=', $request->from);
-			});
-		}
-
-		if ($request->has('to')) {
-			$matches->whereHas('match', function($q) use ($request) {
-				$q->where('date', '<=', $request->to);
-			});
-		}
-
-
-		$matches = $matches->get();
+		$matches = $player->teams()->with('match.teams')->limitByDateRange($request)->get();
 
 		$player->teams = $matches;
 
-		$players = Player::with('teams.match')->where('id', '!=', $player->id)->get();
+		$players = Player::with(['teams' => function($query) use ($request) {
+			$query->limitByDateRange($request);
+		}])->where('id', '!=', $player->id)->get();
 
 		$stats = $players->map(function($other) use ($player) {
 			$with = $player->playedWithCount($other);

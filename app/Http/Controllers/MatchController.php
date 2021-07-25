@@ -27,8 +27,7 @@ SQL;
 			'venue',
 			'teams.players' => function($q) {
 				$q->orderBy('last_name');
-			},
-			'teams.players.teams'
+			}
 		])
 			->orderBy('date', 'DESC')->orderBy('matches.id', 'desc')->get();
 

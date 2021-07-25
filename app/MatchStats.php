@@ -27,8 +27,10 @@ class MatchStats
         $data->highest_scoring_match = $this->matches->max->total_goals;
 
         $data->lowest_scoring_match = $this->matches
-            ->filter(function($match) {
-                return ! is_null($match->team_a_scored);
+            ->reject(function($match) {
+                return is_null($match->team_a_scored);
+            })->reject(function($match) {
+                return $match->voided;
             })->min->total_goals;
 
         $data->highest_attendance_matches = $this->matches->filter(function($match) use ($data) {

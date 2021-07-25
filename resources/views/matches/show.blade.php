@@ -12,7 +12,7 @@
 </h2>
 
 <div class="match{{ $match->is_void ? ' void' : '' }}">
-	@foreach($match->teams()->with('players.teams')->get() as $i => $team)
+	@foreach($match->teams()->with('players')->get() as $i => $team)
 		<div class="team {{ $team->winners ? 'winners' : ''}}">
 			<h2 class="scored">{{ $match->is_void ? "V" : $team->scored }}</h2>
 			<ul>

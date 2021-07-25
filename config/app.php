@@ -17,7 +17,7 @@ return [
 
 	'env' => env('APP_ENV', 'production'),
 
-	'debug' => env('APP_DEBUG'),
+	'debug' => (bool) env('APP_DEBUG', false),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -135,7 +135,6 @@ return [
 	#	'App\Providers\BroadcastServiceProvider',
 
 	#	Barryvdh\Debugbar\ServiceProvider::class,
-		Barryvdh\Cors\ServiceProvider::class,
 
 	],
 
@@ -153,6 +152,7 @@ return [
 	'aliases' => [
 
 		'App'          => 'Illuminate\Support\Facades\App',
+		'Arr'          => 'Illuminate\Support\Arr',
 		'Artisan'      => 'Illuminate\Support\Facades\Artisan',
 		'Auth'         => 'Illuminate\Support\Facades\Auth',
 		'Blade'        => 'Illuminate\Support\Facades\Blade',
@@ -182,6 +182,7 @@ return [
 		'Schema'       => 'Illuminate\Support\Facades\Schema',
 		'Session'      => 'Illuminate\Support\Facades\Session',
 		'Storage'      => 'Illuminate\Support\Facades\Storage',
+		'Str'          => 'Illuminate\Support\Str',
 		'URL'          => 'Illuminate\Support\Facades\URL',
 		'Validator'    => 'Illuminate\Support\Facades\Validator',
 		'View'         => 'Illuminate\Support\Facades\View',
