@@ -371,8 +371,11 @@ nav a {
 h2 small { font-size: 0.7em; color: #666; }
 
 @media only screen and (max-width: 600px) {
+  body {
+    margin: 1em;
+  }
   .leaderboard {
-    margin: 0 -20px;
+    margin: 0 -1em;
     border-width: 0;
   }
   .leaderboard td {
@@ -380,5 +383,20 @@ h2 small { font-size: 0.7em; color: #666; }
   }
   .leaderboard th {
     padding: 4px 6px;
+  }
+  .matches {
+    width: 100%;
+  }
+  .matches .team {
+    padding: 0 20px;
+  }
+  .matches .scored {
+    margin-top: 15px;
+  }
+  .matches .vs {
+    padding: 15px 0;
+  }
+  .matches-wrapper {
+    margin: 0 -20px;
   }
 }
