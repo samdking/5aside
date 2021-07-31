@@ -45,7 +45,7 @@
 		<tr class="{{ $matches->first()->date->greaterThan($player->last_appearance) ? "js-inactive" : "" }}">
 			<td class="number">{{ $i+1 }}</td>
 			<td class="name">
-				<a href="{{ route('players.show', [$player->id] + Request::all()) }}">
+				<a href="{{ route('players.show', [$player->id] + Request::only('from', 'to')) }}">
 					{{ $player->first_name . ' ' . $player->last_name }}
 				</a>
 			</td>
