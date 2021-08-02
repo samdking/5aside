@@ -11,7 +11,6 @@ use Illuminate\Support\Str;
 
 use App\Http\Controllers\Controller;
 
-use App\Queries\PlayedWithAgainst;
 use App\Queries\PlayerQuery;
 use App\Queries\SinglePlayerQuery;
 
