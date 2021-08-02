@@ -305,6 +305,15 @@ nav a {
   padding: 0px 30px;
 }
 
+.team a {
+  line-height: 1.5em;
+  text-decoration: none;
+}
+
+.team a:hover {
+  text-decoration: underline;
+}
+
 .vs {
   color: #666;
   width: 10%;

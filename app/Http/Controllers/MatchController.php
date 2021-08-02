@@ -2,7 +2,7 @@
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Match;
+use App\Queries\MatchQuery;
 use App\Player;
 
 use Illuminate\Http\Request;
@@ -23,20 +23,12 @@ class MatchController extends Controller {
 			ORDER BY often desc, last_played DESC, players.last_name, players.first_name
 SQL;
 		$players = Player::fromQuery($sql);
-		$matches = Match::with([
-			'venue',
-			'teams.players' => function($q) {
-				$q->orderBy('last_name');
-			}
-		])
-			->orderBy('date', 'DESC')->orderBy('matches.id', 'desc')->get();
-
 		$teammates = $request->get('teammates', []);
 
-		$matches = $matches->filter(function($match) use ($teammates) {
-			return $match->teams->filter(function($team) use ($teammates) {
-				return count(array_intersect($team->players->pluck('id')->all(), $teammates)) == count($teammates);
-			})->count() > 0;
+		$matches = (new MatchQuery($request))->get()->reverse()->filter(function($match) use ($teammates) {
+			return collect([$match->team_a, $match->team_b])->contains(function($team) use ($teammates) {
+				return count(array_intersect($team->pluck('id')->all(), $teammates)) == count($teammates);
+			});
 		});
 
 		return view('matches.overview')->withMatches($matches)->withPlayers($players);

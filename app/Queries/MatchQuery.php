@@ -46,7 +46,10 @@ SQL;
 		];
 
 		return collect(\DB::select($query, $placeholders))->groupBy('id')->map(function($t) use ($teams) {
+			$matchId = $t[0]->id;
+
 			$match = (object)[
+				'id' => $matchId,
 				'year' => $t[0]->year,
 				'date' => $t[0]->date,
 				'short' => (boolean)$t[0]->short,
@@ -60,7 +63,6 @@ SQL;
 				'venue' => $t[0]->venue,
 			];
 
-			$matchId = $t[0]->id;
 
 			if ( ! $this->request->hide_teams) {
 				$match->team_a = $teams[$matchId][0]->playerData();
