@@ -8,7 +8,6 @@ class PlayerQuery
 	{
 		$this->request = $request;
 		$this->form = new FormQuery($request);
-		$this->matchesForForm = [];
 	}
 
 	public function getSeasons()
