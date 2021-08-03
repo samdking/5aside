@@ -17,14 +17,14 @@ class FormQuery
 
 	public function get($forYear = null)
 	{
-		if (is_null($this->query)) {
-			$this->query = $this->query();
+		if (is_null($this->query) && is_null($forYear)) {
+			$this->query = $this->query($this->limit());
 		}
 
-		if (is_null($forYear)) return $this->query->take($this->limit());
+		if (is_null($forYear)) return $this->query;
 
 		if (is_null($this->groupByYear)) {
-			$this->groupByYear = $this->query->groupBy('year');
+			$this->groupByYear = $this->query()->groupBy('year');
 		}
 
 		if ( ! $this->groupByYear->has($forYear)) {
@@ -34,21 +34,30 @@ class FormQuery
 		return $this->groupByYear[$forYear];
 	}
 
-	protected function query()
+	protected function query($limit = null)
 	{
 		$placeholders = [
 			(new Filters\FromDate)->get($this->request),
 			(new Filters\ToDate)->get($this->request),
 		];
 
-		$matches = Match::with('teams.players')
-			->whereRaw('date >= ? AND date <= ?', $placeholders)
-			->latest('date');
+		$limit = $limit ? "LIMIT {$limit}" : '';
 
-		return $matches->get()->map(function($match) {
+		$query = <<<SQL
+		select matches.date, group_concat(player_id) AS players
+		from matches
+		join teams on teams.match_id = matches.id
+		join player_team pt on pt.team_id = teams.id
+		WHERE date >= ? AND date <= ?
+		group by matches.id
+		order by date desc
+		{$limit}
+SQL;
+
+		return collect(\DB::select($query, $placeholders))->map(function($match) {
 			return (object)[
-				'players' => $match->playerResults(),
-				'year' => $match->date->year,
+				'players' => collect(explode(',', $match->players)),
+				'year' => substr($match->date, 0, 4),
 			];
 		});
 	}
