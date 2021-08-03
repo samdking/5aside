@@ -129,7 +129,7 @@ SQL;
 	protected function matchesForForm($year)
 	{
 		if ( ! array_key_exists($year, $this->matchesForForm)) {
-			$this->matchesForForm[$year] = is_null($year) ? $this->form->get() : $this->form->forSeason($year);
+			$this->matchesForForm[$year] = $this->form->get($year);
 		}
 
 		return $this->matchesForForm[$year];

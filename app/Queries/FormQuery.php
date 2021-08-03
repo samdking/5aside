@@ -8,31 +8,34 @@ class FormQuery
 {
 	protected $request;
 	protected $query;
-	protected $forSeasons = [];
+	protected $groupByYear;
 
 	public function __construct($request)
 	{
 		$this->request = $request;
 	}
 
-	public function forSeason($year)
+	public function get($forYear = null)
 	{
-		if (empty($this->forSeasons)) {
-			$this->forSeasons = $this->query()->groupBy('year');
+		if (is_null($this->query)) {
+			$this->query = $this->query();
 		}
 
-		return $this->forSeasons->get($year)->take($this->limit());
-	}
+		if (is_null($forYear)) return $this->query->take($this->limit());
 
-	public function get()
-	{
-		return $this->query()->take($this->limit());
+		if (is_null($this->groupByYear)) {
+			$this->groupByYear = $this->query->groupBy('year');
+		}
+
+		if ( ! $this->groupByYear->has($forYear)) {
+			$this->groupByYear[$forYear] = $this->groupByYear->get($forYear)->take($this->limit());
+		}
+
+		return $this->groupByYear[$forYear];
 	}
 
 	protected function query()
 	{
-		if ( ! is_null($this->query)) return $this->query;
-
 		$placeholders = [
 			(new Filters\FromDate)->get($this->request),
 			(new Filters\ToDate)->get($this->request),
@@ -42,14 +45,12 @@ class FormQuery
 			->whereRaw('date >= ? AND date <= ?', $placeholders)
 			->latest('date');
 
-		$this->query = $matches->get()->map(function($match) {
+		return $matches->get()->map(function($match) {
 			return (object)[
 				'players' => $match->playerResults(),
 				'year' => $match->date->year,
 			];
 		});
-
-		return $this->query;
 	}
 
 	protected function limit()
