@@ -108,7 +108,7 @@ SQL;
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($groupByYear) {
 			$p->handicap = $p->advantage = $p->per_game = [];
-			$p->form = $this->matchesForForm($p->year)->map(function($match) use ($p) {
+			$p->form = $this->form->get($p->year)->map(function($match) use ($p) {
 				return $match->players->get($p->id, "");
 			});
 			if ( ! $groupByYear) unset($p->year);
@@ -124,15 +124,6 @@ SQL;
 				}
 			}
 		});
-	}
-
-	protected function matchesForForm($year)
-	{
-		if ( ! array_key_exists($year, $this->matchesForForm)) {
-			$this->matchesForForm[$year] = $this->form->get($year);
-		}
-
-		return $this->matchesForForm[$year];
 	}
 
 	protected function matchLimit()
