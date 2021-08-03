@@ -107,7 +107,7 @@ SQL;
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($groupByYear) {
 			$p->handicap = $p->advantage = $p->per_game = [];
-			$formMatches = $groupByYear ? $this->form->getSeason($p->year) : $this->form->get();
+			$formMatches = $groupByYear ? $this->form->forSeason($p->year) : $this->form->get();
 			$p->form = $formMatches->map(function($players) use ($p) {
 				return $players->get($p->id, "");
 			});
