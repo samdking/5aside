@@ -7,19 +7,24 @@ use App\Match;
 class FormQuery
 {
 	protected $request;
-	protected $query = [];
+	protected $forSeasons = [];
 
 	public function __construct($request)
 	{
 		$this->request = $request;
 	}
-
-	public function get($byYear = null)
+	
+	public function forSeason($year)
 	{
-		if (array_key_exists($byYear, $this->query)) {
-			return $this->query[$byYear];
+		if (empty($this->forSeasons)) {
+			$this->forSeasons = $this->get(true);
 		}
+		
+		return $this->forSeasons->get($year)->take($this->limit());
+	}
 
+	public function get($groupByYear = false)
+	{
 		$placeholders = [
 			(new Filters\FromDate)->get($this->request),
 			(new Filters\ToDate)->get($this->request),
@@ -27,13 +32,16 @@ class FormQuery
 
 		$matches = Match::with('teams.players')
 			->whereRaw('date >= ? AND date <= ?', $placeholders)
-			->latest('date')->take($this->limit());
-
-		if ($byYear) {
-			$matches->whereRaw('YEAR(date) = ?', [$byYear]);
-		}
-
-		return $this->query[$byYear] = $matches->get()->map->playerResults();
+			->latest('date');
+	
+		$matches = $matches->get()->map(function($match) {
+			return (object)[
+				'players' => $match->playerResults(),
+				'year' => $match->date->year,
+			];
+		});
+		
+		return $groupByYear ? $matches->groupBy('year') : $matches->take($this->limit());
 	}
 
 	protected function limit()
