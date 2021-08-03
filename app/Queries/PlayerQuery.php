@@ -8,6 +8,7 @@ class PlayerQuery
 	{
 		$this->request = $request;
 		$this->form = new FormQuery($request);
+		$this->matchesForForm = [];
 	}
 
 	public function getSeasons()
@@ -107,8 +108,8 @@ SQL;
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($groupByYear) {
 			$p->handicap = $p->advantage = $p->per_game = [];
-			$p->form = $this->matchesForForm($p->year)->map(function($players) use ($p) {
-				return $players->get($p->id, "");
+			$p->form = $this->matchesForForm($p->year)->map(function($match) use ($p) {
+				return $match->players->get($p->id, "");
 			});
 			if ( ! $groupByYear) unset($p->year);
 			foreach($p as $k => $v) {
@@ -124,13 +125,13 @@ SQL;
 			}
 		});
 	}
-	
+
 	protected function matchesForForm($year)
 	{
-		if ( ! array_key_exists($year, $this->matchesForForm)) {	
+		if ( ! array_key_exists($year, $this->matchesForForm)) {
 			$this->matchesForForm[$year] = is_null($year) ? $this->form->get() : $this->form->forSeason($year);
 		}
-	
+
 		return $this->matchesForForm[$year];
 	}
 
