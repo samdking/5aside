@@ -55,9 +55,7 @@ SQL;
 
 		$teams = Team::whereIn('id', $matches->pluck('team_id'))->with('players')->get()->groupBy('match_id');
 
-		return $matches->groupBy('id')->map(function($t) use ($teams) {
-			$matchId = $t[0]->id;
-
+		return $matches->groupBy('id')->map(function($t, $matchId) use ($teams) {
 			$match = (object)[
 				'id' => $matchId,
 				'year' => $t[0]->year,
@@ -72,7 +70,6 @@ SQL;
 				'total_goals' => is_null($t[0]->scored) ? null : $t->sum->scored,
 				'venue' => $t[0]->venue,
 			];
-
 
 			if ( ! $this->request->hide_teams) {
 				$match->team_a = $teams[$matchId][0]->playerData();
