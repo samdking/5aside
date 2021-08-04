@@ -34,6 +34,9 @@ class FormQuery
 
 	protected function limit()
 	{
-		return $this->request->get('form_matches', 6);
+		return collect([
+			$this->request->get('form_matches', 6),
+			$this->request->get('match_limit'),
+		])->min();
 	}
 }

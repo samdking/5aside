@@ -8,6 +8,7 @@ use App\Team;
 class MatchQuery
 {
 	protected $request;
+	protected $count;
 
 	public function __construct(Request $request)
 	{
@@ -17,7 +18,13 @@ class MatchQuery
 	public function get($params = [])
 	{
 		$direction = @$params['order'] ?: 'ASC';
-		$limit = @$params['limit'] ? 'LIMIT ' . $params['limit'] * 2 : '';
+
+		$limit = collect([
+			$this->request->match_limit,
+			@$params['limit'],
+		])->min();
+
+		$limit = $limit ? 'LIMIT ' . $limit * 2 : '';
 
 		$query = <<<SQL
 		SELECT
@@ -44,12 +51,7 @@ class MatchQuery
 		{$limit}
 SQL;
 
-		$placeholders = [
-			(new Filters\FromDate)->get($this->request),
-			(new Filters\ToDate)->get($this->request)
-		];
-
-		$matches = collect(\DB::select($query, $placeholders));
+		$matches = collect(\DB::select($query, $this->placeholders()));
 
 		$teams = Team::whereIn('id', $matches->pluck('team_id'))->with('players')->get()->groupBy('match_id');
 
@@ -79,5 +81,32 @@ SQL;
 
 			return $match;
 		})->values();
+	}
+
+	public function count()
+	{
+		if ($this->request->get('match_limit')) {
+			return $this->request->get('match_limit');
+		}
+
+		if (is_null($this->count)) {
+			$query = <<<SQL
+			SELECT count(*) as count
+			FROM matches
+			WHERE date >= ? AND date <= ?
+	SQL;
+
+			$this->count = \DB::selectOne($query, $this->placeholders())->count;
+		}
+
+		return $this->count;
+	}
+
+	protected function placeholders()
+	{
+		return [
+			(new Filters\FromDate)->get($this->request),
+			(new Filters\ToDate)->get($this->request)
+		];
 	}
 }

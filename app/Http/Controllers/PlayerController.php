@@ -79,10 +79,8 @@ class PlayerController extends Controller
 		$request['show_inactive'] = true;
 		$request['form_matches'] = 10;
 
-		$players = (new PlayerQuery($request));
-		$matches = (new MatchQuery($request))->get(['order' => 'desc', 'limit' => 10])->each(function($m) {
-			$m->date = new Carbon($m->date);
-		});
+		$players = new PlayerQuery($request);
+		$matches = new MatchQuery($request);
 
 		$heading[] = 'Player Leaderboard';
 
@@ -99,7 +97,9 @@ class PlayerController extends Controller
 		return view('players.leaderboard')->with([
 			'heading' => implode(' ', $heading),
 			'players' => $players->get(),
-			'matches' => $matches->sortBy('date'),
+			'matches' => $matches->get(['order' => 'desc', 'limit' => 10])->each(function($m) {
+				$m->date = new Carbon($m->date);
+			})->sortBy('date'),
 		]);
 	}
 
