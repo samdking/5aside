@@ -14,11 +14,15 @@ class MatchQuery
 		$this->request = $request;
 	}
 
-	public function get()
+	public function get($params = [])
 	{
+		$direction = @$params['order'] ?: 'ASC';
+		$limit = @$params['limit'] ? 'LIMIT ' . $params['limit'] * 2 : '';
+
 		$query = <<<SQL
 		SELECT
 		  matches.id,
+		  teams.id AS team_id,
 		  YEAR(matches.date) AS year,
 		  matches.date,
 		  YEAR(matches.date) AS year,
@@ -36,16 +40,20 @@ class MatchQuery
 		INNER JOIN players on players.id = player_team.player_id
 		WHERE date >= ? AND date <= ?
 		GROUP BY matches.id, teams.id
-		ORDER BY matches.date, teams.id
+		ORDER BY matches.date {$direction}, teams.id
+		{$limit}
 SQL;
-		$teams = Team::with('players')->get()->groupBy('match_id');
 
 		$placeholders = [
 			(new Filters\FromDate)->get($this->request),
 			(new Filters\ToDate)->get($this->request)
 		];
 
-		return collect(\DB::select($query, $placeholders))->groupBy('id')->map(function($t) use ($teams) {
+		$matches = collect(\DB::select($query, $placeholders));
+
+		$teams = Team::whereIn('id', $matches->pluck('team_id'))->with('players')->get()->groupBy('match_id');
+
+		return $matches->groupBy('id')->map(function($t) use ($teams) {
 			$matchId = $t[0]->id;
 
 			$match = (object)[

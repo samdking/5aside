@@ -26,7 +26,7 @@ SQL;
 		$players = Player::fromQuery($sql);
 		$teammates = $request->get('teammates', []);
 
-		$matches = (new MatchQuery($request))->get()->reverse()->filter(function($match) use ($teammates) {
+		$matches = (new MatchQuery($request))->get(['order' => 'desc'])->filter(function($match) use ($teammates) {
 			return collect([$match->team_a, $match->team_b])->contains(function($team) use ($teammates) {
 				return count(array_intersect($team->pluck('id')->all(), $teammates)) == count($teammates);
 			});

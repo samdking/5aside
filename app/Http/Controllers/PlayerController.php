@@ -9,10 +9,13 @@ use App\Team;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+use Carbon\Carbon;
+
 use App\Http\Controllers\Controller;
 
 use App\Queries\PlayedWithAgainst;
 use App\Queries\PlayerQuery;
+use App\Queries\MatchQuery;
 use App\Queries\SinglePlayerQuery;
 
 class PlayerController extends Controller
@@ -77,18 +80,17 @@ class PlayerController extends Controller
 		$request['form_matches'] = 10;
 
 		$players = (new PlayerQuery($request));
-
-		$matches = Match::with('teams.players')->orderBy('date', 'desc')->take(10);
+		$matches = (new MatchQuery($request))->get(['order' => 'desc', 'limit' => 10])->each(function($m) {
+			$m->date = new Carbon($m->date);
+		});
 
 		$heading[] = 'Player Leaderboard';
 
 		if ($request->has('from')) {
-			$matches->where('date', '>=', $request->from);
 			$heading[] = 'from ' . (new DateTime($request->from))->format('jS M Y');
 		}
 
 		if ($request->has('to')) {
-			$matches->where('date', '<=', $request->to);
 			$heading[] = 'to ' . (new DateTime($request->to))->format('jS M Y');
 		}
 
@@ -97,7 +99,7 @@ class PlayerController extends Controller
 		return view('players.leaderboard')->with([
 			'heading' => implode(' ', $heading),
 			'players' => $players->get(),
-			'matches' => $matches->get()->sortBy('date')->sortBy('id')
+			'matches' => $matches->sortBy('date'),
 		]);
 	}
 

@@ -5,7 +5,7 @@
 				<td>
 					@if ($result = $player->form->pop())
 						{!! link_to_route('matches.show', substr($result, 0, 1), $match->id, [
-							'title' => $match->overviewFromResult($result),
+							'title' => $match->date->format('j F Y') . ' ' . $match->team_a_scored . ' - ' . $match->team_b_scored,
 							'class' => 'match ' . strtolower($result)
 						]) !!}
 					@else
