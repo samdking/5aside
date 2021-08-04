@@ -106,12 +106,14 @@ SQL;
 			$this->minMatches()
 		]));
 
-		return collect(\DB::select($query, $placeholders))->each(function($p) use ($groupByYear) {
+		return collect(\DB::select($query, $placeholders))->each(function($p) {
 			$p->handicap = $p->advantage = $p->per_game = [];
-			$p->form = $this->form->get($p->year)->map(function($players) use ($p) {
-				return $players->get($p->id, "");
-			});
-			if ( ! $groupByYear) unset($p->year);
+			if (is_null($p->year)) {
+				$p->form = $this->form->get()->map(function($players) use ($p) {
+					return $players->get($p->id, "");
+				});
+				unset($p->year);
+			}
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {
 					$p->$k = $v = strpos($v, '.') === false ? (int)$v : (float)$v;
