@@ -31,6 +31,10 @@ Route::group(['prefix' => 'api'], function() {
 	Route::get('seasons', 'DataController@seasons');
 	Route::get('seasons/all', 'DataController@allSeasons');
 	Route::get('seasons/{season}', 'DataController@seasons');
+	Route::group(['prefix' => 'v2'], function() {
+		Route::get('seasons', 'DataController@allSeasons');
+		Route::get('seasons/{year}', 'DataController@seasons');
+	});
 	Route::get('matches', 'DataController@matches');
 	Route::get('venues', 'DataController@venues');
 });
