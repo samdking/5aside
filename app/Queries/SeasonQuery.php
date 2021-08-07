@@ -23,7 +23,7 @@ class SeasonQuery
 		return collect($year ? $result->get($year) : $result)
 			->merge($this->year($year))
 			->map(function($value) {
-				return is_numeric($value) ? (int)$value : $value;
+				return is_numeric($value) ? (str_contains($value, '.') ? (float)$value : (int)$value) : $value;
 			})
 			->merge($this->endDate($year));
 	}
@@ -38,7 +38,7 @@ $query = <<<SQL
 		  MIN(date) AS start_date,
 		  MAX(date) AS end_date,
 		  COUNT(id) AS total_matches,
-		  AVG(player_count) AS average_players,
+		  ROUND(AVG(player_count), 2) AS average_players,
 		  SUM(player_count) AS total_players,
 		  SUM(anon_player_count) AS total_anon_players
 		FROM matches
