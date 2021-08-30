@@ -8,13 +8,28 @@ use App\Team;
 class MatchQuery
 {
 	protected $request;
+	protected $query;
 
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
 	}
 
+	public function getForYear($year)
+	{
+		return $this->get()->groupBy('year')->get($year);
+	}
+
 	public function get()
+	{
+		if (is_null($this->query)) {
+			$this->query = $this->query();
+		}
+
+		return $this->query;
+	}
+
+	protected function query()
 	{
 		$query = <<<SQL
 		SELECT
@@ -38,7 +53,11 @@ class MatchQuery
 		GROUP BY matches.id, teams.id
 		ORDER BY matches.date, teams.id
 SQL;
-		$teams = Team::with('players')->get()->groupBy('match_id');
+		if ($this->request->hide_teams) {
+			$teams = null;
+		} else {
+			$teams = Team::with('players')->get()->groupBy('match_id');
+		}
 
 		$placeholders = [
 			(new Filters\FromDate)->get($this->request),
