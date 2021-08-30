@@ -6,6 +6,7 @@ use App\Queries\MatchQuery;
 use App\Queries\PlayerQuery;
 use App\Queries\SinglePlayerQuery;
 use App\Queries\VenueQuery;
+use App\Queries\SeasonQuery;
 use App\Queries\SingleSeasonQuery;
 use App\Queries\AllSeasonsQuery;
 use App\Match;
@@ -68,7 +69,7 @@ class DataController extends Controller
 		if (str_contains($request->path(), '/v2/')) {
 			$season = new SingleSeasonQuery($request);
 		} else {
-			$season = new Season($request);
+			$season = new SeasonQuery($request);
 		}
 
 		return response()->json([
