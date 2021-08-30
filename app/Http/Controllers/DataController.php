@@ -65,8 +65,14 @@ class DataController extends Controller
 		$request['show_inactive'] = true;
 		$request['year'] = $year == 'all' ? null : $year;
 
+		if (str_contains($request->path(), '/v2/')) {
+			$season = new SingleSeasonQuery($request);
+		} else {
+			$season = new Season($request);
+		}
+
 		return response()->json([
-			'season' => (new SingleSeasonQuery($request))->get($request->year)
+			'season' => $season->get()
 		]);
 	}
 
