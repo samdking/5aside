@@ -57,48 +57,6 @@ class Player extends Model
 		return $this->hasManyThrough('App\Match', 'App\Team');
 	}
 
-	public function winPercentage()
-	{
-		return round($this->wins() / $this->teams->count() * 100, 2);
-	}
-
-	public function wins()
-	{
-		return $this->teams->sum('winners');
-	}
-
-	public function draws()
-	{
-		return $this->teams->sum('draw');
-	}
-
-	public function losses()
-	{
-		return $this->teams->sum(function($team) {
-			return $team->draw || $team->winners ? 0 : 1;
-		});
-	}
-
-	public function scored()
-	{
-		return $this->teams->sum('scored');
-	}
-
-	public function conceded()
-	{
-		return $this->opponents()->sum('scored');
-	}
-
-	public function totalPoints()
-	{
-		return $this->teams->sum(function($team) {
-			if ($team->winners) return 3;
-			if ($team->draw) return 1;
-			return 0;
-		});
-	}
-
-
 	public function opponents()
 	{
 		return $this->teams->map(function($team) {
