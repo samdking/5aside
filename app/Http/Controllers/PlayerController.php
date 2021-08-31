@@ -190,15 +190,13 @@ WHERE player_team.player_id = ? AND matches.date >= ? AND matches.date <= ?
 GROUP BY opponents.id
 ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, opponents.last_name ASC", [$player->id, $request->get('from', '2015-01-01'), $request->get('to', new DateTime)]);
 
-		$playerObj = Player::find($request->player);
-
 		$stats = (new PlayedWithAgainst($request))->get()->reject(function($p) use ($player) {
             return ($p->against + $p->with) < $player->results->count() / 4;
         });
 
 		return view('players.show')->with([
 			'player' => $player,
-			'playerObj' => $playerObj,
+			'playerObj' => Player::find($request->player),
 			'teammates' => $teammates,
 			'opponents' => $opponents,
 			'matchesForForm' => $matchesForForm->get()->sortBy('date')->sortBy('id'),
