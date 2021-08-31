@@ -42,7 +42,7 @@
 	</thead>
 	<tbody>
 		@foreach($players as $i => $player)
-		<tr class="{{ $player->form->isEmpty() ? "js-inactive" : "" }}">
+		<tr class="{{ $player->form->filter()->isEmpty() ? "js-inactive" : "" }}">
 			<td class="number">{{ $i+1 }}</td>
 			<td class="name">
 				<a href="{{ route('players.show', [$player->id] + Request::only('from', 'to')) }}">
@@ -79,9 +79,24 @@
 </table>
 
 <div class="leaderboard-controls">
-	<a onclick="document.querySelector('.leaderboard').classList.toggle('js-expanded-table')">Toggle expanded table</a>
+	<a onclick="toggleExpandedTable()">Toggle expanded table</a>
 	|
-	<a onclick="document.querySelector('.leaderboard').classList.toggle('js-inactive-players-table')">Toggle active players</a>
+	<a onclick="toggleActivePlayers()">Toggle active players</a>
 </div>
+
+<script>
+	const leaderboard = document.querySelector('.leaderboard');
+
+	function toggleExpandedTable() {
+		window.localStorage.setItem('expandedTable', leaderboard.classList.toggle('js-expanded-table'));
+	}
+
+	function toggleActivePlayers() {
+		window.localStorage.setItem('activePlayers', leaderboard.classList.toggle('js-inactive-players-table'));
+	}
+
+	leaderboard.classList.toggle('js-expanded-table', window.localStorage.getItem('expandedTable') == 'true');
+	leaderboard.classList.toggle('js-inactive-players-table', window.localStorage.getItem('activePlayers') == 'true');
+</script>
 
 @stop
