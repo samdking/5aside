@@ -7,6 +7,8 @@ use App\Queries\PlayerQuery;
 use App\Queries\SinglePlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
+use App\Queries\SingleSeasonQuery;
+use App\Queries\AllSeasonsQuery;
 use App\Match;
 use Illuminate\Http\Request;
 
@@ -49,13 +51,29 @@ class DataController extends Controller
 		]);
 	}
 
-	public function seasons(Request $request, $year = null)
+	public function allSeasons(Request $request)
 	{
-		$request->show_inactive = true;
-		$request->year = $year;
+		$request->hide_teams = true;
+		$request->hide_leaderboard = true;
 
 		return response()->json([
-			'season' => (new SeasonQuery($request))->get()
+			'seasons' => (new AllSeasonsQuery($request))->get()
+		]);
+	}
+
+	public function seasons(Request $request, $year = null)
+	{
+		$request['show_inactive'] = true;
+		$request['year'] = $year == 'all' ? null : $year;
+
+		if (str_contains($request->path(), '/v2/')) {
+			$season = new SingleSeasonQuery($request);
+		} else {
+			$season = new SeasonQuery($request);
+		}
+
+		return response()->json([
+			'season' => $season->get()
 		]);
 	}
 

@@ -9,10 +9,16 @@ class MatchQuery
 {
 	protected $request;
 	protected $count;
+	protected $query;
 
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
+	}
+
+	public function getForYear($year)
+	{
+		return $this->get()->groupBy('year')->get($year);
 	}
 
 	public function get($params = [])
@@ -24,6 +30,15 @@ class MatchQuery
 			@$params['limit'],
 		])->min();
 
+		if (is_null(@$this->query[$direction][$limit])) {
+			$this->query[$direction][$limit] = $this->query($direction, $limit);
+		}
+
+		return $this->query[$direction][$limit];
+	}
+
+	protected function query($direction, $limit)
+	{
 		$limit = $limit ? 'LIMIT ' . $limit * 2 : '';
 
 		$query = <<<SQL
@@ -53,7 +68,11 @@ SQL;
 
 		$matches = collect(\DB::select($query, $this->placeholders()));
 
-		$teams = Team::whereIn('id', $matches->pluck('team_id'))->with('players')->get()->groupBy('match_id');
+		if ($this->request->hide_teams) {
+			$teams = null;
+		} else {
+			$teams = Team::whereIn('id', $matches->pluck('team_id'))->with('players')->get()->groupBy('match_id');
+		}
 
 		return $matches->groupBy('id')->map(function($t, $matchId) use ($teams) {
 			$match = (object)[

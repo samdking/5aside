@@ -25,29 +25,30 @@
 	</fieldset>
 </form>
 
-<div class="matches">
-@foreach($matches as $match)
-	<div class="match{{ $match->voided ? ' void' : '' }}">
-		<a class="date" href="{{ route('matches.show', $match->id) }}">
-			{{ DateTime::createFromFormat('Y-m-d', $match->date)->format('D jS F Y') }}
-			({{ $match->venue }})
-		</a>
+<div class="matches-wrapper">
+	<div class="matches">
+	@foreach($matches as $match)
+		<div class="match{{ $match->voided ? ' void' : '' }}">
+			<a class="date" href="{{ route('matches.show', $match->id) }}">
+				{{ DateTime::createFromFormat('Y-m-d', $match->date)->format('D jS F Y') }}
+				({{ $match->venue }})
+			</a>
 
-		@include('matches.partials.team', [
-			'scored' => $match->voided ? 'V' : $match->team_a_scored,
-			'winners' => $match->winner == 'A',
-			'players' => $match->team_a,
-		])
+			@include('matches.partials.team', [
+				'scored' => $match->voided ? 'V' : $match->team_a_scored,
+				'winners' => $match->winner == 'A',
+				'players' => $match->team_a,
+			])
 
-		<div class="vs">vs.</div>
+			<div class="vs">vs.</div>
 
-		@include('matches.partials.team', [
-			'scored' => $match->voided ? 'V' : $match->team_b_scored,
-			'winners' => $match->winner == 'B',
-			'players' => $match->team_b,
-		])
+			@include('matches.partials.team', [
+				'scored' => $match->voided ? 'V' : $match->team_b_scored,
+				'winners' => $match->winner == 'B',
+				'players' => $match->team_b,
+			])
+		</div>
+	@endforeach
 	</div>
-@endforeach
-</li>
-
+</div>
 @stop
