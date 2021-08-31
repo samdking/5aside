@@ -134,7 +134,7 @@ return [
 		'App\Providers\RouteServiceProvider',
 	#	'App\Providers\BroadcastServiceProvider',
 
-	#	Barryvdh\Debugbar\ServiceProvider::class,
+		Barryvdh\Debugbar\ServiceProvider::class,
 
 	],
 

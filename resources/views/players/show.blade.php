@@ -4,7 +4,7 @@
 <h2>
 	{!! link_to_route('players.index', 'Players') !!}
 	&gt;
-	{{ $player->first_name }} {{ $player->last_name }}
+	{{ $player->first_initial }} {{ $player->last_name }}
 </h2>
 
 <table class="leaderboard">
@@ -44,30 +44,30 @@
 		<tr>
 			<td class="name">
 				<a href="{{ route('players.show', $player->id) }}">
-					{{ $player->first_name . ' ' . $player->last_name }}
+					{{ $player->first_initial . ' ' . $player->last_name }}
 				</a>
 			</td>
-			<td>{{ $player->played }}</td>
+			<td>{{ $player->matches }}</td>
 			<td>{{ $player->wins }}</td>
 			<td>{{ $player->draws }}</td>
 			<td>{{ $player->losses }}</td>
-			<td>{{ $player->goals_for }}</td>
-			<td>{{ $player->goals_against }}</td>
-			<td>{{ $player->diff }}</td>
-			<td>{{ ($player->wins * 3) + $player->draws }}</td>
+			<td>{{ $player->scored }}</td>
+			<td>{{ $player->conceded }}</td>
+			<td>{{ $player->gd }}</td>
+			<td>{{ $player->points }}</td>
 			<td>{{ $player->win_percentage }}%</td>
-			<td>{{ $player->handicap_apps }}</td>
-			<td>{{ $player->handicap_wins }}</td>
-			<td>{{ $player->handicap_losses }}</td>
-			<td>{{ $player->advantage_apps }}</td>
-			<td>{{ $player->advantage_wins }}</td>
-			<td>{{ $player->advantage_losses }}</td>
-			<td>{{ round((($player->wins * 3) + $player->draws) / $player->played, 2) }}
-			<td>{{ round($player->gspg, 1) }}</td>
-			<td>{{ round($player->gcpg, 1) }}</td>
+			<td>{{ $player->handicap['matches'] }}</td>
+			<td>{{ $player->handicap['wins'] }}</td>
+			<td>{{ $player->handicap['losses'] }}</td>
+			<td>{{ $player->advantage['matches'] }}</td>
+			<td>{{ $player->advantage['wins'] }}</td>
+			<td>{{ $player->advantage['losses'] }}</td>
+			<td>{{ round($player->per_game['points'], 2) }}
+			<td>{{ round($player->per_game['scored'], 1) }}</td>
+			<td>{{ round($player->per_game['conceded'], 1) }}</td>
 			<td>
 				<a href="{{ route('matches.show', $player->last_app_id) }}">
-					{{ $player->last_app }}
+					{{ $player->last_appearance }}
 				</a>
 			</td>
 			@include('players/partials/form', ['matches' => $matchesForForm, 'player' => $player])
@@ -78,41 +78,37 @@
 
 <h3>Teammates</h3>
 
-@include('players.partials.leaderboard', ['method' => 'teamPlayedWith', 'mainPlayer' => $player, 'players' => App\Player::hydrate($teammates)])
+@include('players.partials.leaderboard', ['method' => 'teamPlayedWith', 'mainPlayer' => $playerObj, 'players' => App\Player::hydrate($teammates)])
 
 <h3>Opponents</h3>
 
-@include('players.partials.leaderboard', ['method' => 'teamPlayedAgainst', 'mainPlayer' => $player, 'players' => App\Player::hydrate($opponents)])
+@include('players.partials.leaderboard', ['method' => 'teamPlayedAgainst', 'mainPlayer' => $playerObj, 'players' => App\Player::hydrate($opponents)])
 
-<h3>Appearances ({{ $matches->count() }})</h3>
+<h3>Appearances ({{ $player->results->count() }})</h3>
 
 <ol class="matches">
-@foreach($matches as $team)
+@foreach($player->results as $match)
 	<li>
-		{!! link_to_route('matches.show', $team->match->date->format('jS F Y'), $team->match_id) !!}
-		@if ($team->match->is_void)
+		{!! link_to_route('matches.show', DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y'), $match->id) !!}
+		@if ($match->voided)
 			- Void
 		@else
-			- {{ $team->result() }}
-			@if ($team->scored)
-				({{ $team->scored }}-{{ $team->match->getOpposition($team)->scored }})
+			- {{ $match->result }}
+			@if ($match->scored)
+				({{ $match->scored }}-{{ $match->conceded }})
 			@endif
-		@endif
-
-		@if ($team->match->is_short)
-			*
 		@endif
 	</li>
 @endforeach
 </ol>
 
-<h3 id="stats">Played with / against (minimum <strong>{{ round($matches->count() / 4) }}</strong> matches)</h3>
+<h3 id="stats">Played with / against (minimum <strong>{{ round($player->results->count() / 4) }}</strong> matches)</h3>
 
 <div class="stats">
 @foreach($stats as $player)
 	<div class="player">
 		<span class="info" style="text-align: center; width: 100%">
-			<a href="{{ route('players.show', [$player->id] + Request::all()) }}#stats" style="padding: 2px 4px; color: #FFF; background: rgba(0, 0, 0, 0.6); font-size: 14px">{{ $player->player }}</a>
+			<a href="{{ route('players.show', [$player->id] + Request::only('from', 'to')) }}#stats" style="padding: 2px 4px; color: #FFF; background: rgba(0, 0, 0, 0.6); font-size: 14px">{{ $player->first_name }} {{ $player->last_name }}</a>
 		</span>
 		<span class="bar with" style="width: {{ $player->percentage }}%">{{ $player->with }}</span>
 		<span class="bar against" style="width: {{ 100 - $player->percentage }}%">{{ $player->against }}</span>

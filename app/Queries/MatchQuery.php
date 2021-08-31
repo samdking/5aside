@@ -8,6 +8,7 @@ use App\Team;
 class MatchQuery
 {
 	protected $request;
+	protected $count;
 	protected $query;
 
 	public function __construct(Request $request)
@@ -20,20 +21,30 @@ class MatchQuery
 		return $this->get()->groupBy('year')->get($year);
 	}
 
-	public function get()
+	public function get($params = [])
 	{
-		if (is_null($this->query)) {
-			$this->query = $this->query();
+		$direction = @$params['order'] ?: 'ASC';
+
+		$limit = collect([
+			$this->request->match_limit,
+			@$params['limit'],
+		])->min();
+
+		if (is_null(@$this->query[$direction][$limit])) {
+			$this->query[$direction][$limit] = $this->query($direction, $limit);
 		}
 
-		return $this->query;
+		return $this->query[$direction][$limit];
 	}
 
-	protected function query()
+	protected function query($direction, $limit)
 	{
+		$limit = $limit ? 'LIMIT ' . $limit * 2 : '';
+
 		$query = <<<SQL
 		SELECT
 		  matches.id,
+		  teams.id AS team_id,
 		  YEAR(matches.date) AS year,
 		  matches.date,
 		  YEAR(matches.date) AS year,
@@ -51,21 +62,21 @@ class MatchQuery
 		INNER JOIN players on players.id = player_team.player_id
 		WHERE date >= ? AND date <= ?
 		GROUP BY matches.id, teams.id
-		ORDER BY matches.date, teams.id
+		ORDER BY matches.date {$direction}, teams.id
+		{$limit}
 SQL;
+
+		$matches = collect(\DB::select($query, $this->placeholders()));
+
 		if ($this->request->hide_teams) {
 			$teams = null;
 		} else {
-			$teams = Team::with('players')->get()->groupBy('match_id');
+			$teams = Team::whereIn('id', $matches->pluck('team_id'))->with('players')->get()->groupBy('match_id');
 		}
 
-		$placeholders = [
-			(new Filters\FromDate)->get($this->request),
-			(new Filters\ToDate)->get($this->request)
-		];
-
-		return collect(\DB::select($query, $placeholders))->groupBy('id')->map(function($t) use ($teams) {
+		return $matches->groupBy('id')->map(function($t, $matchId) use ($teams) {
 			$match = (object)[
+				'id' => $matchId,
 				'year' => $t[0]->year,
 				'date' => $t[0]->date,
 				'short' => (boolean)$t[0]->short,
@@ -79,8 +90,6 @@ SQL;
 				'venue' => $t[0]->venue,
 			];
 
-			$matchId = $t[0]->id;
-
 			if ( ! $this->request->hide_teams) {
 				$match->team_a = $teams[$matchId][0]->playerData();
 				$match->team_b = $teams[$matchId][1]->playerData();
@@ -88,5 +97,32 @@ SQL;
 
 			return $match;
 		})->values();
+	}
+
+	public function count()
+	{
+		if ($this->request->get('match_limit')) {
+			return $this->request->get('match_limit');
+		}
+
+		if (is_null($this->count)) {
+			$query = <<<SQL
+			SELECT count(*) as count
+			FROM matches
+			WHERE date >= ? AND date <= ?
+	SQL;
+
+			$this->count = \DB::selectOne($query, $this->placeholders())->count;
+		}
+
+		return $this->count;
+	}
+
+	protected function placeholders()
+	{
+		return [
+			(new Filters\FromDate)->get($this->request),
+			(new Filters\ToDate)->get($this->request)
+		];
 	}
 }

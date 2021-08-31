@@ -46,6 +46,7 @@ $query = <<<SQL
 			SUM(wins) * 3 + SUM(draws) AS points,
 			MIN(date) AS first_appearance,
 			MAX(date) AS last_appearance,
+			max(team_a.match_id) AS last_app_id,
 			SUM(void_matches) AS void_matches,
 			SUM(handicap) AS handicap_matches,
 			SUM(handicap AND wins) AS handicap_wins,
@@ -105,12 +106,14 @@ SQL;
 			$this->minMatches()
 		]));
 
-		return collect(\DB::select($query, $placeholders))->each(function($p) use ($groupByYear) {
+		return collect(\DB::select($query, $placeholders))->each(function($p) {
 			$p->handicap = $p->advantage = $p->per_game = [];
-			$p->form = $this->form->get($p->year)->map(function($players) use ($p) {
-				return $players->get($p->id, "");
-			});
-			if ( ! $groupByYear) unset($p->year);
+			if (is_null($p->year)) {
+				$p->form = $this->form->get()->map(function($players) use ($p) {
+					return $players->get($p->id, "");
+				});
+				unset($p->year);
+			}
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {
 					$p->$k = $v = strpos($v, '.') === false ? (int)$v : (float)$v;

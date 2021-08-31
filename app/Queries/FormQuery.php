@@ -7,17 +7,17 @@ use App\Match;
 class FormQuery
 {
 	protected $request;
-	protected $query = [];
+	protected $query = null;
 
 	public function __construct($request)
 	{
 		$this->request = $request;
 	}
 
-	public function get($byYear = null)
+	public function get()
 	{
-		if (array_key_exists($byYear, $this->query)) {
-			return $this->query[$byYear];
+		if (! is_null($this->query)) {
+			return $this->query;
 		}
 
 		$placeholders = [
@@ -29,15 +29,14 @@ class FormQuery
 			->whereRaw('date >= ? AND date <= ?', $placeholders)
 			->latest('date')->take($this->limit());
 
-		if ($byYear) {
-			$matches->whereRaw('YEAR(date) = ?', [$byYear]);
-		}
-
-		return $this->query[$byYear] = $matches->get()->map->playerResults();
+		return $this->query = $matches->get()->map->playerResults();
 	}
 
 	protected function limit()
 	{
-		return $this->request->get('form_matches', 6);
+		return collect([
+			$this->request->get('form_matches', 6),
+			$this->request->get('match_limit'),
+		])->min();
 	}
 }
