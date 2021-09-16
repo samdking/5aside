@@ -14,7 +14,7 @@
 <nav>
 	<a href="/">Home</a> |
 	Seasons:
-		@foreach(range(2015, date('Y')) as $year)
+		@foreach(array_reverse(range(2015, date('Y'))) as $year)
 			<a href="{!! route('players.index', [
 				'from' => $year . '-01-01',
 				'to' => $year . '-12-31'
