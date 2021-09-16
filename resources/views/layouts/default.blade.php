@@ -14,11 +14,11 @@
 <nav>
 	<a href="/">Home</a> |
 	Seasons:
-		@foreach(range(0, 5) as $i)
+		@foreach(range(2015, date('Y')) as $year)
 			<a href="{!! route('players.index', [
-				'from' => date('Y') - $i . '-01-01',
-				'to' => date('Y') - $i . '-12-31'
-			]) !!}">{{ date('Y') - $i }}</a>
+				'from' => $year . '-01-01',
+				'to' => $year . '-12-31'
+			]) !!}">{{ $year }}</a>
 		@endforeach
 	|
 	<a href="/players">All-time Table</a> |
