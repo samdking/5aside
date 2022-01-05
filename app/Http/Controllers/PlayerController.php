@@ -158,8 +158,8 @@ INNER JOIN (SELECT
   JOIN teams ON teams.id = player_team.team_id
   JOIN teams AS opps on opps.match_id = teams.match_id AND opps.id != teams.id
   JOIN matches ON matches.id = teams.match_id
-  WHERE players.id = ? AND matches.date >= ? AND matches.date <= ?) AS player ON player.team_id = player_teammates.team_id
-WHERE player.id IS NULL OR teammates.id != player.id
+  WHERE players.id = ? AND matches.date >= ? AND matches.date <= ? AND matches.is_void = 0 AND injured = 0) AS player ON player.team_id = player_teammates.team_id
+WHERE teammates.id != player.id and injured = 0
 GROUP BY teammates.id
 ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, teammates.last_name ASC", [$player->id, $request->get('from', '2015-01-01'), $request->get('to', new DateTime)]);
 
@@ -186,7 +186,7 @@ JOIN matches ON matches.id = teams.match_id
 JOIN teams AS opp_teams ON opp_teams.match_id = teams.match_id AND opp_teams.id != teams.id
 JOIN player_team opp_player_team ON opp_player_team.team_id = opp_teams.id
 JOIN players opponents ON opponents.id = opp_player_team.player_id
-WHERE player_team.player_id = ? AND matches.date >= ? AND matches.date <= ?
+WHERE player_team.player_id = ? AND matches.date >= ? AND matches.date <= ? AND opp_player_team.injured = 0 AND player_team.injured = 0 AND is_void = 0
 GROUP BY opponents.id
 ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, opponents.last_name ASC", [$player->id, $request->get('from', '2015-01-01'), $request->get('to', new DateTime)]);
 
