@@ -94,14 +94,16 @@ class Player extends Model
 	public function teamPlayedWith(Match $match, Player $player)
 	{
 		return $match->teams->first(function($team) use ($player) {
-			return $team->players->contains($player) && $team->players->contains($this);
+			$players = $team->fitPlayers();
+			return $players->contains($player) && $players->contains($this);
 		});
 	}
 
 	public function teamPlayedAgainst(Match $match, Player $player)
 	{
 		return $match->teams->every(function($team) use ($player) {
-			return $team->players->contains($this) xor $team->players->contains($player);
+			$players = $team->fitPlayers();
+			return $players->contains($this) xor $players->contains($player);
 		}) ? $this->playedIn($match) : null;
 	}
 }
