@@ -23,8 +23,9 @@ class PlayedWithAgainst
         SELECT t.*
         FROM teams t
         INNER JOIN player_team pt ON pt.team_id = t.id AND pt.player_id = ?
+        WHERE pt.injured = 0
     ) teammates ON teammates.match_id = teams.match_id
-    WHERE players.id != ? AND date >= ? AND date <= ?
+    WHERE players.id != ? AND date >= ? AND date <= ? AND is_void = 0 AND injured = 0
     GROUP BY players.id
 SQL;
 

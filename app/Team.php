@@ -93,4 +93,11 @@ class Team extends Model
 			]);
 		});
 	}
+
+	public function fitPlayers()
+	{
+		return $this->players->reject(function($p) {
+			return $p->pivot->injured;
+		});
+	}
 }
