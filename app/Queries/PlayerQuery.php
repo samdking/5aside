@@ -24,7 +24,7 @@ class PlayerQuery
 		} else {
 			$yearField = "null";
 			$group = "players.id";
-			$order = "points desc, gd DESC, matches ASC, scored DESC";
+			$order = "`points` desc, `gd` DESC, `win_percentage` DESC, `handicap_wins` DESC, `matches` DESC, `losses` ASC, `last_appearance` DESC, last_name ASC";
 		}
 
 		$where = $this->request->player ? "WHERE players.id = ?" : "";
