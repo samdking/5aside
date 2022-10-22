@@ -41,6 +41,12 @@ class MatchQuery
 	{
 		$limit = $limit ? 'LIMIT ' . $limit * 2 : '';
 
+		if (empty($this->request->all())) {
+			$where = '';
+		} else {
+			$where = 'WHERE date >= ? AND date <= ?';
+		}
+
 		$query = <<<SQL
 		SELECT
 		  matches.id,
@@ -60,7 +66,7 @@ class MatchQuery
 		INNER JOIN venues on venues.id = matches.venue_id
 		INNER JOIN player_team on player_team.team_id = teams.id
 		INNER JOIN players on players.id = player_team.player_id
-		WHERE date >= ? AND date <= ?
+		{$where}
 		GROUP BY matches.id, teams.id
 		ORDER BY matches.date {$direction}, teams.id
 		{$limit}
