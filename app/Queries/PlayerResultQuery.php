@@ -64,7 +64,7 @@ SQL;
 			$this->request->player
 		];
 
-		$teams = Team::with('players')->get()->keyBy('id');
+		$teams = $this->request->full_player_data ? Team::with('players')->get()->keyBy('id') : [];
 
 		return collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
 			foreach(['short', 'voided', 'handicap', 'advantage'] as $prop) {
