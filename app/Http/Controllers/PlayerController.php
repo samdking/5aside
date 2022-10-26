@@ -17,6 +17,8 @@ use App\Queries\PlayedWithAgainst;
 use App\Queries\PlayerQuery;
 use App\Queries\MatchQuery;
 use App\Queries\SinglePlayerQuery;
+use App\Queries\Filters\FromDate;
+use App\Queries\Filters\ToDate;
 
 class PlayerController extends Controller
 {
@@ -112,19 +114,12 @@ class PlayerController extends Controller
 	{
 		$request['form_matches'] = 10;
 
-		$matchesForForm = Match::with('teams.players')->orderBy('date', 'desc')->take(10);
+		$from = (new FromDate)->get($request);
+		$to = (new ToDate)->get($request);
 
-		$player = new SinglePlayerQuery($request);
+		$matchesForForm = Match::with('teams.players')->where('date', '>=', $from)->where('date', '<=', $to)->orderBy('date', 'desc')->take(10);
 
-		if ($request->has('from')) {
-			$matchesForForm->where('date', '>=', $request->from);
-		}
-
-		if ($request->has('to')) {
-			$matchesForForm->where('date', '<=', $request->to);
-		}
-
-		$player = $player->get();
+		$player = (new SinglePlayerQuery($request))->get();
 
 		$teammates = DB::select("SELECT
   teammates.*,
@@ -161,7 +156,7 @@ INNER JOIN (SELECT
   WHERE players.id = ? AND matches.date >= ? AND matches.date <= ? AND matches.is_void = 0 AND injured = 0) AS player ON player.team_id = player_teammates.team_id
 WHERE teammates.id != player.id and injured = 0
 GROUP BY teammates.id
-ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, teammates.last_name ASC", [$player->id, $request->get('from', '2015-01-01'), $request->get('to', new DateTime)]);
+ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, teammates.last_name ASC", [$player->id, $from, $to]);
 
 		$opponents = DB::select("SELECT
   opponents.id,
@@ -188,7 +183,7 @@ JOIN player_team opp_player_team ON opp_player_team.team_id = opp_teams.id
 JOIN players opponents ON opponents.id = opp_player_team.player_id
 WHERE player_team.player_id = ? AND matches.date >= ? AND matches.date <= ? AND opp_player_team.injured = 0 AND player_team.injured = 0 AND is_void = 0
 GROUP BY opponents.id
-ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, opponents.last_name ASC", [$player->id, $request->get('from', '2015-01-01'), $request->get('to', new DateTime)]);
+ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, opponents.last_name ASC", [$player->id, $from, $to]);
 
 		$stats = (new PlayedWithAgainst($request))->get()->reject(function($p) use ($player) {
             return ($p->against + $p->with) < $player->results->count() / 4;

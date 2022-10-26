@@ -19,6 +19,7 @@ Route::group(['middleware' => ['web']], function() {
 	Route::get('players/matrix', 'PlayerController@matrix');
 	Route::resource('players', 'PlayerController');
 	Route::resource('teams', 'TeamController');
+	Route::resource('seasons', 'SeasonController');
 
 	Route::get('matches/create', 'AdminController@createMatch');
 	Route::post('matches', 'AdminController@storeMatch');

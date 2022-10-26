@@ -45,7 +45,7 @@
 		<tr class="{{ $player->form->filter()->isEmpty() ? "js-inactive" : "" }}">
 			<td class="number">{{ $i+1 }}</td>
 			<td class="name">
-				<a href="{{ route('players.show', [$player->id] + Request::only('from', 'to')) }}">
+				<a href="{{ route('players.show', [$player->id] + Request::only('from', 'to', 'year')) }}">
 					{{ $player->first_name . ' ' . $player->last_name }}
 				</a>
 			</td>

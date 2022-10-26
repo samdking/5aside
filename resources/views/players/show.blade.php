@@ -108,7 +108,7 @@
 @foreach($stats as $player)
 	<div class="player">
 		<span class="info" style="text-align: center; width: 100%">
-			<a href="{{ route('players.show', [$player->id] + Request::only('from', 'to')) }}#stats" style="padding: 2px 4px; color: #FFF; background: rgba(0, 0, 0, 0.6); font-size: 14px">{{ $player->first_name }} {{ $player->last_name }}</a>
+			<a href="{{ route('players.show', [$player->id] + Request::only('from', 'to', 'year')) }}#stats" style="padding: 2px 4px; color: #FFF; background: rgba(0, 0, 0, 0.6); font-size: 14px">{{ $player->first_name }} {{ $player->last_name }}</a>
 		</span>
 		<span class="bar with" style="width: {{ $player->percentage }}%">{{ $player->with }}</span>
 		<span class="bar against" style="width: {{ 100 - $player->percentage }}%">{{ $player->against }}</span>
