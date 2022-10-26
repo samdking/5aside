@@ -79,9 +79,24 @@
 </table>
 
 <div class="leaderboard-controls">
-	<a onclick="document.querySelector('.leaderboard').classList.toggle('js-expanded-table')">Toggle expanded table</a>
+	<a onclick="toggleExpandedTable()">Toggle expanded table</a>
 	|
-	<a onclick="document.querySelector('.leaderboard').classList.toggle('js-inactive-players-table')">Toggle active players</a>
+	<a onclick="toggleActivePlayers()">Toggle active players</a>
 </div>
+
+<script>
+	const leaderboard = document.querySelector('.leaderboard');
+
+	function toggleExpandedTable() {
+		window.localStorage.setItem('expandedTable', leaderboard.classList.toggle('js-expanded-table'));
+	}
+
+	function toggleActivePlayers() {
+		window.localStorage.setItem('activePlayers', leaderboard.classList.toggle('js-inactive-players-table'));
+	}
+
+	leaderboard.classList.toggle('js-expanded-table', window.localStorage.getItem('expandedTable') == 'true');
+	leaderboard.classList.toggle('js-inactive-players-table', window.localStorage.getItem('activePlayers') == 'true');
+</script>
 
 @stop
