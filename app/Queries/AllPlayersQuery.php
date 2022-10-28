@@ -16,7 +16,7 @@ class AllPlayersQuery
 
 	public function get()
 	{
-		$streaks = $this->streaks->getByYear('all')->keyBy->id->map->currentStreaks();
+		$streaks = $this->streaks->getAll()->keyBy->id->map->currentStreaks();
 
         return $this->players->get()->each(function($player) use ($streaks) {
 			$player->streaks = $streaks->get($player->id);

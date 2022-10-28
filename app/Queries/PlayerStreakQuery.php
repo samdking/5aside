@@ -23,6 +23,11 @@ class PlayerStreakQuery
 		return $this->get()->get($year);
 	}
 
+	public function getAll()
+	{
+		return $this->getByYear('all');
+	}
+
 	public function get()
 	{
 		if (is_null($this->query)) {
