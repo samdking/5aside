@@ -56,7 +56,12 @@ class PlayerStreak
 	{
 		return collect($this->streaks)->map(function($streaks, $type) {
 			return collect($streaks)->groupBy('count')->sortKeys()->last();
-		})->union(['current' => $this->currentStreak]);
+		});
+	}
+
+	public function currentStreaks()
+	{
+		return $this->currentStreak;
 	}
 
 	protected function hit($type, $match)
