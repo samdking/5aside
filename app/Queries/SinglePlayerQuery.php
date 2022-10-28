@@ -23,8 +23,10 @@ class SinglePlayerQuery
 
 		unset($player->first_name);
 
+		$allStreaks = $this->streaks->getByYear('all');
+
 		$player->results = $this->results->get();
-		$player->streaks = $this->streaks->getByYear('all')->topStreaksByType();
+		$player->streaks = $allStreaks->topStreaksByType()->union(['current' => $allStreaks->currentStreaks()]);
 
 		$player->seasons = $this->player->getSeasons()->each(function($season, $year) {
 			foreach(['id' ,'year', 'first_name', 'first_initial', 'last_name'] as $attr) {

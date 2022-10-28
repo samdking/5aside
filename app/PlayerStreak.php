@@ -59,6 +59,11 @@ class PlayerStreak
 		});
 	}
 
+	public function currentStreaks()
+	{
+		return $this->currentStreak;
+	}
+
 	protected function hit($type, $match)
 	{
 		$this->currentStreak($type, $match)->extend($match->date);
