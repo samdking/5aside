@@ -23,6 +23,11 @@ class PlayerStreakQuery
 		return $this->get()->get($year);
 	}
 
+	public function getAll()
+	{
+		return $this->getByYear('all');
+	}
+
 	public function get()
 	{
 		if (is_null($this->query)) {
@@ -40,7 +45,11 @@ class PlayerStreakQuery
 			return new ResultStreak($result);
 		});
 
-		$resultsByYear = collect(["all" => $results])->union($results->groupBy('year'));
+		$resultsByYear = collect(["all" => $results]);
+
+		if ($this->request->player) {
+			$resultsByYear = $resultsByYear->union($results->groupBy('year'));
+		}
 
 		$playerStreaks = $resultsByYear->map(function($results) use ($players) {
 			return $results->reduce(function($playerStreaks, $match) {

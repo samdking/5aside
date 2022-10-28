@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Queries\MatchQuery;
-use App\Queries\PlayerQuery;
+use App\Queries\AllPlayersQuery;
 use App\Queries\SinglePlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
@@ -33,7 +33,7 @@ class DataController extends Controller
 	public function players(Request $request)
 	{
 		return response()->json([
-			'players' => (new PlayerQuery($request))->get()
+			'players' => (new AllPlayersQuery($request))->get()
 		]);
 	}
 
