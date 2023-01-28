@@ -3,7 +3,7 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Queries\MatchQuery;
-use App\Match;
+use App\MatchResult;
 use App\Player;
 
 use Illuminate\Http\Request;
@@ -35,7 +35,7 @@ SQL;
 		return view('matches.overview')->withMatches($matches)->withPlayers($players);
 	}
 
-	public function show(Match $match)
+	public function show(MatchResult $match)
 	{
 		return view('matches.show')->withMatch($match);
 	}
