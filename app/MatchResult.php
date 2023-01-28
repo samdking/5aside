@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class Match extends Model
+class MatchResult extends Model
 {
+    protected $table = 'matches';
 	protected $fillable = [
 		'date', 'venue_id', 'is_void'
 	];
@@ -18,7 +19,7 @@ class Match extends Model
 
 	public function teams()
 	{
-		return $this->hasMany('App\Team');
+		return $this->hasMany(Team::class, 'match_id');
 	}
 
 	public function firstAppearances()

@@ -2,7 +2,7 @@
 
 namespace App\Queries;
 
-use App\Match;
+use App\MatchResult;
 
 class FormQuery
 {
@@ -25,7 +25,7 @@ class FormQuery
 			(new Filters\ToDate)->get($this->request),
 		];
 
-		$matches = Match::with('teams.players')
+		$matches = MatchResult::with('teams.players')
 			->whereRaw('date >= ? AND date <= ?', $placeholders)
 			->latest('date')->take($this->limit());
 

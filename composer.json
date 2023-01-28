@@ -13,7 +13,7 @@
 		"fruitcake/laravel-cors": "^2.0"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^8.5.8|^9.3.3",
+		"phpunit/phpunit": "^9.3.3",
 		"symfony/dom-crawler": "4.*",
 		"symfony/css-selector": "4.*",
 		"filp/whoops": "^2.0",

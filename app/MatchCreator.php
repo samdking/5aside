@@ -7,12 +7,12 @@ class MatchCreator
 	protected $allPlayers = [];
 
 	/**
-	 * Parse a string into a Match instance. Example format:
+	 * Parse a string into a MatchResult instance. Example format:
 	 *
 	 * YYYY-MM-DD: P1, P2, P3 5 - 3 P4, P5, P6 [Venue] <VOID>
 	 *
 	 * @param  string  $string
-	 * @return App\Match
+	 * @return App\MatchResult
 	 */
 	public function parse($string)
 	{
@@ -29,7 +29,7 @@ class MatchCreator
 
 		$void = count($matches) == 8;
 
-		$match = Match::create([
+		$match = MatchResult::create([
 			'date' => new \DateTime($date),
 			'venue_id' => $this->lookupVenue($venue)->id,
 			'is_void' => $void
