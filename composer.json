@@ -10,7 +10,8 @@
 		"laravelcollective/html": "~6.0",
 		"doctrine/dbal": "^2.9",
 		"fideloper/proxy": "^4.4",
-		"fruitcake/laravel-cors": "^2.0"
+		"fruitcake/laravel-cors": "^2.0",
+		"guzzlehttp/guzzle": "^7.5"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^9.3.3",
