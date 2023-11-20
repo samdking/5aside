@@ -4,6 +4,8 @@ namespace App\Queries;
 
 class PlayerQuery
 {
+	const DEFAULT_ORDER = "`points` desc, `gd` DESC, `win_percentage` DESC, `handicap_wins` DESC, `matches` DESC, `losses` ASC, `last_appearance` DESC, last_name ASC";
+
 	public function __construct($request)
 	{
 		$this->request = $request;
@@ -15,18 +17,13 @@ class PlayerQuery
 		return $this->get(true)->keyBy('year');
 	}
 
-	public function get($groupByYear = false)
+	public function groupByYear()
 	{
-		if ($groupByYear) {
-			$yearField = "YEAR(date)";
-			$group = "year";
-			$order = "year";
-		} else {
-			$yearField = "null";
-			$group = "players.id";
-			$order = "`points` desc, `gd` DESC, `win_percentage` DESC, `handicap_wins` DESC, `matches` DESC, `losses` ASC, `last_appearance` DESC, last_name ASC";
-		}
+		return $this->get('YEAR(date)', 'year', 'year');
+	}
 
+	public function get($yearField = null, $group = 'players.id', $order = DEFAULT_ORDER)
+	{
 		$where = $this->request->player ? "WHERE players.id = ?" : "";
 
 $query = <<<SQL
