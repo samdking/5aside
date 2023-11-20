@@ -14,7 +14,7 @@ class PlayerQuery
 
 	public function getSeasons()
 	{
-		return $this->get(true)->keyBy('year');
+		return $this->groupByYear()->keyBy('year');
 	}
 
 	public function groupByYear()
