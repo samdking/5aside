@@ -22,7 +22,7 @@ class PlayerQuery
 		return $this->get('YEAR(date)', 'year', 'year');
 	}
 
-	public function get($yearField = null, $group = 'players.id', $order = DEFAULT_ORDER)
+	public function get($yearField = 'NULL', $group = 'players.id', $order = self::DEFAULT_ORDER)
 	{
 		$where = $this->request->player ? "WHERE players.id = ?" : "";
 
