@@ -113,8 +113,13 @@ SQL;
 				return $m->date == $p->first_appearance;
 			});
 
+			$matchesSinceLastGame = $totalMatches - $this->matches->get()->search(function($m) use ($p) {
+				return $m->date == $p->last_appearance;
+			}) - 1;
+
 			$p->appearance_percentage = round($p->matches / $totalMatches * 100, 2);
 			$p->appearance_percentage_since_debut = round($p->matches / ($totalMatches - $matchesPriorToDebut) * 100, 2);
+			$p->appearance_percentage_during_playing_window = round($p->matches / ($totalMatches - $matchesPriorToDebut - $matchesSinceLastGame) * 100, 2);
 			$p->handicap = $p->advantage = $p->per_game = [];
 
 			if (is_null($p->year)) {
