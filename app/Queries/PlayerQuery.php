@@ -10,6 +10,9 @@ class PlayerQuery
 	{
 		$this->request = $request;
 		$this->form = new FormQuery($request);
+		$this->matches = new MatchQuery(tap($request, function($req) {
+			$req->hide_teams = true;
+		}));
 	}
 
 	public function getSeasons()
@@ -103,14 +106,24 @@ SQL;
 			$this->minMatches()
 		]));
 
-		return collect(\DB::select($query, $placeholders))->each(function($p) {
+		$totalMatches = $this->matches->get()->count();
+
+		return collect(\DB::select($query, $placeholders))->each(function($p) use ($totalMatches) {
+			$matchesPriorToDebut = $this->matches->get()->search(function($m) use ($p) {
+				return $m->date == $p->first_appearance;
+			});
+
+			$p->appearance_percentage = round($p->matches / $totalMatches * 100, 2);
+			$p->appearance_percentage_since_debut = round($p->matches / ($totalMatches - $matchesPriorToDebut) * 100, 2);
 			$p->handicap = $p->advantage = $p->per_game = [];
+
 			if (is_null($p->year)) {
 				$p->form = $this->form->get()->map(function($players) use ($p) {
 					return $players->get($p->id, "");
 				});
 				unset($p->year);
 			}
+
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {
 					$p->$k = $v = strpos($v, '.') === false ? (int)$v : (float)$v;
