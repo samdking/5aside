@@ -26,7 +26,7 @@
 	@foreach ($players as $player)
 	<tr class="{{ $matchesForForm->first()->date->greaterThan($player->last_app) ? "js-inactive" : "" }}">
 		<td class="name">
-			{!! link_to_route('players.show', $player->first_name . ' ' . $player->last_name, $player->id) !!}
+			{!! link_to_route('players.show', $player->first_name . ' ' . $player->last_name, [$player->id] + Request::only('from', 'to', 'year')) !!}
 		</td>
 		<td>{{ $player->apps }}</td>
 		<td>{{ $player->wins }}</td>
