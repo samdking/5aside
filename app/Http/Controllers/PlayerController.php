@@ -27,7 +27,9 @@ class PlayerController extends Controller
 		$total_matches = MatchResult::count();
 
 		$highest_total_players = Team::join('player_team', 'team_id', '=', 'teams.id')
+			->join('players', 'player_id', '=', 'players.id')
 			->selectRaw('COUNT(player_team.player_id) as total_players')
+			->where('players.last_name', '!=', '(anon)')
 			->orderBy('total_players', 'DESC')
 			->groupBy('teams.match_id')
 			->value('total_players');
