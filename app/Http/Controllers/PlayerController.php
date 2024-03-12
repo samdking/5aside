@@ -4,7 +4,7 @@ use DB;
 use DateTime;
 
 use App\Player;
-use App\Match;
+use App\MatchResult;
 use App\Team;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -24,7 +24,7 @@ class PlayerController extends Controller
 {
 	public function summary()
 	{
-		$total_matches = Match::count();
+		$total_matches = MatchResult::count();
 
 		$highest_total_players = Team::join('player_team', 'team_id', '=', 'teams.id')
 			->selectRaw('COUNT(player_team.player_id) as total_players')
@@ -32,7 +32,7 @@ class PlayerController extends Controller
 			->groupBy('teams.match_id')
 			->value('total_players');
 
-		$highest_attendance = Match::select('date')
+		$highest_attendance = MatchResult::select('date')
 			->join('teams', 'teams.match_id', '=', 'matches.id')
 			->join('player_team', 'team_id', '=', 'teams.id')
 			->selectRaw('COUNT(player_team.player_id) as total_players')
@@ -204,7 +204,7 @@ ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `
 		$players = Player::with('teams')->get()->sortByDesc(function($player) {
 			return $player->teams->count();
 		});
-		$matches = Match::with('teams.players')->orderBy('date', 'desc')->get()->sortBy('date');
+		$matches = MatchResult::with('teams.players')->orderBy('date', 'desc')->get()->sortBy('date');
 
 		return view('players.history')->with(compact('players', 'matches'));
 	}

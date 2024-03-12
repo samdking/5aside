@@ -42,7 +42,7 @@
 	</thead>
 	<tbody>
 		@foreach($players as $i => $player)
-		<tr class="{{ $player->form->filter()->isEmpty() ? "js-inactive" : "" }}">
+		<tr class="{{ $player->form->filter()->isEmpty() || $player->last_name == '(anon)' ? "js-inactive" : "" }}">
 			<td class="number">{{ $i+1 }}</td>
 			<td class="name">
 				<a href="{{ route('players.show', [$player->id] + Request::only('from', 'to', 'year')) }}">

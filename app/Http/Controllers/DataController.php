@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Queries\MatchQuery;
-use App\Queries\PlayerQuery;
+use App\Queries\AllPlayersQuery;
 use App\Queries\SinglePlayerQuery;
 use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
 use App\Queries\SingleSeasonQuery;
 use App\Queries\AllSeasonsQuery;
-use App\Match;
+use App\MatchResult;
 use Illuminate\Http\Request;
 
 class DataController extends Controller
@@ -33,7 +33,7 @@ class DataController extends Controller
 	public function players(Request $request)
 	{
 		return response()->json([
-			'players' => (new PlayerQuery($request))->get()
+			'players' => (new AllPlayersQuery($request))->get()
 		]);
 	}
 
@@ -79,7 +79,7 @@ class DataController extends Controller
 
 	protected function v1MatchData($request)
 	{
-		$matches = Match::with('teams.players', 'venue')->latest('date')->get()->keyBy('id');
+		$matches = MatchResult::with('teams.players', 'venue')->latest('date')->get()->keyBy('id');
 
 		return $matches->map(function($match) {
 			return [

@@ -54,7 +54,7 @@ class Player extends Model
 
 	public function matches()
 	{
-		return $this->hasManyThrough('App\Match', 'App\Team');
+		return $this->hasManyThrough(MatchResult::class, Team::class);
 	}
 
 	public function opponents()
@@ -81,17 +81,17 @@ class Player extends Model
 	/**
 	 * Get team player played in (if present) in given $match
 	 *
-	 * @param  App\Match  $match
+	 * @param  App\MatchResult  $match
 	 * @return App\Team|null
 	 */
-	public function playedIn(Match $match)
+	public function playedIn(MatchResult $match)
 	{
 		return $match->teams->first(function($team) {
 			return $team->players->contains($this);
 		});
 	}
 
-	public function teamPlayedWith(Match $match, Player $player)
+	public function teamPlayedWith(MatchResult $match, Player $player)
 	{
 		return $match->teams->first(function($team) use ($player) {
 			$players = $team->fitPlayers();
@@ -99,7 +99,7 @@ class Player extends Model
 		});
 	}
 
-	public function teamPlayedAgainst(Match $match, Player $player)
+	public function teamPlayedAgainst(MatchResult $match, Player $player)
 	{
 		return $match->teams->every(function($team) use ($player) {
 			$players = $team->fitPlayers();

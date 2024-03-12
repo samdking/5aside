@@ -72,7 +72,9 @@ class MatchQuery
 		{$limit}
 SQL;
 
-		$matches = collect(\DB::select($query, $this->placeholders()));
+		$placeholders = empty($where) ? [] : $this->placeholders();
+
+		$matches = collect(\DB::select($query, $placeholders));
 
 		if ($this->request->hide_teams) {
 			$teams = null;
