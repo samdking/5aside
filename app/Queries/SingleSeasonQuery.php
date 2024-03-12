@@ -104,7 +104,7 @@ SQL;
 	{
 		$matches = $year ? $this->matches->getForYear($year) : $this->matches->get();
 
-		return (new MatchStats($matches))->get();
+		return $matches ? (new MatchStats($matches))->get() : [];
 	}
 
 	protected function leaderboard()

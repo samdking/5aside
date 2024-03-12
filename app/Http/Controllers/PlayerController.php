@@ -117,7 +117,7 @@ class PlayerController extends Controller
 		$from = (new FromDate)->get($request);
 		$to = (new ToDate)->get($request);
 
-		$matchesForForm = Match::with('teams.players')->where('date', '>=', $from)->where('date', '<=', $to)->orderBy('date', 'desc')->take(10);
+		$matchesForForm = MatchResult::with('teams.players')->where('date', '>=', $from)->where('date', '<=', $to)->orderBy('date', 'desc')->take(10);
 
 		$player = (new SinglePlayerQuery($request))->get();
 
