@@ -4,29 +4,29 @@ namespace App\Queries;
 
 class PlayerQuery
 {
+	const DEFAULT_ORDER = "`points` desc, `gd` DESC, `win_percentage` DESC, `handicap_wins` DESC, `matches` DESC, `losses` ASC, `last_appearance` DESC, last_name ASC";
+
 	public function __construct($request)
 	{
 		$this->request = $request;
 		$this->form = new FormQuery($request);
+		$this->matches = new MatchQuery(tap($request, function($req) {
+			$req->hide_teams = true;
+		}));
 	}
 
 	public function getSeasons()
 	{
-		return $this->get(true)->keyBy('year');
+		return $this->groupByYear()->keyBy('year');
 	}
 
-	public function get($groupByYear = false)
+	public function groupByYear()
 	{
-		if ($groupByYear) {
-			$yearField = "YEAR(date)";
-			$group = "year";
-			$order = "year";
-		} else {
-			$yearField = "null";
-			$group = "players.id";
-			$order = "`points` desc, `gd` DESC, `win_percentage` DESC, `handicap_wins` DESC, `matches` DESC, `losses` ASC, `last_appearance` DESC, last_name ASC";
-		}
+		return $this->get('YEAR(date)', 'year', 'year');
+	}
 
+	public function get($yearField = 'NULL', $group = 'players.id', $order = self::DEFAULT_ORDER)
+	{
 		$where = $this->request->player ? "WHERE players.id = ?" : "";
 
 $query = <<<SQL
@@ -106,14 +106,29 @@ SQL;
 			$this->minMatches()
 		]));
 
-		return collect(\DB::select($query, $placeholders))->each(function($p) {
+		$totalMatches = $this->matches->get()->count();
+
+		return collect(\DB::select($query, $placeholders))->each(function($p) use ($totalMatches) {
+			$matchesPriorToDebut = $this->matches->get()->search(function($m) use ($p) {
+				return $m->date == $p->first_appearance;
+			});
+
+			$matchesSinceLastGame = $totalMatches - $this->matches->get()->search(function($m) use ($p) {
+				return $m->date == $p->last_appearance;
+			}) - 1;
+
+			$p->appearance_percentage = round($p->matches / $totalMatches * 100, 2);
+			$p->appearance_percentage_since_debut = round($p->matches / ($totalMatches - $matchesPriorToDebut) * 100, 2);
+			$p->appearance_percentage_during_playing_window = round($p->matches / ($totalMatches - $matchesPriorToDebut - $matchesSinceLastGame) * 100, 2);
 			$p->handicap = $p->advantage = $p->per_game = [];
+
 			if (is_null($p->year)) {
 				$p->form = $this->form->get()->map(function($players) use ($p) {
 					return $players->get($p->id, "");
 				});
 				unset($p->year);
 			}
+
 			foreach($p as $k => $v) {
 				if (is_numeric($v) && substr($k, 0, 6) != 'first_') {
 					$p->$k = $v = strpos($v, '.') === false ? (int)$v : (float)$v;
