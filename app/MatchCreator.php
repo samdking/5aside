@@ -97,13 +97,18 @@ class MatchCreator
 	{
 		$players = collect(explode(',', trim($string)));
 
-		return $players->map(function($player) {
+		return $players->mapWithKeys(function($player) {
 			$player = trim($player);
+			$injured = substr($player, -1) == '+';
+			if ($injured) {
+				$player = substr($player, 0, -1);
+			}
 			if (in_array($player, $this->allPlayers)) {
 				throw new \Exception($player . ' already appears in a team');
 			}
 			$this->allPlayers[] = $player;
-			return $this->lookupPlayer($player)->id;
+			$playerId = $this->lookupPlayer($player)->id;
+			return [$playerId => ['injured' => $injured]];
 		});
 	}
 
