@@ -21,14 +21,11 @@ class MatchQuery
 		return $this->get()->groupBy('year')->get($year);
 	}
 
-	public function get($params = [])
+	public function get()
 	{
-		$direction = @$params['order'] ?: 'ASC';
+		$direction = $this->request->order ?: 'ASC';
 
-		$limit = collect([
-			$this->request->match_limit,
-			@$params['limit'],
-		])->min();
+		$limit = $this->request->match_limit ?: $this->request->form_matches;
 
 		if (is_null(@$this->query[$direction][$limit])) {
 			$this->query[$direction][$limit] = $this->query($direction, $limit);
@@ -79,7 +76,11 @@ SQL;
 		if ($this->request->hide_teams) {
 			$teams = null;
 		} else {
-			$teams = Team::whereIn('id', $matches->pluck('team_id'))->with('players')->get()->groupBy('match_id');
+			$teams = Team::whereIn('id', $matches->pluck('team_id'));
+			if ( ! $this->request->hide_teams) {
+				$teams = $teams->with('players');
+			}
+			$teams = $teams->get()->groupBy('match_id');
 		}
 
 		return $matches->groupBy('id')->map(function($t, $matchId) use ($teams) {

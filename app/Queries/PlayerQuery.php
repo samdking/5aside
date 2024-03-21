@@ -10,9 +10,7 @@ class PlayerQuery
 	{
 		$this->request = $request;
 		$this->form = new FormQuery($request);
-		$this->matches = new MatchQuery(tap($request, function($req) {
-			$req->hide_teams = true;
-		}));
+		$this->appearances = new AppearancesQuery($request);
 	}
 
 	public function getSeasons()
@@ -106,14 +104,14 @@ SQL;
 			$this->minMatches()
 		]));
 
-		$totalMatches = $this->matches->get()->count();
+		$totalMatches = $this->appearances->get()->count();
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($totalMatches) {
-			$matchesPriorToDebut = $this->matches->get()->search(function($m) use ($p) {
+			$matchesPriorToDebut = $this->appearances->get()->search(function($m) use ($p) {
 				return $m->date == $p->first_appearance;
 			});
 
-			$matchesSinceLastGame = $totalMatches - $this->matches->get()->search(function($m) use ($p) {
+			$matchesSinceLastGame = $totalMatches - $this->appearances->get()->search(function($m) use ($p) {
 				return $m->date == $p->last_appearance;
 			}) - 1;
 

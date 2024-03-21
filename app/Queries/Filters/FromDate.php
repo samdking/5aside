@@ -18,11 +18,11 @@ class FromDate
 		}
 
 		if ($request->last) {
-			return (new DateTime)->sub(new DateInterval('P' . $request->last));
+			return (new DateTime)->sub(new DateInterval('P' . $request->last))->format('Y-m-d');
 		}
 
 		if ($request->year) {
-			return (new DateTime)->setDate($request->year, 1, 1);
+			return (new DateTime)->setDate($request->year, 1, 1)->format('Y-m-d');
 		}
 
 		return "2015-01-01";
