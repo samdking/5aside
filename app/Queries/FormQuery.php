@@ -2,7 +2,7 @@
 
 namespace App\Queries;
 
-use App\MatchResult;
+use Carbon\Carbon;
 
 class FormQuery
 {
@@ -11,32 +11,40 @@ class FormQuery
 
 	public function __construct($request)
 	{
+		$request->form_matches = $request->get('form_matches', 6);
+		$request->order = 'desc';
+		$request->hide_teams = false;
+
 		$this->request = $request;
+		$this->matches = new MatchQuery($request);
 	}
 
-	public function get()
+	public function getForPlayer($player)
 	{
-		if (! is_null($this->query)) {
-			return $this->query;
-		}
+		return $this->matches->get()->sortBy('date')->map(function($match) use ($player) {
+			$played = $match->team_a->merge($match->team_b)->map->id->contains($player->id);
 
-		$placeholders = [
-			(new Filters\FromDate)->get($this->request),
-			(new Filters\ToDate)->get($this->request),
-		];
+			if (!$played) return;
 
-		$matches = MatchResult::with('teams.players')
-			->whereRaw('date >= ? AND date <= ?', $placeholders)
-			->latest('date')->take($this->limit());
+			if ($match->voided) {
+				$result = 'Void';
+			} elseif (!$match->winner) {
+				$result = 'Draw';
+			} elseif ($match->winner == 'A') {
+				$result = $match->team_a->map->id->contains($player->id) ? 'Win' : 'Loss';
+			} elseif ($match->winner == 'B') {
+				$result = $match->team_b->map->id->contains($player->id) ? 'Win' : 'Loss';
+			}
 
-		return $this->query = $matches->get()->map->playerResults();
-	}
+			if ($this->request->short_form) return $result;
 
-	protected function limit()
-	{
-		return collect([
-			$this->request->get('form_matches', 6),
-			$this->request->get('match_limit'),
-		])->min();
+			return (object)[
+				'result' => $result,
+				'id' => $match->id,
+				'date' => new Carbon($match->date),
+				'team_a_scored' => $match->team_a_scored,
+				'team_b_scored' => $match->team_b_scored,
+			];
+		})->values();
 	}
 }

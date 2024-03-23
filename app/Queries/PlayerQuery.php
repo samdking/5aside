@@ -121,9 +121,7 @@ SQL;
 			$p->handicap = $p->advantage = $p->per_game = [];
 
 			if (is_null($p->year)) {
-				$p->form = $this->form->get()->map(function($players) use ($p) {
-					return $players->get($p->id, "");
-				});
+				$p->form = $this->form->getForPlayer($p);
 				unset($p->year);
 			}
 

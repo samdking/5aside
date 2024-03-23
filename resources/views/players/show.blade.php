@@ -70,11 +70,10 @@
 					{{ $player->last_appearance }}
 				</a>
 			</td>
-			@include('players/partials/form', ['matches' => $matchesForForm, 'player' => $player])
+			@include('players/partials/form', ['player' => $player])
 		</tr>
 	</tbody>
 </table>
-
 
 <h3>Teammates</h3>
 

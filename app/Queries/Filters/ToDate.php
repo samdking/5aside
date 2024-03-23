@@ -9,7 +9,7 @@ class ToDate
 	function get($request)
 	{
 		if ( ! $request->year) {
-			return (new DateTime($request->to))->format('Y-m-d');
+			return (new DateTime($request->to));
 		}
 
 		$to = new DateTime;
@@ -18,6 +18,10 @@ class ToDate
 			$to->setDate($request->year, 12, 31);
 		}
 
-		return $to->format('Y-m-d');
+		return $to;
+	}
+
+	function formatted($request) {
+		return $this->get($request)->format('Y-m-d');
 	}
 }
