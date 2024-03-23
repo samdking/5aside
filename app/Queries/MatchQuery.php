@@ -11,7 +11,7 @@ class MatchQuery
 	protected $count;
 	protected $query;
 
-	public function __construct(Request $request)
+	public function __construct($request)
 	{
 		$this->request = $request;
 	}

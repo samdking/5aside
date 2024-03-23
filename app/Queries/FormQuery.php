@@ -3,6 +3,7 @@
 namespace App\Queries;
 
 use Carbon\Carbon;
+use Illuminate\Support\Fluent;
 
 class FormQuery
 {
@@ -11,12 +12,13 @@ class FormQuery
 
 	public function __construct($request)
 	{
-		$request->form_matches = $request->get('form_matches', 6);
-		$request->order = 'desc';
-		$request->hide_teams = false;
+		$params = new Fluent;
+		$params['form_matches'] = $request->get('form_matches', 6);
+		$params['order'] = 'desc';
+		$params['hide_teams'] = false;
 
 		$this->request = $request;
-		$this->matches = new MatchQuery($request);
+		$this->matches = new MatchQuery($params);
 	}
 
 	public function getForPlayer($player)
