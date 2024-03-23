@@ -28,10 +28,7 @@ class SeasonController extends Controller
 		return view('players.leaderboard')->with([
 			'year' => $request->season,
 			'heading' => implode(' ', $heading),
-			'players' => $season->get('leaderboard'),
-			'matches' => $matches->get()->each(function($m) {
-				$m->date = new Carbon($m->date);
-			})->sortBy('date'),
+			'players' => $season->get('leaderboard')
 		]);
 	}
 }

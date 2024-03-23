@@ -102,10 +102,7 @@ class PlayerController extends Controller
 
 		return view('players.leaderboard')->with([
 			'heading' => implode(' ', $heading),
-			'players' => $players->get(),
-			'matches' => $matches->get()->each(function($m) {
-				$m->date = new Carbon($m->date);
-			})->sortBy('date'),
+			'players' => $players->get()
 		]);
 	}
 

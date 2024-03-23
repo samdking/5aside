@@ -72,7 +72,7 @@
 					{{ $player->last_appearance }}
 				</a>
 			</td>
-			@include('players/partials/form', ['matches' => $matches, 'player' => $player])
+			@include('players/partials/form', ['player' => $player])
 		</tr>
 		@endforeach
 	</tbody>
