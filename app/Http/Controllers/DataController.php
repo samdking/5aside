@@ -25,6 +25,8 @@ class DataController extends Controller
 
 	public function player(Request $request)
 	{
+		$request->short_form = true;
+
 		return response()->json([
 			'player' => (new SinglePlayerQuery($request))->get()
 		]);
@@ -32,6 +34,8 @@ class DataController extends Controller
 
 	public function players(Request $request)
 	{
+		$request->short_form = true;
+
 		return response()->json([
 			'players' => (new AllPlayersQuery($request))->get()
 		]);
@@ -64,6 +68,7 @@ class DataController extends Controller
 	public function seasons(Request $request, $year = null)
 	{
 		$request['show_inactive'] = true;
+		$request['short_form'] = true;
 		$request['year'] = $year == 'all' ? null : $year;
 
 		if (str_contains($request->path(), '/v2/')) {

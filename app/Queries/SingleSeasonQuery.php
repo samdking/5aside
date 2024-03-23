@@ -13,11 +13,11 @@ class SingleSeasonQuery
 	protected $matches;
 	protected $query = [];
 
-	public function __construct(Request $request)
+	public function __construct(Request $request, $matches = null)
 	{
 		$this->request = $request;
 		$this->players = new PlayerQuery($request);
-		$this->matches = new MatchQuery($request);
+		$this->matches = $matches ?: new MatchQuery($request);
 	}
 
 	public function get($year = null)
