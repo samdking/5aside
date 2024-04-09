@@ -6,10 +6,10 @@ class PlayerQuery
 {
 	const DEFAULT_ORDER = "`points` desc, `gd` DESC, `win_percentage` DESC, `handicap_wins` DESC, `matches` DESC, `losses` ASC, `last_appearance` DESC, last_name ASC";
 
-	public function __construct($request)
+	public function __construct($request, FormQuery $form = null)
 	{
 		$this->request = $request;
-		$this->form = new FormQuery($request);
+		$this->form = $form ?: new FormQuery($request);
 		$this->appearances = new AppearancesQuery($request);
 	}
 

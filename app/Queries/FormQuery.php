@@ -26,7 +26,9 @@ class FormQuery
 		$sort = $this->useShortForm() ? 'sortByDesc' : 'sortBy';
 
 		return $this->matches->get()->$sort('date')->map(function($match) use ($player) {
-			$played = $match->team_a->merge($match->team_b)->map->id->contains($player->id);
+			$inTeamA = $match->team_a->map->id->contains($player->id);
+			$inTeamB = $match->team_b->map->id->contains($player->id);
+			$played = $inTeamA || $inTeamB;
 
 			// For backwards compatibility reasons, we return an empty string rather
 			// than null when using short form (used in API response)
@@ -37,9 +39,9 @@ class FormQuery
 			} elseif (!$match->winner) {
 				$result = 'Draw';
 			} elseif ($match->winner == 'A') {
-				$result = $match->team_a->map->id->contains($player->id) ? 'Win' : 'Loss';
+				$result = $inTeamA ? 'Win' : 'Loss';
 			} elseif ($match->winner == 'B') {
-				$result = $match->team_b->map->id->contains($player->id) ? 'Win' : 'Loss';
+				$result = $inTeamB ? 'Win' : 'Loss';
 			}
 
 			if ($this->useShortForm()) return $result;
@@ -48,6 +50,8 @@ class FormQuery
 				'result' => $result,
 				'id' => $match->id,
 				'date' => new Carbon($match->date),
+				'teammates' => $inTeamA ? $match->team_a : $match->team_b,
+				'opponents' => $inTeamA ? $match->team_b : $match->team_a,
 				'team_a_scored' => $match->team_a_scored,
 				'team_b_scored' => $match->team_b_scored,
 			];
