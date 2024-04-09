@@ -12,7 +12,7 @@ class FormQuery
 
 	public function __construct($request)
 	{
-		$params = new Fluent;
+		$params = new Fluent($request->all());
 		$params['form_matches'] = $request->get('form_matches', 6);
 		$params['order'] = 'desc';
 		$params['hide_teams'] = false;
@@ -23,10 +23,14 @@ class FormQuery
 
 	public function getForPlayer($player)
 	{
-		return $this->matches->get()->sortBy('date')->map(function($match) use ($player) {
+		$sort = $this->useShortForm() ? 'sortByDesc' : 'sortBy';
+
+		return $this->matches->get()->$sort('date')->map(function($match) use ($player) {
 			$played = $match->team_a->merge($match->team_b)->map->id->contains($player->id);
 
-			if (!$played) return;
+			// For backwards compatibility reasons, we return an empty string rather
+			// than null when using short form (used in API response)
+			if (!$played) return $this->useShortForm() ? '' : null;
 
 			if ($match->voided) {
 				$result = 'Void';
@@ -38,7 +42,7 @@ class FormQuery
 				$result = $match->team_b->map->id->contains($player->id) ? 'Win' : 'Loss';
 			}
 
-			if ($this->request->short_form) return $result;
+			if ($this->useShortForm()) return $result;
 
 			return (object)[
 				'result' => $result,
@@ -48,5 +52,9 @@ class FormQuery
 				'team_b_scored' => $match->team_b_scored,
 			];
 		})->values();
+	}
+
+	protected function useShortForm() {
+		return $this->request->short_form;
 	}
 }
