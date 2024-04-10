@@ -2,63 +2,14 @@
 
 namespace App\Queries;
 
-
-class TeammatesQuery
+class TeammatesQuery extends CompetitorQuery
 {
-  protected $request;
-  protected $query;
+  protected $joinWith = 'teams';
 
-  public function __construct($request, FormQuery $form)
+  protected function formWithCompetitor($form, $teammate)
   {
-    $this->request = $request;
-    $this->form = $form;
-  }
-
-  public function get()
-  {
-    $query = <<<SQL
-  SELECT
-    teammates.*,
-    COUNT(*) AS `apps`,
-    MAX(matches.date) AS `last_app`,
-    SUM(teams.winners) AS `wins`,
-    SUM(teams.draw) AS `draws`,
-    SUM(opp_teams.winners) AS `losses`,
-    SUM(teams.scored) AS `goals_for`,
-    SUM(opp_teams.scored) AS `goals_against`,
-    SUM(teams.scored) - SUM(opp_teams.scored) AS `diff`,
-    SUM(teams.winners) * 3 + SUM(teams.draw) AS `pts`,
-    ROUND(SUM(teams.winners) / COUNT(*) * 100, 2) AS `win_percentage`,
-    SUM(IF(teams.winners AND teams.handicap, 1, 0)) AS `handicap_wins`,
-    SUM(IF(opp_teams.winners AND opp_teams.handicap, 1, 0)) AS `handicap_losses`,
-    SUM(IF(teams.handicap, 1, 0)) AS `handicap_apps`
-  FROM teams
-  JOIN player_team ON teams.id = player_team.team_id
-  JOIN matches ON matches.id = teams.match_id
-  JOIN teams AS opp_teams ON opp_teams.match_id = teams.match_id AND opp_teams.id != teams.id
-  JOIN player_team teammate_player_team ON teammate_player_team.team_id = teams.id AND teammate_player_team.player_id != player_team.player_id
-  JOIN players teammates ON teammates.id = teammate_player_team.player_id
-  WHERE
-    player_team.player_id = ? AND
-    matches.date >= ? AND matches.date <= ? AND
-    matches.is_void = 0 AND
-    teammate_player_team.injured = 0
-  GROUP BY teammates.id
-  ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, teammates.last_name ASC
-SQL;
-
-    $placeholders = array_values(array_filter([
-      $this->request->player,
-      (new Filters\FromDate)->get($this->request),
-      (new Filters\ToDate)->get($this->request),
-    ]));
-
-    $form = $this->form->getForPlayer((object)(['id' => $this->request->player]));
-
-    return collect(\DB::select($query, $placeholders))->each(function($player) use ($form) {
-      $player->form = $form->map(function($match) use ($player) {
-        return $match && $match->teammates->map->id->contains($player->id) ? $match : null;
-      });
+    return $form->map(function($match) use ($teammate) {
+      return $match && $match->teammates->map->id->contains($teammate->id) ? $match : null;
     });
   }
 }
