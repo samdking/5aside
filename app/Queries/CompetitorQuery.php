@@ -31,7 +31,7 @@ abstract class CompetitorQuery
     SUM(teams.winners) * 3 + SUM(teams.draw) AS `pts`,
     ROUND(SUM(teams.winners) / COUNT(*) * 100, 2) AS `win_percentage`,
     SUM(IF(teams.winners AND teams.handicap, 1, 0)) AS `handicap_wins`,
-    SUM(IF(opp_teams.winners AND opp_teams.handicap, 1, 0)) AS `handicap_losses`,
+    SUM(IF(opp_teams.winners AND teams.handicap, 1, 0)) AS `handicap_losses`,
     SUM(IF(teams.handicap, 1, 0)) AS `handicap_apps`
   FROM teams
   JOIN player_team ON teams.id = player_team.team_id
