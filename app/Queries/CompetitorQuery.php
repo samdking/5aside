@@ -43,7 +43,8 @@ abstract class CompetitorQuery
     player_team.player_id = ? AND
     matches.date >= ? AND matches.date <= ? AND
     matches.is_void = 0 AND
-    competitor.injured = 0
+    competitor.injured = 0 AND
+    player_team.injured = 0
   GROUP BY players.id
   ORDER BY `pts` DESC, `diff` DESC, `win_percentage` DESC, `handicap_wins` DESC, `apps` DESC, `losses` ASC, `last_app` DESC, players.last_name ASC
 SQL;
