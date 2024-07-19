@@ -25,7 +25,10 @@ class MatchQuery
 	{
 		$direction = $this->request->order ?: 'ASC';
 
-		$limit = $this->request->match_limit ?: $this->request->form_matches;
+		$limit = collect([
+			$this->request->match_limit,
+			$this->request->form_matches
+		])->filter()->min();
 
 		if (is_null(@$this->query[$direction][$limit])) {
 			$this->query[$direction][$limit] = $this->query($direction, $limit);
@@ -110,10 +113,6 @@ SQL;
 
 	public function count()
 	{
-		if ($this->request->get('match_limit')) {
-			return $this->request->get('match_limit');
-		}
-
 		if (is_null($this->count)) {
 			$query = <<<SQL
 			SELECT count(*) as count
@@ -121,7 +120,10 @@ SQL;
 			WHERE date >= ? AND date <= ?
 	SQL;
 
-			$this->count = \DB::selectOne($query, $this->placeholders())->count;
+			$this->count = collect([
+				\DB::selectOne($query, $this->placeholders())->count,
+				$this->request->match_limit,
+			])->filter()->min();
 		}
 
 		return $this->count;

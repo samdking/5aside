@@ -18,15 +18,15 @@ class SeasonController extends Controller
 
 		$heading[] = 'Player Leaderboard for ' . $request->season;
 
-		$matches = new MatchQuery($request);
-		$season = (new SingleSeasonQuery($request, $matches))->get();
+		$season = new SingleSeasonQuery($request);
+		$matchCount = $season->matchCount();
 
-		$heading[] = sprintf("(%d %s)", $matches->count(), \Str::plural('match', $matches->count()));
+		$heading[] = sprintf("(%d %s)", $matchCount, \Str::plural('match', $matchCount));
 
 		return view('players.leaderboard')->with([
 			'year' => $request->season,
 			'heading' => implode(' ', $heading),
-			'players' => $season->get('leaderboard'),
+			'players' => $season->get()->get('leaderboard'),
 		]);
 	}
 }
