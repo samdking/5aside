@@ -39,7 +39,7 @@ class PlayerStreakQuery
 
 	protected function query()
 	{
-		$players = $this->request->player ? Player::find([$this->request->player]) : Player::all();
+		$players = $this->request->player ? collect([$this->request->player]) : Player::all();
 
 		$results = $this->results->get()->map(function($result) {
 			return new ResultStreak($result);

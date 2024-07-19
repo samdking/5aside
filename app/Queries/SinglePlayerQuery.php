@@ -7,9 +7,9 @@ class SinglePlayerQuery
 	protected $rank;
 	protected $streaks;
 
-	public function __construct($request)
+	public function __construct($request, FormQuery $form = null)
 	{
-		$this->player = new PlayerQuery($request);
+		$this->player = new PlayerQuery($request, $form);
 		$this->rank = new RankQuery($request);
 		$this->streaks = new PlayerStreakQuery($request);
 		$this->results = new PlayerResultQuery($request);

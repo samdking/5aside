@@ -70,19 +70,18 @@
 					{{ $player->last_appearance }}
 				</a>
 			</td>
-			@include('players/partials/form', ['matches' => $matchesForForm, 'player' => $player])
+			@include('players/partials/form', ['player' => $player])
 		</tr>
 	</tbody>
 </table>
 
-
 <h3>Teammates</h3>
 
-@include('players.partials.leaderboard', ['method' => 'teamPlayedWith', 'mainPlayer' => $playerObj, 'players' => App\Player::hydrate($teammates)])
+@include('players.partials.leaderboard', ['method' => 'teammates', 'players' => $teammates])
 
 <h3>Opponents</h3>
 
-@include('players.partials.leaderboard', ['method' => 'teamPlayedAgainst', 'mainPlayer' => $playerObj, 'players' => App\Player::hydrate($opponents)])
+@include('players.partials.leaderboard', ['method' => 'opponents', 'players' => $opponents])
 
 <h3>Appearances ({{ $player->results->count() }})</h3>
 

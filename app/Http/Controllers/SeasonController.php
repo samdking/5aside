@@ -10,27 +10,23 @@ use Carbon\Carbon;
 
 class SeasonController extends Controller
 {
-    public function show(Request $request)
+	public function show(Request $request)
 	{
 		$request['show_inactive'] = true;
 		$request['form_matches'] = 10;
-        $request['year'] = $request->season;
-        $request['hide_teams'] = true;
+		$request['hide_teams'] = true;
 
 		$heading[] = 'Player Leaderboard for ' . $request->season;
 
-        $season = (new SingleSeasonQuery($request))->get();
-		$matches = new MatchQuery($request);
+		$season = new SingleSeasonQuery($request);
+		$matchCount = $season->matchCount();
 
-        $heading[] = sprintf("(%d %s)", $matches->count(), \Str::plural('match', $matches->count()));
+		$heading[] = sprintf("(%d %s)", $matchCount, \Str::plural('match', $matchCount));
 
 		return view('players.leaderboard')->with([
-            'year' => $request->season,
+			'year' => $request->season,
 			'heading' => implode(' ', $heading),
-			'players' => $season->get('leaderboard'),
-			'matches' => $matches->get(['order' => 'desc', 'limit' => 10])->each(function($m) {
-				$m->date = new Carbon($m->date);
-			})->sortBy('date'),
+			'players' => $season->get()->get('leaderboard'),
 		]);
-    }
+	}
 }

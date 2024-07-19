@@ -11,7 +11,7 @@ class MatchQuery
 	protected $count;
 	protected $query;
 
-	public function __construct(Request $request)
+	public function __construct($request)
 	{
 		$this->request = $request;
 	}
@@ -21,14 +21,14 @@ class MatchQuery
 		return $this->get()->groupBy('year')->get($year);
 	}
 
-	public function get($params = [])
+	public function get()
 	{
-		$direction = @$params['order'] ?: 'ASC';
+		$direction = $this->request->order ?: 'ASC';
 
 		$limit = collect([
 			$this->request->match_limit,
-			@$params['limit'],
-		])->min();
+			$this->request->form_matches
+		])->filter()->min();
 
 		if (is_null(@$this->query[$direction][$limit])) {
 			$this->query[$direction][$limit] = $this->query($direction, $limit);
@@ -79,7 +79,11 @@ SQL;
 		if ($this->request->hide_teams) {
 			$teams = null;
 		} else {
-			$teams = Team::whereIn('id', $matches->pluck('team_id'))->with('players')->get()->groupBy('match_id');
+			$teams = Team::whereIn('id', $matches->pluck('team_id'));
+			if ( ! $this->request->hide_teams) {
+				$teams = $teams->with('players');
+			}
+			$teams = $teams->get()->groupBy('match_id');
 		}
 
 		return $matches->groupBy('id')->map(function($t, $matchId) use ($teams) {
@@ -109,10 +113,6 @@ SQL;
 
 	public function count()
 	{
-		if ($this->request->get('match_limit')) {
-			return $this->request->get('match_limit');
-		}
-
 		if (is_null($this->count)) {
 			$query = <<<SQL
 			SELECT count(*) as count
@@ -120,7 +120,10 @@ SQL;
 			WHERE date >= ? AND date <= ?
 	SQL;
 
-			$this->count = \DB::selectOne($query, $this->placeholders())->count;
+			$this->count = collect([
+				\DB::selectOne($query, $this->placeholders())->count,
+				$this->request->match_limit,
+			])->filter()->min();
 		}
 
 		return $this->count;

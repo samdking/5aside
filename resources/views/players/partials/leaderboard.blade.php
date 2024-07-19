@@ -24,7 +24,7 @@
 		</tr>
 	</thead>
 	@foreach ($players as $player)
-	<tr class="{{ $matchesForForm->first()->date->greaterThan($player->last_app) ? "js-inactive" : "" }}">
+	<tr class="{{ $player->form->filter()->isEmpty() || $player->last_name == '(anon)' ? "js-inactive" : "" }}">
 		<td class="name">
 			{!! link_to_route('players.show', $player->first_name . ' ' . $player->last_name, [$player->id] + Request::only('from', 'to', 'year')) !!}
 		</td>
@@ -45,18 +45,7 @@
 		<td class="form">
 			<table class="form-table">
 				<tr>
-					@foreach($matchesForForm as $match)
-						<td>
-							@if ($team = $mainPlayer->$method($match, $player))
-								{!! link_to_route('matches.show', substr($match->resultForTeam($team), 0, 1), $match->id, [
-									'title' => $match->overviewForTeam($team),
-									'class' => 'match ' . strtolower($match->resultForTeam($team))
-								]) !!}
-							@else
-								<span class="match absense"></span>
-							@endif
-						</td>
-					@endforeach
+					@include('players/partials/form', ['player' => $player])
 				</tr>
 			</table>
 		</td>

@@ -37,6 +37,11 @@ class SingleSeasonQuery
 			->merge($this->matches($year));
 	}
 
+	public function matchCount()
+	{
+		return $this->matches->count();
+	}
+
 	protected function query($year)
 	{
 		$groupBy = $year ? 'GROUP BY year' : '';
