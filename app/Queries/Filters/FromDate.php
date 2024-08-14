@@ -18,7 +18,7 @@ class FromDate
 		}
 
 		if ($request->last) {
-			return (new DateTime)->sub(new DateInterval('P' . $request->last));
+			return (new DateTime)->sub(new DateInterval('P' . strtoupper($request->last)))->format('Y-m-d');
 		}
 
 		if ($request->year) {
