@@ -10,7 +10,7 @@ class AllPlayersQuery
 
 	public function __construct(Request $request)
 	{
-        $this->players = new PlayerQuery($request);
+		$this->players = new PlayerQuery($request);
 		$this->streaks = new PlayerStreakQuery($request);
 	}
 
