@@ -19,7 +19,7 @@ class MatchStats
 
         $data->total_goals = $this->matches->sum->total_goals;
         $data->average_goals = round($this->matches->filter(function($match) {
-            return ! is_null($match->team_a_scored);
+            return ! is_null($match->team_a_scored) && ! $match->voided;
         })->average->total_goals, 2);
         $data->total_attendance = $this->matches->sum->total_players;
         $data->average_attendance = round($this->matches->average->total_players, 2);
