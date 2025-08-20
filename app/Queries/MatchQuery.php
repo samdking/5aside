@@ -58,7 +58,9 @@ class MatchQuery
 		  matches.is_void AS voided,
 		  teams.winners as winner,
 		  teams.handicap,
+		  SUM(TIMESTAMPDIFF(YEAR, CONCAT(players.birth_year, "-12-31"), matches.date)) AS total_age,
 		  CAST(SUM(players.last_name != '(anon)') AS SIGNED) AS total_players,
+		  COUNT(players.birth_year) AS total_players_with_age,
 		  teams.scored AS scored,
 		  venues.name AS venue
 		FROM matches
@@ -96,6 +98,8 @@ SQL;
 				'team_b_scored' => $t[1]->scored,
 				'total_goals' => is_null($t[0]->scored) ? null : $t->sum->scored,
 				'venue' => $t[0]->venue,
+				'team_a_avg_age' => round($t[0]->total_age / max(1, $t[0]->total_players_with_age)),
+				'team_b_avg_age' => round($t[1]->total_age / max(1, $t[1]->total_players_with_age)),
 			];
 
 			if ( ! $this->request->hide_teams) {
