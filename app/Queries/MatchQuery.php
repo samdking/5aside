@@ -98,8 +98,8 @@ SQL;
 				'team_b_scored' => $t[1]->scored,
 				'total_goals' => is_null($t[0]->scored) ? null : $t->sum->scored,
 				'venue' => $t[0]->venue,
-				'team_a_avg_age' => $t[0]->total_players_with_age ? round($t[0]->total_age / $t[0]->total_players_with_age) : null,
-				'team_b_avg_age' => $t[1]->total_players_with_age ? round($t[1]->total_age / $t[1]->total_players_with_age) : null,
+				'team_a_avg_age' => $this->averageAge($t[0]),
+				'team_b_avg_age' => $this->averageAge($t[1]),
 			];
 
 			if ( ! $this->request->hide_teams) {
@@ -136,5 +136,10 @@ SQL;
 			(new Filters\FromDate)->get($this->request),
 			(new Filters\ToDate)->get($this->request)
 		];
+	}
+
+	protected function averageAge($team)
+	{
+		$team->total_players_with_age ? round($team->total_age / $team->total_players_with_age) : null;
 	}
 }
