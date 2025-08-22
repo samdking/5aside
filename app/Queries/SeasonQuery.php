@@ -27,17 +27,25 @@ $query = <<<SQL
 		  MAX(date) AS end_date,
 		  COUNT(id) AS total_matches,
 		  AVG(player_count) AS average_players,
-		  SUM(player_count) AS total_players,
-		  SUM(anon_player_count) AS total_anon_players
+		  CAST(ROUND(SUM(total_age) / SUM(player_count_with_age)) AS SIGNED) AS average_age,
+		  MIN(min_age) AS min_age,
+		  MAX(max_age) AS max_age,
+		  CAST(SUM(player_count) AS SIGNED) AS total_players,
+		  CAST(SUM(anon_player_count) AS SIGNED) AS total_anon_players
 		FROM matches
 		INNER JOIN (
 		  SELECT
-		    CAST(SUM(players.last_name != '(anon)') AS SIGNED) AS player_count,
-		    CAST(SUM(players.last_name = '(anon)') AS SIGNED) AS anon_player_count,
+		    SUM(players.last_name != '(anon)') AS player_count,
+		    SUM(players.last_name = '(anon)') AS anon_player_count,
+		    COUNT(players.birth_year) AS player_count_with_age,
+		    MIN(TIMESTAMPDIFF(YEAR, CONCAT(players.birth_year, "-12-31"), matches.date)) AS min_age,
+		    MAX(TIMESTAMPDIFF(YEAR, CONCAT(players.birth_year, "-12-31"), matches.date)) AS max_age,
+		    SUM(TIMESTAMPDIFF(YEAR, CONCAT(players.birth_year, "-12-31"), matches.date)) AS total_age,
 		    match_id
 		  from player_team
 		  JOIN players on players.id = player_team.player_id
-		  JOIN teams on teams.id = player_team.teaM_id
+		  JOIN teams on teams.id = player_team.team_id
+		  JOIN matches on matches.id = teams.match_id
 		  group by match_id
 		) pt ON pt.match_id = matches.id
 		WHERE date BETWEEN ? AND ?
