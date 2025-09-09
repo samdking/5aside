@@ -12,7 +12,7 @@ class PlayerStreak
 	public function __construct($player)
 	{
 		$this->player = $player;
-		$this->id = $player->id;
+		$this->id = is_string($player) ? $player : $player->id;
 	}
 
 	public function win($match)

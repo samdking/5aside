@@ -21,8 +21,9 @@ class FromDate
 			return (new DateTime)->sub(new DateInterval('P' . strtoupper($request->last)))->format('Y-m-d');
 		}
 
-		if ($request->year) {
-			return (new DateTime)->setDate($request->year, 1, 1);
+		if ($request->year || $request->season) {
+			$year = $request->year ?: $request->season;
+			return (new DateTime)->setDate($year, 1, 1)->format('Y-m-d');
 		}
 
 		return "2015-01-01";

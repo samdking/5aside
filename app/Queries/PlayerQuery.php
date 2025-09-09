@@ -6,13 +6,11 @@ class PlayerQuery
 {
 	const DEFAULT_ORDER = "`points` desc, `gd` DESC, `win_percentage` DESC, `handicap_wins` DESC, `matches` DESC, `losses` ASC, `last_appearance` DESC, last_name ASC";
 
-	public function __construct($request)
+	public function __construct($request, FormQuery $form = null)
 	{
 		$this->request = $request;
-		$this->form = new FormQuery($request);
-		$this->matches = new MatchQuery(tap($request, function($req) {
-			$req->hide_teams = true;
-		}));
+		$this->form = $form ?: new FormQuery($request);
+		$this->appearances = new AppearancesQuery($request);
 	}
 
 	public function getSeasons()
@@ -106,14 +104,14 @@ SQL;
 			$this->minMatches()
 		]));
 
-		$totalMatches = $this->matches->get()->count();
+		$totalMatches = $this->appearances->get()->count();
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($totalMatches) {
-			$matchesPriorToDebut = $this->matches->get()->search(function($m) use ($p) {
+			$matchesPriorToDebut = $this->appearances->get()->search(function($m) use ($p) {
 				return $m->date == $p->first_appearance;
 			});
 
-			$matchesSinceLastGame = $totalMatches - $this->matches->get()->search(function($m) use ($p) {
+			$matchesSinceLastGame = $totalMatches - $this->appearances->get()->search(function($m) use ($p) {
 				return $m->date == $p->last_appearance;
 			}) - 1;
 
@@ -123,9 +121,7 @@ SQL;
 			$p->handicap = $p->advantage = $p->per_game = [];
 
 			if (is_null($p->year)) {
-				$p->form = $this->form->get()->map(function($players) use ($p) {
-					return $players->get($p->id, "");
-				});
+				$p->form = $this->form->getForPlayer($p);
 				unset($p->year);
 			}
 
