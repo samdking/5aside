@@ -14,6 +14,7 @@ class SeasonController extends Controller
 	{
 		$request['show_inactive'] = true;
 		$request['form_matches'] = 10;
+		$request['year'] = $request->season;
 		$request['hide_teams'] = true;
 
 		$heading[] = 'Player Leaderboard for ' . $request->season;
