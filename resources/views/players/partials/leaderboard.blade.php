@@ -26,7 +26,7 @@
 	@foreach ($players as $player)
 	<tr class="{{ $player->form->filter()->isEmpty() || $player->last_name == '(anon)' ? "js-inactive" : "" }}">
 		<td class="name">
-			{!! link_to_route('players.show', $player->first_name . ' ' . $player->last_name, [$player->id] + Request::only('from', 'to', 'year')) !!}
+			{!! link_to_route('players.show', $player->first_name . ' ' . $player->last_name, [$player->id] + Request::only('from', 'to', 'year', 'last')) !!}
 		</td>
 		<td>{{ $player->apps }}</td>
 		<td>{{ $player->wins }}</td>
