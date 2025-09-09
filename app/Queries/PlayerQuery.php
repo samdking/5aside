@@ -34,6 +34,7 @@ $query = <<<SQL
 			SUBSTR(players.first_name, 1, 1) AS first_initial,
 			{$yearField} AS year,
 			players.last_name,
+			players.birth_year,
 			SUM(matches) AS matches,
 			SUM(wins) AS wins,
 			SUM(losses) AS losses,
