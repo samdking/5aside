@@ -11,11 +11,19 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
 class Handler extends ExceptionHandler {
+	/**
+	 * A list of exception types with their corresponding custom log levels.
+	 *
+	 * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
+	 */
+	protected $levels = [
+		//
+	];
 
 	/**
-	 * A list of the exception types that should not be reported.
+	 * A list of the exception types that are not reported.
 	 *
-	 * @var array
+	 * @var array<int, class-string<\Throwable>>
 	 */
 	protected $dontReport = [
 		AuthorizationException::class,
@@ -58,10 +66,10 @@ class Handler extends ExceptionHandler {
 	 */
 	protected function unauthenticated($request, AuthenticationException $exception)
 	{
-	    if ($request->expectsJson()) {
-	        return response()->json(['error' => 'Unauthenticated.'], 401);
-	    }
+		if ($request->expectsJson()) {
+			return response()->json(['error' => 'Unauthenticated.'], 401);
+		}
 
-	    return redirect()->guest('login');
+		return redirect()->guest('login');
 	}
 }

@@ -13,6 +13,7 @@ class FormQuery
 	public function __construct($request)
 	{
 		$params = new Fluent($request->all());
+
 		$params['form_matches'] = $request->get('form_matches', 6);
 		$params['order'] = 'desc';
 		$params['hide_teams'] = false;
