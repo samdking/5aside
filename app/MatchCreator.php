@@ -54,7 +54,7 @@ class MatchCreator
 	}
 
 	/**
-	 * Looks up venue by string or gets the latest
+	 * Looks up venue by string or gets the one used in the latest match
 	 *
 	 * @param  string  $venueString
 	 * @return App\Venue
@@ -64,7 +64,7 @@ class MatchCreator
 		if ($venueString) {
 			return Venue::whereName($venueString)->firstOrFail();
 		} else {
-			return Venue::latest()->first();
+			return Match::latest()->first()->venue();
 		}
 	}
 
