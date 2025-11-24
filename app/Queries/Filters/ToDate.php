@@ -10,10 +10,12 @@ class ToDate
 	{
 		$to = new DateTime($request->to);
 
-		if ($request->year && $to->format('Y') > $request->year) {
-			$to->setDate($request->year, 12, 31);
+		$year = $request->year ?: $request->season;
+
+		if ($year && $to->format('Y') > $year) {
+			$to->setDate($year, 12, 31);
 		}
 
-		return $to;
+		return $to->format('Y-m-d');
 	}
 }
