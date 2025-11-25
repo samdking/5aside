@@ -64,7 +64,7 @@ class MatchCreator
 		if ($venueString) {
 			return Venue::whereName($venueString)->firstOrFail();
 		} else {
-			return Match::latest()->first()->venue();
+			return MatchResult::latest('id')->first()->venue;
 		}
 	}
 
