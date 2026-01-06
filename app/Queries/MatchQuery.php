@@ -143,6 +143,6 @@ SQL;
 
 	protected function averageAge($team)
 	{
-		$team->total_players_with_age ? round($team->total_age / $team->total_players_with_age) : null;
+		return $team->total_players_with_age ? round($team->total_age / $team->total_players_with_age) : null;
 	}
 }
