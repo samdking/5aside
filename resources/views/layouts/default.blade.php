@@ -19,7 +19,6 @@
 		@endforeach
 	|
 	<a href="/players">All-time Table</a> |
-	<a href="/players/history">History</a> |
 	<a href="/matches">Matches</a>
 </nav>
 @yield('content')
