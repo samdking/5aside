@@ -135,25 +135,4 @@ class PlayerController extends Controller
 			'stats' => $stats,
 		]);
 	}
-
-	public function history()
-	{
-		$players = Player::with('teams')->get()->sortByDesc(function($player) {
-			return $player->teams->count();
-		});
-		$matches = MatchResult::with('teams.players')->orderBy('date', 'desc')->get()->sortBy('date');
-
-		return view('players.history')->with(compact('players', 'matches'));
-	}
-
-	public function matrix()
-	{
-		$players = Player::join('player_team', 'players.id', '=', 'player_id')
-			->select('players.*')
-			->groupBy('players.id')
-			->orderBy(\DB::raw('COUNT(team_id)'), 'DESC')->get();
-
-		return view('players.matrix')->withPlayers($players);
-	}
-
 }

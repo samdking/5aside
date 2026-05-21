@@ -15,8 +15,6 @@ Route::group(['middleware' => ['web']], function() {
 	Route::get('/', 'PlayerController@summary');
 
 	Route::resource('matches', 'MatchController');
-	Route::get('players/history', 'PlayerController@history');
-	Route::get('players/matrix', 'PlayerController@matrix');
 	Route::resource('players', 'PlayerController');
 	Route::resource('teams', 'TeamController');
 	Route::resource('seasons', 'SeasonController');
