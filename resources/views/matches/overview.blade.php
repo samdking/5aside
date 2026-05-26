@@ -52,8 +52,8 @@
 				'scored' => $match->voided ? 'V' : $match->team_a_scored,
 				'winners' => $match->winner == 'A',
 				'players' => $match->team_a,
-				'highlightTeammates' => $teammates,
-				'highlightOpponents' => $opponents,
+				'teammates' => $teammates,
+				'opponents' => $opponents,
 			])
 
 			<div class="vs">vs.</div>

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider {
 
@@ -12,6 +13,8 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
+		View::composer('matches.partials.team', \App\Http\ViewComposers\TeamComposer::class);
+
 		Collection::macro('sortKeys', function($options = SORT_REGULAR, $descending = false) {
 			$items = $this->items;
 
