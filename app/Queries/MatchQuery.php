@@ -34,7 +34,32 @@ class MatchQuery
 			$this->query[$direction][$limit] = $this->query($direction, $limit);
 		}
 
-		return $this->query[$direction][$limit];
+		return $this->filterByPlayers($this->query[$direction][$limit]);
+	}
+
+	protected function filterByPlayers($matches)
+	{
+		$teammates = $this->request->get('teammates', []);
+		$opponents = $this->request->get('opponents', []);
+
+		if (empty($teammates) && empty($opponents)) {
+			return $matches;
+		}
+
+		$hasAll = fn($team, $ids) => $team->pluck('id')->intersect($ids)->count() == count($ids);
+
+		return $matches->filter(function($match) use ($teammates, $opponents, $hasAll) {
+			$teams = collect([$match->team_a, $match->team_b]);
+
+			if (!empty($teammates) && !empty($opponents)) {
+				return ($hasAll($teams[0], $teammates) && $hasAll($teams[1], $opponents))
+					|| ($hasAll($teams[1], $teammates) && $hasAll($teams[0], $opponents));
+			}
+			if (!empty($teammates)) {
+				return $teams->contains(fn($team) => $hasAll($team, $teammates));
+			}
+			return $teams->contains(fn($team) => $hasAll($team, $opponents));
+		});
 	}
 
 	protected function query($direction, $limit)

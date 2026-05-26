@@ -29,22 +29,7 @@ SQL;
 
 		$request['order'] = 'desc';
 
-		$matches = (new MatchQuery($request))->get()->filter(function($match) use ($teammates, $opponents) {
-			$teams = collect([$match->team_a, $match->team_b]);
-			$hasAll = fn($team, $ids) => $team->pluck('id')->intersect($ids)->count() == count($ids);
-
-			if (!empty($teammates) && !empty($opponents)) {
-				return ($hasAll($teams[0], $teammates) && $hasAll($teams[1], $opponents))
-					|| ($hasAll($teams[1], $teammates) && $hasAll($teams[0], $opponents));
-			}
-			if (!empty($teammates)) {
-				return $teams->contains(fn($team) => $hasAll($team, $teammates));
-			}
-			if (!empty($opponents)) {
-				return $teams->contains(fn($team) => $hasAll($team, $opponents));
-			}
-			return true;
-		});
+		$matches = (new MatchQuery($request))->get();
 
 		return view('matches.overview')
 			->withMatches($matches)
