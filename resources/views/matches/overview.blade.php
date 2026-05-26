@@ -5,24 +5,38 @@
 <h2>Matches ({{ $matches->count() }})</h2>
 
 <form>
-	<fieldset style="margin: 1em 0">
+<div class="filter-fieldsets">
+	<fieldset class="filter-fieldset filter-fieldset--teammate">
 		<legend>Teammates</legend>
-		@foreach($players->groupBy('recent') as $players)
-			@foreach($players as $player)
-				<label style="margin-right: 8px">
-					{!! Form::checkbox('teammates[]',
-						$player->id,
-						in_array($player->id, Request::get('teammates', [])),
-						['onclick' => 'this.form.submit()']
-					) !!}
-					{{ $player->shortName() }}
-				</label>
-			@endforeach
-			@unless($loop->last)
-				<br><br>
-			@endunless
+		@foreach($players->groupBy('recent') as $recent => $scopedPlayers)
+			@if($recent)
+				@include('matches.partials.player-filter', ['field' => 'teammates', 'selected' => $teammates])
+			@else
+				<details style="margin-top: 8px">
+					<summary style="cursor: pointer; color: #666">Inactive players</summary>
+					<div style="margin-top: 6px">
+						@include('matches.partials.player-filter', ['field' => 'teammates', 'selected' => $teammates])
+					</div>
+				</details>
+			@endif
 		@endforeach
 	</fieldset>
+	<fieldset class="filter-fieldset filter-fieldset--opponent">
+		<legend>Opponents</legend>
+		@foreach($players->groupBy('recent') as $recent => $scopedPlayers)
+			@if($recent)
+				@include('matches.partials.player-filter', ['field' => 'opponents', 'selected' => $opponents])
+			@else
+				<details style="margin-top: 8px">
+					<summary style="cursor: pointer; color: #666">Inactive players</summary>
+					<div style="margin-top: 6px">
+						@include('matches.partials.player-filter', ['field' => 'opponents', 'selected' => $opponents])
+					</div>
+				</details>
+			@endif
+		@endforeach
+	</fieldset>
+</div>
 </form>
 
 <div class="matches-wrapper">
@@ -38,6 +52,8 @@
 				'scored' => $match->voided ? 'V' : $match->team_a_scored,
 				'winners' => $match->winner == 'A',
 				'players' => $match->team_a,
+				'highlightTeammates' => $teammates,
+				'highlightOpponents' => $opponents,
 			])
 
 			<div class="vs">vs.</div>
@@ -46,6 +62,8 @@
 				'scored' => $match->voided ? 'V' : $match->team_b_scored,
 				'winners' => $match->winner == 'B',
 				'players' => $match->team_b,
+				'highlightTeammates' => $teammates,
+				'highlightOpponents' => $opponents,
 			])
 		</div>
 	@endforeach
