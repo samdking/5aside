@@ -13,6 +13,7 @@ class PlayerStreak
 	{
 		$this->player = $player;
 		$this->id = is_string($player) ? $player : $player->id;
+		$this->currentStreak = [];
 	}
 
 	public function win($match)
@@ -71,13 +72,12 @@ class PlayerStreak
 
 	protected function miss($type, $match)
 	{
-		if ($this->onCurrentStreak($type))
-			$this->clearCurrentStreak($type);
+		unset($this->currentStreak[$type]);
 	}
 
 	protected function currentStreak($type, $match)
 	{
-		if ($this->onCurrentStreak($type)) {
+		if (array_key_exists($type, $this->currentStreak)) {
 			return $this->currentStreak[$type];
 		}
 
@@ -85,15 +85,5 @@ class PlayerStreak
 			$this->currentStreak[$type] = $streak;
 			$this->streaks[$type][] = $streak;
 		});
-	}
-
-	protected function onCurrentStreak($type)
-	{
-		return array_key_exists($type, $this->currentStreak);
-	}
-
-	protected function clearCurrentStreak($type)
-	{
-		unset($this->currentStreak[$type]);
 	}
 }

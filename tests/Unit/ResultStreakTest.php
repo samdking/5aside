@@ -22,24 +22,24 @@ class ResultStreakTest extends TestCase
 
     public function test_winner_is_routed_to_win()
     {
-        $playerStreak = new PlayerStreak(1);
-        (new ResultStreak($this->match(winners: [1])))->updateStreakFor($playerStreak);
+        $playerStreak = new PlayerStreak('alice');
+        (new ResultStreak($this->match(winners: ['alice'])))->updateStreakFor($playerStreak);
 
         $this->assertArrayHasKey('wins', $playerStreak->currentStreaks());
     }
 
     public function test_loser_is_routed_to_lose()
     {
-        $playerStreak = new PlayerStreak(1);
-        (new ResultStreak($this->match(losers: [1])))->updateStreakFor($playerStreak);
+        $playerStreak = new PlayerStreak('alice');
+        (new ResultStreak($this->match(losers: ['alice'])))->updateStreakFor($playerStreak);
 
         $this->assertArrayHasKey('defeats', $playerStreak->currentStreaks());
     }
 
     public function test_draw_is_routed_to_draw()
     {
-        $playerStreak = new PlayerStreak(1);
-        (new ResultStreak($this->match(draw: [1])))->updateStreakFor($playerStreak);
+        $playerStreak = new PlayerStreak('alice');
+        (new ResultStreak($this->match(draw: ['alice'])))->updateStreakFor($playerStreak);
 
         $current = $playerStreak->currentStreaks();
         $this->assertArrayHasKey('undefeated', $current);
@@ -50,8 +50,8 @@ class ResultStreakTest extends TestCase
 
     public function test_void_is_routed_to_void()
     {
-        $playerStreak = new PlayerStreak(1);
-        (new ResultStreak($this->match(voided: [1])))->updateStreakFor($playerStreak);
+        $playerStreak = new PlayerStreak('alice');
+        (new ResultStreak($this->match(voided: ['alice'])))->updateStreakFor($playerStreak);
 
         $current = $playerStreak->currentStreaks();
         $this->assertArrayHasKey('apps', $current);
@@ -63,7 +63,7 @@ class ResultStreakTest extends TestCase
 
     public function test_absent_player_is_routed_to_no_show()
     {
-        $playerStreak = new PlayerStreak(1);
+        $playerStreak = new PlayerStreak('alice');
         $playerStreak->win((object)['date' => '2025-12-01']);
 
         (new ResultStreak($this->match()))->updateStreakFor($playerStreak);
@@ -73,8 +73,8 @@ class ResultStreakTest extends TestCase
 
     public function test_void_is_checked_before_win()
     {
-        $playerStreak = new PlayerStreak(1);
-        (new ResultStreak($this->match(winners: [1], voided: [1])))->updateStreakFor($playerStreak);
+        $playerStreak = new PlayerStreak('alice');
+        (new ResultStreak($this->match(winners: ['alice'], voided: ['alice'])))->updateStreakFor($playerStreak);
 
         $current = $playerStreak->currentStreaks();
         $this->assertArrayHasKey('apps', $current);
