@@ -362,6 +362,18 @@ nav a {
 .bar.against { background-color: red; text-align: right }
 
 .player--injured { font-style: italic; color: maroon; }
+.player--highlight-teammate { background: rgba(50, 100, 210, 0.15); border-left: 3px solid #2a5cbf; margin-left: -30px; padding-left: 27px; }
+.player--highlight-teammate a { color: #1a3d8f; font-weight: bold; }
+.player--highlight-opponent { background: rgba(210, 170, 0, 0.18); border-left: 3px solid #b8960a; margin-left: -30px; padding-left: 27px; }
+.player--highlight-opponent a { color: #7a6200; font-weight: bold; }
+.filter-fieldsets { display: flex; gap: 2em; }
+.filter-fieldset { margin: 1em 0; padding: 0.75em 1.25em 1em; }
+.player-filter-list { columns: 3; }
+.player-filter-list label { display: block; white-space: nowrap; margin-bottom: 2px; }
+.filter-fieldset--teammate { border-color: #2a5cbf; }
+.filter-fieldset--teammate legend { color: #1a3d8f; font-weight: bold; }
+.filter-fieldset--opponent { border-color: #b8960a; }
+.filter-fieldset--opponent legend { color: #7a6200; font-weight: bold; }
 
 .stats dt { margin-bottom: 0.25em; }
 .stats dd { margin-bottom: 0.5em; }

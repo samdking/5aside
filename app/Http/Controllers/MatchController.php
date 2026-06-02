@@ -25,16 +25,17 @@ class MatchController extends Controller {
 SQL;
 		$players = Player::fromQuery($sql);
 		$teammates = $request->get('teammates', []);
+		$opponents = $request->get('opponents', []);
 
 		$request['order'] = 'desc';
 
-		$matches = (new MatchQuery($request))->get()->filter(function($match) use ($teammates) {
-			return collect([$match->team_a, $match->team_b])->contains(function($team) use ($teammates) {
-				return $team->pluck('id')->intersect($teammates)->count() == count($teammates);
-			});
-		});
+		$matches = (new MatchQuery($request))->get();
 
-		return view('matches.overview')->withMatches($matches)->withPlayers($players);
+		return view('matches.overview')
+			->withMatches($matches)
+			->withPlayers($players)
+			->withTeammates($teammates)
+			->withOpponents($opponents);
 	}
 
 	public function show(MatchResult $match)

@@ -85,7 +85,7 @@ class Team extends Model
 
 	public function playerData()
 	{
-		return $this->players->map(function($p) {
+		return $this->players->sortBy([['last_name', 'asc'], ['first_name', 'asc']])->map(function($p) {
 			return array_filter([
 				'id' => $p->id,
 				'name' => $p->shortName(),
