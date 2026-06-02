@@ -16,6 +16,8 @@ class InactiveDate
 	{
 		if ($request->show_inactive || $request->player) return '2015-01-01';
 
-		return (new DateTime($this->toDate->get($request)))->sub(new DateInterval('P10W'))->format('Y-m-d');
+		$to = new DateTime($this->toDate->get($request));
+
+		return $to->sub(new DateInterval('P10W'))->format('Y-m-d');
 	}
 }
