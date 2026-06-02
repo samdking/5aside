@@ -99,6 +99,25 @@ class ApiTest extends TestCase
         $this->assertEquals(-3, $bob['gd']);
     }
 
+    public function test_individual_player_endpoint_returns_streaks()
+    {
+        $venue    = Venue::factory()->create();
+        [$player, $opponent] = Player::factory()->count(2)->create();
+
+        // 3 wins, then a loss, then a win
+        $this->createMatch($venue, [$player], [$opponent], ['date' => Carbon::now()->subWeeks(5)->format('Y-m-d'), 'a_scored' => 2, 'b_scored' => 1]);
+        $this->createMatch($venue, [$player], [$opponent], ['date' => Carbon::now()->subWeeks(4)->format('Y-m-d'), 'a_scored' => 2, 'b_scored' => 1]);
+        $this->createMatch($venue, [$player], [$opponent], ['date' => Carbon::now()->subWeeks(3)->format('Y-m-d'), 'a_scored' => 2, 'b_scored' => 1]);
+        $this->createMatch($venue, [$player], [$opponent], ['date' => Carbon::now()->subWeeks(2)->format('Y-m-d'), 'a_scored' => 1, 'b_scored' => 2]);
+        $this->createMatch($venue, [$player], [$opponent], ['date' => Carbon::now()->subWeeks(1)->format('Y-m-d'), 'a_scored' => 2, 'b_scored' => 1]);
+
+        $streaks = $this->getJson("/api/players/{$player->id}")->assertOk()->json('player.streaks');
+
+        $this->assertEquals(3, $streaks['wins'][0]['count']);
+        $this->assertEquals(1, $streaks['defeats'][0]['count']);
+        $this->assertEquals(1, $streaks['current']['wins']['count']);
+    }
+
     public function test_players_endpoint_reflects_variable_match_participation()
     {
         $venue      = Venue::factory()->create();
