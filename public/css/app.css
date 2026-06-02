@@ -368,6 +368,8 @@ nav a {
 .player--highlight-opponent a { color: #7a6200; font-weight: bold; }
 .filter-fieldsets { display: flex; gap: 2em; }
 .filter-fieldset { margin: 1em 0; padding: 0.75em 1.25em 1em; }
+.player-filter-list { columns: 3; }
+.player-filter-list label { display: block; white-space: nowrap; margin-bottom: 2px; }
 .filter-fieldset--teammate { border-color: #2a5cbf; }
 .filter-fieldset--teammate legend { color: #1a3d8f; font-weight: bold; }
 .filter-fieldset--opponent { border-color: #b8960a; }
