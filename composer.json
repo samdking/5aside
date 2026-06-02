@@ -19,7 +19,8 @@
 		"symfony/css-selector": "4.*",
 		"filp/whoops": "^2.0",
 		"barryvdh/laravel-debugbar": "^3.6",
-		"mockery/mockery": "^1.6"
+		"mockery/mockery": "^1.6",
+		"fakerphp/faker": "^1.23"
 	},
 	"autoload": {
 		"classmap": [
