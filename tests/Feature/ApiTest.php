@@ -99,6 +99,50 @@ class ApiTest extends TestCase
         $this->assertEquals(-3, $bob['gd']);
     }
 
+    public function test_players_endpoint_reflects_variable_match_participation()
+    {
+        $venue      = Venue::factory()->create();
+        [$frequent, $occasional, $oneOff, $opponent] = Player::factory()->count(4)->create();
+
+        // frequent plays all 4, occasional plays 2, oneOff plays 1
+        $this->createMatch($venue, [$frequent, $occasional, $oneOff], [$opponent], [
+            'date' => Carbon::now()->subWeeks(1)->format('Y-m-d'), 'a_scored' => 3, 'b_scored' => 1,
+        ]);
+        $this->createMatch($venue, [$frequent, $occasional], [$opponent], [
+            'date' => Carbon::now()->subWeeks(2)->format('Y-m-d'), 'a_scored' => 2, 'b_scored' => 0,
+        ]);
+        $this->createMatch($venue, [$frequent], [$opponent], [
+            'date' => Carbon::now()->subWeeks(3)->format('Y-m-d'), 'a_scored' => 1, 'b_scored' => 2,
+        ]);
+        $this->createMatch($venue, [$frequent], [$opponent], [
+            'date' => Carbon::now()->subWeeks(4)->format('Y-m-d'), 'a_scored' => 1, 'b_scored' => 1,
+        ]);
+
+        $players = collect($this->getJson('/api/players')->assertOk()->json('players'))->keyBy('id');
+
+        $frequentStats   = $players[$frequent->id];
+        $occasionalStats = $players[$occasional->id];
+        $oneOffStats     = $players[$oneOff->id];
+
+        // frequent: 4 matches, 2W 1D 1L, scored 7, conceded 4, points 7
+        $this->assertEquals(4, $frequentStats['matches']);
+        $this->assertEquals(7, $frequentStats['scored']);
+        $this->assertEquals(4, $frequentStats['conceded']);
+        $this->assertEquals(7, $frequentStats['points']);
+
+        // occasional: 2 matches, 2W, scored 5, conceded 1, points 6
+        $this->assertEquals(2, $occasionalStats['matches']);
+        $this->assertEquals(5, $occasionalStats['scored']);
+        $this->assertEquals(1, $occasionalStats['conceded']);
+        $this->assertEquals(6, $occasionalStats['points']);
+
+        // oneOff: 1 match, 1W, scored 3, conceded 1, points 3
+        $this->assertEquals(1, $oneOffStats['matches']);
+        $this->assertEquals(3, $oneOffStats['scored']);
+        $this->assertEquals(1, $oneOffStats['conceded']);
+        $this->assertEquals(3, $oneOffStats['points']);
+    }
+
     public function test_individual_player_endpoint_returns_null_for_nonexistent_player()
     {
         $this->getJson('/api/players/999')
