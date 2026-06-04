@@ -26,6 +26,7 @@ class PlayerQuery
 	public function get($yearField = 'NULL', $group = 'players.id', $order = self::DEFAULT_ORDER)
 	{
 		$where = $this->request->player ? "WHERE players.id = ?" : "";
+		$limit = $this->request->match_limit ? "LIMIT ?" : "";
 
 $query = <<<SQL
 		SELECT
@@ -78,7 +79,7 @@ $query = <<<SQL
 			INNER JOIN matches on matches.id = teams.match_id
 			WHERE date >= ? AND date <= ?
 			ORDER BY matches.date desc
-			LIMIT ?
+			{$limit}
 		) team_a ON team_a.id = player_team.team_id
 		INNER JOIN (
 			SELECT
@@ -144,8 +145,6 @@ SQL;
 	{
 		if ($this->request->match_limit) {
 			return $this->request->match_limit * 2;
-		} else {
-			return 999;
 		}
 	}
 
