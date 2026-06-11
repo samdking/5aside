@@ -1,9 +1,11 @@
 <?php namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MatchResult extends Model
 {
+    use HasFactory;
     protected $table = 'matches';
 	protected $fillable = [
 		'date', 'venue_id', 'is_void'
