@@ -2,17 +2,17 @@
 
 namespace Tests\Feature;
 
-use App\MatchResult;
 use App\Player;
-use App\Team;
 use App\Venue;
 use Tests\TestCase;
+use Tests\Concerns\SeedsMatches;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ApiTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMatches;
 
     public function test_players_endpoint_returns_empty_array_with_no_data()
     {
@@ -209,40 +209,5 @@ class ApiTest extends TestCase
         }
 
         return [$alice->id, $bob->id, $pool];
-    }
-
-    private function createMatch(Venue $venue, array $teamA, array $teamB, array $opts): void
-    {
-        $aScored = $opts['a_scored'];
-        $bScored = $opts['b_scored'];
-        $draw    = $aScored === $bScored;
-        $aWins   = $aScored > $bScored;
-        $bWins   = $bScored > $aScored;
-
-        $match = MatchResult::factory()->create([
-            'date'     => $opts['date'],
-            'venue_id' => $venue->id,
-        ]);
-
-        $teamAModel = Team::factory()->create([
-            'match_id' => $match->id,
-            'scored'   => $aScored,
-            'winners'  => $aWins ? 1 : 0,
-            'draw'     => $draw  ? 1 : 0,
-        ]);
-
-        $teamBModel = Team::factory()->create([
-            'match_id' => $match->id,
-            'scored'   => $bScored,
-            'winners'  => $bWins ? 1 : 0,
-            'draw'     => $draw  ? 1 : 0,
-        ]);
-
-        $teamAModel->players()->attach(
-            collect($teamA)->mapWithKeys(fn($p) => [$p->id => ['injured' => 0]])
-        );
-        $teamBModel->players()->attach(
-            collect($teamB)->mapWithKeys(fn($p) => [$p->id => ['injured' => 0]])
-        );
     }
 }

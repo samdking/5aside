@@ -2,16 +2,16 @@
 
 namespace Tests\Feature;
 
-use App\MatchResult;
 use App\Player;
-use App\Team;
 use App\Venue;
 use Tests\TestCase;
+use Tests\Concerns\SeedsMatches;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SeasonApiTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMatches;
 
     public function test_v2_seasons_endpoint_returns_empty_season_with_no_data()
     {
@@ -93,39 +93,10 @@ class SeasonApiTest extends TestCase
         $alice = Player::factory()->create(['first_name' => 'Alice', 'last_name' => 'Alice']);
         $bob   = Player::factory()->create(['first_name' => 'Bob',   'last_name' => 'Bob']);
 
-        $this->createMatch($venue, $alice, $bob, ['date' => '2023-03-01', 'a_scored' => 3, 'b_scored' => 1]);
-        $this->createMatch($venue, $alice, $bob, ['date' => '2023-09-01', 'a_scored' => 2, 'b_scored' => 0]);
-        $this->createMatch($venue, $alice, $bob, ['date' => '2024-02-01', 'a_scored' => 1, 'b_scored' => 1]);
+        $this->createMatch($venue, [$alice], [$bob], ['date' => '2023-03-01', 'a_scored' => 3, 'b_scored' => 1]);
+        $this->createMatch($venue, [$alice], [$bob], ['date' => '2023-09-01', 'a_scored' => 2, 'b_scored' => 0]);
+        $this->createMatch($venue, [$alice], [$bob], ['date' => '2024-02-01', 'a_scored' => 1, 'b_scored' => 1]);
 
         return [$alice, $bob];
-    }
-
-    private function createMatch(Venue $venue, Player $teamA, Player $teamB, array $opts): void
-    {
-        $aScored = $opts['a_scored'];
-        $bScored = $opts['b_scored'];
-        $draw    = $aScored === $bScored;
-
-        $match = MatchResult::factory()->create([
-            'date'     => $opts['date'],
-            'venue_id' => $venue->id,
-        ]);
-
-        $teamAModel = Team::factory()->create([
-            'match_id' => $match->id,
-            'scored'   => $aScored,
-            'winners'  => $aScored > $bScored ? 1 : 0,
-            'draw'     => $draw ? 1 : 0,
-        ]);
-
-        $teamBModel = Team::factory()->create([
-            'match_id' => $match->id,
-            'scored'   => $bScored,
-            'winners'  => $bScored > $aScored ? 1 : 0,
-            'draw'     => $draw ? 1 : 0,
-        ]);
-
-        $teamAModel->players()->attach([$teamA->id => ['injured' => 0]]);
-        $teamBModel->players()->attach([$teamB->id => ['injured' => 0]]);
     }
 }
