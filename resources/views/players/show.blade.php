@@ -2,7 +2,7 @@
 
 @section('content')
 <h2>
-	{!! link_to_route('players.index', 'Players') !!}
+	<a href="{{ route('players.index') }}">Players</a>
 	&gt;
 	{{ $player->first_initial }} {{ $player->last_name }}
 </h2>
@@ -88,7 +88,7 @@
 <ol class="matches">
 @foreach($player->results as $match)
 	<li>
-		{!! link_to_route('matches.show', DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y'), $match->id) !!}
+		<a href="{{ route('matches.show', $match->id) }}">{{ DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y') }}</a>
 		@if ($match->voided)
 			- Void
 		@else

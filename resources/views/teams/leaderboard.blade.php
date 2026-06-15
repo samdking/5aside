@@ -21,7 +21,7 @@
 		<td class="number">{{ $i+1 }}
 		<td class="name">
 			{!! implode(', ', $team->players->map(function($player) {
-				return link_to_route('players.show', $player->last_name, $player->id);
+				return '<a href="' . e(route('players.show', $player->id)) . '">' . e($player->last_name) . '</a>';
 			})->all()) !!}
 		</td>
 		<td>{{ $team->player_count }}</td>
