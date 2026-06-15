@@ -10,7 +10,7 @@ class MatchResult extends Model
 	protected $fillable = [
 		'date', 'venue_id', 'is_void'
 	];
-	protected $dates = ['date'];
+	protected $casts = ['date' => 'datetime'];
 
 	public $timestamps = false;
 
