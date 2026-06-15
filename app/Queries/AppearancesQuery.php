@@ -2,8 +2,6 @@
 
 namespace App\Queries;
 
-use App\MatchResult;
-
 class AppearancesQuery
 {
 	protected $request;
@@ -25,14 +23,10 @@ class AppearancesQuery
 			(new Filters\ToDate)->get($this->request),
 		];
 
-		$this->query = MatchResult::whereRaw('date >= ? AND date <= ?', $placeholders)
-			->orderBy('date')->get()
-			->map(function($m) {
-				return (object)[
-					'id' => $m->id,
-					'date' => $m->date->format('Y-m-d'),
-				];
-			});
+		$this->query = collect(\DB::select(
+			'SELECT id, date FROM matches WHERE date >= ? AND date <= ? ORDER BY date',
+			$placeholders
+		));
 
 		return $this->query;
 	}
