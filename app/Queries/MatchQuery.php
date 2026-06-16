@@ -3,7 +3,6 @@
 namespace App\Queries;
 
 use Illuminate\Http\Request;
-use App\Team;
 
 class MatchQuery
 {
@@ -104,16 +103,12 @@ SQL;
 		$matches = collect(\DB::select($query, $placeholders));
 
 		if ($this->request->hide_teams) {
-			$teams = null;
+			$playersByTeam = null;
 		} else {
-			$teams = Team::whereIn('id', $matches->pluck('team_id'));
-			if ( ! $this->request->hide_teams) {
-				$teams = $teams->with('players');
-			}
-			$teams = $teams->get()->groupBy('match_id');
+			$playersByTeam = $this->playersByTeam($matches);
 		}
 
-		return $matches->groupBy('id')->map(function($t, $matchId) use ($teams) {
+		return $matches->groupBy('id')->map(function($t, $matchId) use ($playersByTeam) {
 			$match = (object)[
 				'id' => $matchId,
 				'year' => $t[0]->year,
@@ -132,12 +127,50 @@ SQL;
 			];
 
 			if ( ! $this->request->hide_teams) {
-				$match->team_a = $teams[$matchId][0]->playerData();
-				$match->team_b = $teams[$matchId][1]->playerData();
+				$match->team_a = $playersByTeam->get($t[0]->team_id, collect());
+				$match->team_b = $playersByTeam->get($t[1]->team_id, collect());
 			}
 
 			return $match;
 		})->values();
+	}
+
+	/**
+	 * Fetch each team's players as plain rows (no Eloquent hydration) keyed by
+	 * team_id. shortName() and the sort order are pushed into SQL so we never
+	 * instantiate a Team or Player model for the overview. We join through to
+	 * matches and use the date range to limit the players returned to only those
+	 * who played in the matches.
+	 */
+	protected function playersByTeam($matches)
+	{
+		if ($matches->isEmpty()) return collect();
+
+		$placeholders = [$matches->min('date'), $matches->max('date')];
+
+		$query = <<<SQL
+		SELECT
+		  player_team.team_id,
+		  players.id,
+		  CONCAT(LEFT(COALESCE(players.first_name, ''), 1), '. ', COALESCE(players.last_name, '')) AS name,
+		  player_team.injured
+		FROM player_team
+		INNER JOIN players ON players.id = player_team.player_id
+		INNER JOIN teams ON teams.id = player_team.team_id
+		INNER JOIN matches ON matches.id = teams.match_id
+		WHERE date >= ? AND date <= ?
+		ORDER BY players.last_name, players.first_name
+SQL;
+
+		return collect(\DB::select($query, $placeholders))
+			->groupBy('team_id')
+			->map(function($players) {
+				return $players->map(fn($p) => array_filter([
+					'id' => $p->id,
+					'name' => $p->name,
+					'injured' => (boolean)$p->injured,
+				]))->values();
+			});
 	}
 
 	public function count()
