@@ -77,7 +77,6 @@ class MatchQuery
 		  teams.id AS team_id,
 		  YEAR(matches.date) AS year,
 		  matches.date,
-		  YEAR(matches.date) AS year,
 		  matches.is_short AS short,
 		  matches.is_void AS voided,
 		  teams.winners as winner,
