@@ -52,7 +52,7 @@ class CancelledMatchTest extends TestCase
     {
         [$signup] = $this->seedWithCancelledMatch();
 
-        $player = $this->getJson("/api/players/{$signup->id}")->assertOk()->json('player');
+        $player = $this->getJson("/api/players/{$signup->id}?include_cancelled=1")->assertOk()->json('player');
 
         $this->assertEquals(2, $player['matches']);
         $this->assertEquals(2, $player['wins']);
@@ -60,6 +60,17 @@ class CancelledMatchTest extends TestCase
         $this->assertTrue($player['results'][1]['cancelled']);
         $this->assertArrayNotHasKey('id', $player['results'][1]);
         $this->assertEquals(['Win', 'Cancelled', 'Win'], collect($player['form'])->reverse()->values()->all());
+    }
+
+    public function test_cancelled_matches_are_left_out_of_api_results_by_default()
+    {
+        [$signup] = $this->seedWithCancelledMatch();
+
+        $player = $this->getJson("/api/players/{$signup->id}")->assertOk()->json('player');
+
+        $this->assertEquals(['Win', 'Win'], collect($player['results'])->pluck('result')->all());
+        $this->assertArrayNotHasKey('cancelled', $player['results'][0]);
+        $this->assertNotContains('Cancelled', collect($player['seasons'])->pluck('results')->flatten(1)->pluck('result'));
     }
 
     public function test_non_signup_sees_a_blank_form_entry()

@@ -70,7 +70,9 @@ SQL;
 			foreach(['short', 'voided', 'handicap', 'advantage'] as $prop) {
 				$match->$prop = (boolean)$match->$prop;
 			}
-			$match->cancelled = false;
+			if ($this->includeCancelled()) {
+				$match->cancelled = false;
+			}
 
 			if ($this->request->full_player_data) {
 				$match->teammates = $teams[$match->team_id]->playerData();
@@ -79,6 +81,8 @@ SQL;
 
 			unset($match->team_id, $match->opponent_id);
 		});
+
+		if ( ! $this->includeCancelled()) return $results;
 
 		$cancelled = (new CancelledMatchQuery($this->request))->forPlayer($this->request->player)->map(function($match) {
 			$cancelled = (object)[
@@ -103,5 +107,14 @@ SQL;
 		});
 
 		return $results->concat($cancelled)->sortBy('date')->values();
+	}
+
+	/**
+	 * Cancelled matches are opt-in so API clients can assume every result
+	 * is a match that was played
+	 */
+	protected function includeCancelled()
+	{
+		return $this->request->boolean('include_cancelled');
 	}
 }

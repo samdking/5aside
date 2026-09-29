@@ -117,6 +117,7 @@ class PlayerController extends Controller
 	public function show(Request $request)
 	{
 		$request['form_matches'] = 10;
+		$request['include_cancelled'] = true;
 
 		$form = new FormQuery($request);
 
