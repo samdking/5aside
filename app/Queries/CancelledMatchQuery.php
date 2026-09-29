@@ -28,6 +28,41 @@ class CancelledMatchQuery
 		})->values();
 	}
 
+	/**
+	 * Cancelled matches with the players who put their name down as
+	 * [id, name] pairs, sorted by name, in place of plain ids.
+	 */
+	public function withPlayerNames()
+	{
+		$players = $this->playerNames($this->get()->pluck('players')->flatten()->unique());
+
+		return $this->get()->map(function($match) use ($players) {
+			return (object)array_merge((array)$match, [
+				'cancelled' => true,
+				'players' => $players->whereIn('id', $match->players)->values(),
+			]);
+		});
+	}
+
+	protected function playerNames($ids)
+	{
+		if ($ids->isEmpty()) return collect();
+
+		$placeholders = $ids->map(fn() => '?')->implode(', ');
+
+		$query = <<<SQL
+		SELECT
+		  players.id,
+		  CONCAT(LEFT(COALESCE(players.first_name, ''), 1), '. ', COALESCE(players.last_name, '')) AS name
+		FROM players
+		WHERE players.id IN ({$placeholders})
+		ORDER BY players.last_name, players.first_name
+SQL;
+
+		return collect(\DB::select($query, $ids->values()->all()))
+			->map(fn($p) => ['id' => $p->id, 'name' => $p->name]);
+	}
+
 	protected function query()
 	{
 		$query = <<<SQL
