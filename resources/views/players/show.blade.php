@@ -88,20 +88,25 @@
 <ol class="matches">
 @foreach($player->results as $match)
 	<li>
-		<a href="{{ route('matches.show', $match->id) }}">{{ DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y') }}</a>
-		@if ($match->voided)
-			- Void
+		@if ($match->missed)
+			{{ DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y') }}
+			- Missed (not enough players)
 		@else
-			- {{ $match->result }}
-			@if ($match->scored)
-				({{ $match->scored }}-{{ $match->conceded }})
+			<a href="{{ route('matches.show', $match->id) }}">{{ DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y') }}</a>
+			@if ($match->voided)
+				- Void
+			@else
+				- {{ $match->result }}
+				@if ($match->scored)
+					({{ $match->scored }}-{{ $match->conceded }})
+				@endif
 			@endif
 		@endif
 	</li>
 @endforeach
 </ol>
 
-<h3 id="stats">Played with / against (minimum <strong>{{ round($player->results->count() / 4) }}</strong> matches)</h3>
+<h3 id="stats">Played with / against (minimum <strong>{{ round($player->results->where('missed', false)->count() / 4) }}</strong> matches)</h3>
 
 <div class="stats">
 @foreach($stats as $player)

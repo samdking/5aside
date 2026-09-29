@@ -23,10 +23,20 @@ class AppearancesQuery
 			(new Filters\ToDate)->get($this->request),
 		];
 
-		$this->query = collect(\DB::select(
+		$matches = collect(\DB::select(
 			'SELECT id, date FROM matches WHERE date >= ? AND date <= ? ORDER BY date',
 			$placeholders
 		));
+
+		$missed = (new MissedMatchQuery($this->request))->get()->map(function($m) {
+			return (object)[
+				'id' => $m->id,
+				'date' => $m->date,
+				'missed' => true,
+			];
+		});
+
+		$this->query = $matches->concat($missed)->sortBy('date')->values();
 
 		return $this->query;
 	}

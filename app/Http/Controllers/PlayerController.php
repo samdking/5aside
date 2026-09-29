@@ -125,7 +125,7 @@ class PlayerController extends Controller
 		$opponents = (new OpponentsQuery($request, $form))->get();
 
 		$stats = (new PlayedWithAgainst($request))->get()->reject(function($p) use ($player) {
-			return ($p->against + $p->with) < $player->results->count() / 4;
+			return ($p->against + $p->with) < $player->results->where('missed', false)->count() / 4;
 		});
 
 		return view('players.show')->with([

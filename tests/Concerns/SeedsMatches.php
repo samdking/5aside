@@ -3,6 +3,7 @@
 namespace Tests\Concerns;
 
 use App\MatchResult;
+use App\MissedMatch;
 use App\Team;
 use App\Venue;
 
@@ -46,5 +47,19 @@ trait SeedsMatches
         $teamBModel->players()->attach(
             collect($teamB)->mapWithKeys(fn($p) => [$p->id => ['injured' => 0]])
         );
+    }
+
+    /**
+     * Persist a missed match with the players who put their name down.
+     *
+     * @param  \App\Player[]  $players
+     */
+    private function createMissedMatch(array $players, string $date): MissedMatch
+    {
+        $missed = MissedMatch::factory()->create(['date' => $date]);
+
+        $missed->players()->attach(collect($players)->pluck('id'));
+
+        return $missed;
     }
 }

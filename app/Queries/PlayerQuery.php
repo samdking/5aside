@@ -11,6 +11,7 @@ class PlayerQuery
 		$this->request = $request;
 		$this->form = $form ?: new FormQuery($request);
 		$this->appearances = new AppearancesQuery($request);
+		$this->missed = new MissedMatchQuery($request);
 	}
 
 	public function getSeasons()
@@ -109,17 +110,23 @@ SQL;
 		$totalMatches = $this->appearances->get()->count();
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($totalMatches) {
-			$matchesPriorToDebut = $this->appearances->get()->search(function($m) use ($p) {
-				return $m->date == $p->first_appearance;
+			// Putting your name down for a missed match counts as an appearance
+			$missed = $this->missed->forPlayer($p->id, $p->year);
+			$apps = $p->matches + $missed->count();
+			$firstApp = $missed->pluck('date')->push($p->first_appearance)->min();
+			$lastApp = $missed->pluck('date')->push($p->last_appearance)->max();
+
+			$matchesPriorToDebut = $this->appearances->get()->search(function($m) use ($firstApp) {
+				return $m->date == $firstApp;
 			});
 
-			$matchesSinceLastGame = $totalMatches - $this->appearances->get()->search(function($m) use ($p) {
-				return $m->date == $p->last_appearance;
+			$matchesSinceLastGame = $totalMatches - $this->appearances->get()->search(function($m) use ($lastApp) {
+				return $m->date == $lastApp;
 			}) - 1;
 
-			$p->appearance_percentage = round($p->matches / $totalMatches * 100, 2);
-			$p->appearance_percentage_since_debut = round($p->matches / ($totalMatches - $matchesPriorToDebut) * 100, 2);
-			$p->appearance_percentage_during_playing_window = round($p->matches / ($totalMatches - $matchesPriorToDebut - $matchesSinceLastGame) * 100, 2);
+			$p->appearance_percentage = round($apps / $totalMatches * 100, 2);
+			$p->appearance_percentage_since_debut = round($apps / ($totalMatches - $matchesPriorToDebut) * 100, 2);
+			$p->appearance_percentage_during_playing_window = round($apps / ($totalMatches - $matchesPriorToDebut - $matchesSinceLastGame) * 100, 2);
 			$p->handicap = $p->advantage = $p->per_game = [];
 
 			if (is_null($p->year)) {

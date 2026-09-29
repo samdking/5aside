@@ -11,12 +11,21 @@ class MatchCreator
 	 *
 	 * YYYY-MM-DD: P1, P2, P3 5 - 3 P4, P5, P6 [Venue] <VOID>
 	 *
+	 * or, for a match that didn't happen because of a lack of players, a list of
+	 * those who put their name down:
+	 *
+	 * YYYY-MM-DD: P1, P2, P3 <MISSED>
+	 *
 	 * @param  string  $string
-	 * @return App\MatchResult
+	 * @return App\MatchResult|App\MissedMatch
 	 */
 	public function parse($string)
 	{
 		$this->allPlayers = [];
+
+		if (preg_match('/^(?:(.+): )?(.+) <MISSED>$/', $string, $matches)) {
+			return $this->createMissedMatch($matches[1], $matches[2]);
+		}
 
 		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) ([^\[\]<>]+)(?: \[(.+)\])?(?: (<VOID>))?$/', $string, $matches);
 
@@ -51,6 +60,22 @@ class MatchCreator
 		$team2->save();
 
 		return $match;
+	}
+
+	/**
+	 * Create a missed match with the players who put their name down
+	 *
+	 * @param  string  $date
+	 * @param  string  $players
+	 * @return App\MissedMatch
+	 */
+	private function createMissedMatch($date, $players)
+	{
+		$missed = MissedMatch::create(['date' => new \DateTime($date)]);
+
+		$missed->players()->sync($this->parsePlayers($players));
+
+		return $missed;
 	}
 
 	/**

@@ -66,10 +66,11 @@ SQL;
 
 		$teams = $this->request->full_player_data ? Team::with('players')->get()->keyBy('id') : [];
 
-		return collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
+		$results = collect(\DB::select($query, $placeholders))->each(function($match) use ($teams) {
 			foreach(['short', 'voided', 'handicap', 'advantage'] as $prop) {
 				$match->$prop = (boolean)$match->$prop;
 			}
+			$match->missed = false;
 
 			if ($this->request->full_player_data) {
 				$match->teammates = $teams[$match->team_id]->playerData();
@@ -78,5 +79,30 @@ SQL;
 
 			unset($match->team_id, $match->opponent_id);
 		});
+
+		$missed = (new MissedMatchQuery($this->request))->forPlayer($this->request->player)->map(function($match) {
+			$missed = (object)[
+				'id' => $match->id,
+				'date' => $match->date,
+				'year' => $match->year,
+				'short' => false,
+				'voided' => false,
+				'result' => 'Missed',
+				'scored' => null,
+				'conceded' => null,
+				'venue' => null,
+				'handicap' => false,
+				'advantage' => false,
+				'missed' => true,
+			];
+
+			if ($this->request->full_player_data) {
+				$missed->teammates = $missed->opponents = collect();
+			}
+
+			return $missed;
+		});
+
+		return $results->concat($missed)->sortBy('date')->values();
 	}
 }
