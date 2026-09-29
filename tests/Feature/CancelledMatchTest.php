@@ -58,6 +58,7 @@ class CancelledMatchTest extends TestCase
         $this->assertEquals(2, $player['wins']);
         $this->assertEquals(['Win', 'Cancelled', 'Win'], collect($player['results'])->pluck('result')->all());
         $this->assertTrue($player['results'][1]['cancelled']);
+        $this->assertArrayNotHasKey('id', $player['results'][1]);
         $this->assertEquals(['Win', 'Cancelled', 'Win'], collect($player['form'])->reverse()->values()->all());
     }
 

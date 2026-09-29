@@ -82,7 +82,6 @@ SQL;
 
 		$cancelled = (new CancelledMatchQuery($this->request))->forPlayer($this->request->player)->map(function($match) {
 			$cancelled = (object)[
-				'id' => $match->id,
 				'date' => $match->date,
 				'year' => $match->year,
 				'short' => false,

@@ -30,7 +30,6 @@ class AppearancesQuery
 
 		$cancelled = (new CancelledMatchQuery($this->request))->get()->map(function($m) {
 			return (object)[
-				'id' => $m->id,
 				'date' => $m->date,
 				'cancelled' => true,
 			];

@@ -35,7 +35,6 @@ class FormQuery
 	{
 		$cancelled = $this->cancelled->get()->map(function($match) {
 			return (object)[
-				'id' => $match->id,
 				'date' => $match->date,
 				'cancelled' => $match->players,
 			];
@@ -57,7 +56,6 @@ class FormQuery
 				return (object)[
 					'result' => 'Cancelled',
 					'cancelled' => true,
-					'id' => $match->id,
 					'date' => new Carbon($match->date),
 					'teammates' => collect(),
 					'opponents' => collect(),
