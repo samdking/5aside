@@ -277,7 +277,7 @@ nav a {
   background: orange;
 }
 
-.form-table .missed {
+.form-table .cancelled {
   background: repeating-linear-gradient(45deg, #999, #999 3px, #bbb 3px, #bbb 6px);
 }
 

@@ -3,7 +3,7 @@
 namespace Tests\Concerns;
 
 use App\MatchResult;
-use App\MissedMatch;
+use App\CancelledMatch;
 use App\Team;
 use App\Venue;
 
@@ -50,16 +50,16 @@ trait SeedsMatches
     }
 
     /**
-     * Persist a missed match with the players who put their name down.
+     * Persist a cancelled match with the players who put their name down.
      *
      * @param  \App\Player[]  $players
      */
-    private function createMissedMatch(array $players, string $date): MissedMatch
+    private function createCancelledMatch(array $players, string $date): CancelledMatch
     {
-        $missed = MissedMatch::factory()->create(['date' => $date]);
+        $cancelled = CancelledMatch::factory()->create(['date' => $date]);
 
-        $missed->players()->attach(collect($players)->pluck('id'));
+        $cancelled->players()->attach(collect($players)->pluck('id'));
 
-        return $missed;
+        return $cancelled;
     }
 }

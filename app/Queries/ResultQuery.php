@@ -40,12 +40,12 @@ SQL;
 			foreach(['voided', 'winners', 'losers', 'draw'] as $prop) {
 				$match->{$prop} = collect(explode(',', $match->{$prop}));
 			}
-			$match->missed = collect();
+			$match->cancelled = collect();
 		});
 
-		// Missed matches have no teams, so only the players who put their name
+		// Cancelled matches have no teams, so only the players who put their name
 		// down are recorded. Sorting is stable, so real matches keep their order.
-		$missed = (new MissedMatchQuery($this->request))->get()->map(function($match) {
+		$cancelled = (new CancelledMatchQuery($this->request))->get()->map(function($match) {
 			return (object)[
 				'date' => $match->date,
 				'year' => $match->year,
@@ -53,10 +53,10 @@ SQL;
 				'winners' => collect(),
 				'losers' => collect(),
 				'draw' => collect(),
-				'missed' => $match->players,
+				'cancelled' => $match->players,
 			];
 		});
 
-		return $results->concat($missed)->sortBy('date')->values();
+		return $results->concat($cancelled)->sortBy('date')->values();
 	}
 }

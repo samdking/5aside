@@ -2,7 +2,7 @@
 
 namespace App\Queries;
 
-class MissedMatchQuery
+class CancelledMatchQuery
 {
 	protected $request;
 	protected $query;
@@ -32,15 +32,15 @@ class MissedMatchQuery
 	{
 		$query = <<<SQL
 		SELECT
-		  missed_matches.id,
-		  missed_matches.date,
-		  YEAR(missed_matches.date) AS year,
-		  GROUP_CONCAT(mmp.player_id) AS players
-		FROM missed_matches
-		LEFT JOIN missed_match_player mmp ON mmp.missed_match_id = missed_matches.id
+		  cancelled_matches.id,
+		  cancelled_matches.date,
+		  YEAR(cancelled_matches.date) AS year,
+		  GROUP_CONCAT(cmp.player_id) AS players
+		FROM cancelled_matches
+		LEFT JOIN cancelled_match_player cmp ON cmp.cancelled_match_id = cancelled_matches.id
 		WHERE date >= ? AND date <= ?
-		GROUP BY missed_matches.id
-		ORDER BY missed_matches.date, missed_matches.id
+		GROUP BY cancelled_matches.id
+		ORDER BY cancelled_matches.date, cancelled_matches.id
 SQL;
 
 		$placeholders = [

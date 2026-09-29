@@ -10,7 +10,7 @@ class FormQuery
 	protected $request;
 	protected $query = null;
 	protected $limit;
-	protected $missed;
+	protected $cancelled;
 
 	public function __construct($request)
 	{
@@ -23,25 +23,25 @@ class FormQuery
 		$this->request = $request;
 		$this->limit = $params['form_matches'];
 		$this->matches = new MatchQuery($params);
-		$this->missed = new MissedMatchQuery($params);
+		$this->cancelled = new CancelledMatchQuery($params);
 	}
 
 	/**
-	 * The most recent matches, including missed matches. MatchQuery already
+	 * The most recent matches, including cancelled matches. MatchQuery already
 	 * returns the latest N real matches, so the latest N of the combined list
 	 * is correct.
 	 */
 	protected function matches()
 	{
-		$missed = $this->missed->get()->map(function($match) {
+		$cancelled = $this->cancelled->get()->map(function($match) {
 			return (object)[
 				'id' => $match->id,
 				'date' => $match->date,
-				'missed' => $match->players,
+				'cancelled' => $match->players,
 			];
 		});
 
-		return $this->matches->get()->concat($missed)->sortByDesc('date')->take($this->limit);
+		return $this->matches->get()->concat($cancelled)->sortByDesc('date')->take($this->limit);
 	}
 
 	public function getForPlayer($player)
@@ -49,14 +49,14 @@ class FormQuery
 		$sort = $this->useShortForm() ? 'sortByDesc' : 'sortBy';
 
 		return $this->matches()->$sort('date')->map(function($match) use ($player) {
-			if (isset($match->missed)) {
-				if (!$match->missed->contains($player->id)) return $this->useShortForm() ? '' : null;
+			if (isset($match->cancelled)) {
+				if (!$match->cancelled->contains($player->id)) return $this->useShortForm() ? '' : null;
 
-				if ($this->useShortForm()) return 'Missed';
+				if ($this->useShortForm()) return 'Cancelled';
 
 				return (object)[
-					'result' => 'Missed',
-					'missed' => true,
+					'result' => 'Cancelled',
+					'cancelled' => true,
 					'id' => $match->id,
 					'date' => new Carbon($match->date),
 					'teammates' => collect(),

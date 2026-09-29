@@ -88,9 +88,9 @@
 <ol class="matches">
 @foreach($player->results as $match)
 	<li>
-		@if ($match->missed)
+		@if ($match->cancelled)
 			{{ DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y') }}
-			- Missed (not enough players)
+			- Cancelled (not enough players)
 		@else
 			<a href="{{ route('matches.show', $match->id) }}">{{ DateTime::createFromFormat('Y-m-d', $match->date)->format('jS F Y') }}</a>
 			@if ($match->voided)
@@ -106,7 +106,7 @@
 @endforeach
 </ol>
 
-<h3 id="stats">Played with / against (minimum <strong>{{ round($player->results->where('missed', false)->count() / 4) }}</strong> matches)</h3>
+<h3 id="stats">Played with / against (minimum <strong>{{ round($player->results->where('cancelled', false)->count() / 4) }}</strong> matches)</h3>
 
 <div class="stats">
 @foreach($stats as $player)

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class ResultStreakTest extends TestCase
 {
-    private function match(array $winners = [], array $losers = [], array $draw = [], array $voided = [], array $missed = []): object
+    private function match(array $winners = [], array $losers = [], array $draw = [], array $voided = [], array $cancelled = []): object
     {
         return (object)[
             'date'    => '2026-01-01',
@@ -17,7 +17,7 @@ class ResultStreakTest extends TestCase
             'losers'  => collect($losers),
             'draw'    => collect($draw),
             'voided'  => collect($voided),
-            'missed'  => collect($missed),
+            'cancelled'  => collect($cancelled),
         ];
     }
 
@@ -82,11 +82,11 @@ class ResultStreakTest extends TestCase
         $this->assertArrayNotHasKey('wins', $current);
     }
 
-    public function test_missed_match_is_neutral_for_players_who_signed_up()
+    public function test_cancelled_match_is_neutral_for_players_who_signed_up()
     {
         $playerStreak = new PlayerStreak('alice');
         (new ResultStreak($this->match(winners: ['alice'])))->updateStreakFor($playerStreak);
-        (new ResultStreak($this->match(missed: ['alice'])))->updateStreakFor($playerStreak);
+        (new ResultStreak($this->match(cancelled: ['alice'])))->updateStreakFor($playerStreak);
 
         $current = $playerStreak->currentStreaks();
         $this->assertEquals(1, $current['apps']->count);
@@ -94,11 +94,11 @@ class ResultStreakTest extends TestCase
         $this->assertEquals(1, $current['undefeated']->count);
     }
 
-    public function test_missed_match_is_a_no_show_for_players_who_did_not_sign_up()
+    public function test_cancelled_match_is_a_no_show_for_players_who_did_not_sign_up()
     {
         $playerStreak = new PlayerStreak('alice');
         (new ResultStreak($this->match(winners: ['alice'])))->updateStreakFor($playerStreak);
-        (new ResultStreak($this->match(missed: ['bob'])))->updateStreakFor($playerStreak);
+        (new ResultStreak($this->match(cancelled: ['bob'])))->updateStreakFor($playerStreak);
 
         $current = $playerStreak->currentStreaks();
         $this->assertArrayNotHasKey('apps', $current);

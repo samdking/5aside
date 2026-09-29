@@ -3,7 +3,7 @@
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MissedMatch extends Model
+class CancelledMatch extends Model
 {
 	use HasFactory;
 	protected $fillable = ['date'];

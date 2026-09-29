@@ -11,7 +11,7 @@ class PlayerQuery
 		$this->request = $request;
 		$this->form = $form ?: new FormQuery($request);
 		$this->appearances = new AppearancesQuery($request);
-		$this->missed = new MissedMatchQuery($request);
+		$this->cancelled = new CancelledMatchQuery($request);
 	}
 
 	public function getSeasons()
@@ -110,11 +110,11 @@ SQL;
 		$totalMatches = $this->appearances->get()->count();
 
 		return collect(\DB::select($query, $placeholders))->each(function($p) use ($totalMatches) {
-			// Putting your name down for a missed match counts as an appearance
-			$missed = $this->missed->forPlayer($p->id, $p->year);
-			$apps = $p->matches + $missed->count();
-			$firstApp = $missed->pluck('date')->push($p->first_appearance)->min();
-			$lastApp = $missed->pluck('date')->push($p->last_appearance)->max();
+			// Putting your name down for a cancelled match counts as an appearance
+			$cancelled = $this->cancelled->forPlayer($p->id, $p->year);
+			$apps = $p->matches + $cancelled->count();
+			$firstApp = $cancelled->pluck('date')->push($p->first_appearance)->min();
+			$lastApp = $cancelled->pluck('date')->push($p->last_appearance)->max();
 
 			$matchesPriorToDebut = $this->appearances->get()->search(function($m) use ($firstApp) {
 				return $m->date == $firstApp;

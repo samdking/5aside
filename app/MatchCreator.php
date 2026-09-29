@@ -14,17 +14,17 @@ class MatchCreator
 	 * or, for a match that didn't happen because of a lack of players, a list of
 	 * those who put their name down:
 	 *
-	 * YYYY-MM-DD: P1, P2, P3 <MISSED>
+	 * YYYY-MM-DD: P1, P2, P3 <CANCELLED>
 	 *
 	 * @param  string  $string
-	 * @return App\MatchResult|App\MissedMatch
+	 * @return App\MatchResult|App\CancelledMatch
 	 */
 	public function parse($string)
 	{
 		$this->allPlayers = [];
 
-		if (preg_match('/^(?:(.+): )?(.+) <MISSED>$/', $string, $matches)) {
-			return $this->createMissedMatch($matches[1], $matches[2]);
+		if (preg_match('/^(?:(.+): )?(.+) <CANCELLED>$/', $string, $matches)) {
+			return $this->createCancelledMatch($matches[1], $matches[2]);
 		}
 
 		$match = preg_match('/^(?:(.+): )?(.+) (\d+) ?[\-v] ?(\d+) ([^\[\]<>]+)(?: \[(.+)\])?(?: (<VOID>))?$/', $string, $matches);
@@ -63,19 +63,19 @@ class MatchCreator
 	}
 
 	/**
-	 * Create a missed match with the players who put their name down
+	 * Create a cancelled match with the players who put their name down
 	 *
 	 * @param  string  $date
 	 * @param  string  $players
-	 * @return App\MissedMatch
+	 * @return App\CancelledMatch
 	 */
-	private function createMissedMatch($date, $players)
+	private function createCancelledMatch($date, $players)
 	{
-		$missed = MissedMatch::create(['date' => new \DateTime($date)]);
+		$cancelled = CancelledMatch::create(['date' => new \DateTime($date)]);
 
-		$missed->players()->sync($this->parsePlayers($players));
+		$cancelled->players()->sync($this->parsePlayers($players));
 
-		return $missed;
+		return $cancelled;
 	}
 
 	/**

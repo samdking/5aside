@@ -3,8 +3,8 @@
 		<tr>
 			@foreach($player->form as $match)
 				<td>
-					@if ($match && $match->result == 'Missed')
-						<span title="{{ $match->date->format('j F Y') }} - Missed (not enough players)" class="match missed">M</span>
+					@if ($match && $match->result == 'Cancelled')
+						<span title="{{ $match->date->format('j F Y') }} - Cancelled (not enough players)" class="match cancelled">C</span>
 					@elseif ($match)
 						<a href="{{ route('matches.show', $match->id) }}" title="{{ $match->date->format('j F Y') . ' ' . $match->team_a_scored . ' - ' . $match->team_b_scored }}" class="match {{ strtolower($match->result) }}">{{ substr($match->result, 0, 1) }}</a>
 					@else

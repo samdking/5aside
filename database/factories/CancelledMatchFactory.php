@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class MissedMatchFactory extends Factory
+class CancelledMatchFactory extends Factory
 {
     public function definition(): array
     {

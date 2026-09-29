@@ -54,9 +54,9 @@ class Player extends Model
 		return $this->belongsToMany('App\Team');
 	}
 
-	public function missedMatches()
+	public function cancelledMatches()
 	{
-		return $this->belongsToMany('App\MissedMatch');
+		return $this->belongsToMany('App\CancelledMatch');
 	}
 
 	public function matches()

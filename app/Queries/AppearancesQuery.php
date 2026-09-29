@@ -28,15 +28,15 @@ class AppearancesQuery
 			$placeholders
 		));
 
-		$missed = (new MissedMatchQuery($this->request))->get()->map(function($m) {
+		$cancelled = (new CancelledMatchQuery($this->request))->get()->map(function($m) {
 			return (object)[
 				'id' => $m->id,
 				'date' => $m->date,
-				'missed' => true,
+				'cancelled' => true,
 			];
 		});
 
-		$this->query = $matches->concat($missed)->sortBy('date')->values();
+		$this->query = $matches->concat($cancelled)->sortBy('date')->values();
 
 		return $this->query;
 	}
