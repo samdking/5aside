@@ -277,6 +277,10 @@ nav a {
   background: orange;
 }
 
+.form-table .cancelled {
+  background: repeating-linear-gradient(45deg, #999, #999 3px, #bbb 3px, #bbb 6px);
+}
+
 .matches {
   width: 60%;
 }
@@ -295,6 +299,31 @@ nav a {
 
 .match.void .team {
   background: #ffd17c;
+}
+
+.match.cancelled .date {
+  background: repeating-linear-gradient(45deg, #999, #999 6px, #aaa 6px, #aaa 12px);
+}
+
+.match.cancelled .signups {
+  background: #EEE;
+  color: #666;
+  padding: 0 30px;
+  overflow: hidden;
+}
+
+.match.cancelled .signups li {
+  display: inline;
+  line-height: 22px;
+}
+
+.match.cancelled .signups li:not(:last-child)::after {
+  content: ", ";
+}
+
+.match.cancelled .signups a {
+  color: #666;
+  text-decoration: none;
 }
 
 .team {

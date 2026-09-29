@@ -15,7 +15,11 @@ class ResultStreak
 
 	public function updateStreakFor(PlayerStreak $player)
 	{
-		if ($this->wasVoid($player)) {
+		if ($this->wasCancelledFor($player)) {
+			// Putting your name down for a match that didn't happen has no
+			// effect on any streak
+			return;
+		} elseif ($this->wasVoid($player)) {
 			$player->void($this);
 		} elseif ($this->wasWonBy($player)) {
 			$player->win($this);
@@ -26,6 +30,11 @@ class ResultStreak
 		} else {
 			$player->noShow($this);
 		}
+	}
+
+	public function wasCancelledFor($player)
+	{
+		return isset($this->match->cancelled) && $this->match->cancelled->contains($player->id);
 	}
 
 	public function wasVoid($player)

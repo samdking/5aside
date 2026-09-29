@@ -36,10 +36,27 @@ SQL;
 			(new Filters\ToDate)->get($this->request)
 		];
 
-		return collect(\DB::select($query, $placeholders))->each(function($match) {
+		$results = collect(\DB::select($query, $placeholders))->each(function($match) {
 			foreach(['voided', 'winners', 'losers', 'draw'] as $prop) {
 				$match->{$prop} = collect(explode(',', $match->{$prop}));
 			}
+			$match->cancelled = collect();
 		});
+
+		// Cancelled matches have no teams, so only the players who put their name
+		// down are recorded. Sorting is stable, so real matches keep their order.
+		$cancelled = (new CancelledMatchQuery($this->request))->get()->map(function($match) {
+			return (object)[
+				'date' => $match->date,
+				'year' => $match->year,
+				'voided' => collect(),
+				'winners' => collect(),
+				'losers' => collect(),
+				'draw' => collect(),
+				'cancelled' => $match->players,
+			];
+		});
+
+		return $results->concat($cancelled)->sortBy('date')->values();
 	}
 }

@@ -54,6 +54,11 @@ class Player extends Model
 		return $this->belongsToMany('App\Team');
 	}
 
+	public function cancelledMatches()
+	{
+		return $this->belongsToMany('App\CancelledMatch');
+	}
+
 	public function matches()
 	{
 		return $this->hasManyThrough(MatchResult::class, Team::class);
