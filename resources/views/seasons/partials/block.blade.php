@@ -8,6 +8,7 @@
 
 	<dl class="season-block__stats">
 		<div><dt>Matches</dt><dd>{{ $season['total_matches'] }}</dd></div>
+		<div><dt>Players</dt><dd>{{ $players }}</dd></div>
 		<div><dt>Avg players</dt><dd>{{ $season['average_players'] }}</dd></div>
 		<div><dt>Goals / match</dt><dd>{{ $season['average_goals'] }}</dd></div>
 		<div><dt>Highest score</dt><dd>{{ $season['highest_scoring_match'] }}</dd></div>

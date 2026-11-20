@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 
 use App\Queries\AllSeasonsQuery;
 use App\Queries\PlayerQuery;
+use App\Queries\SeasonPlayerCountQuery;
 use App\Queries\SingleSeasonQuery;
 use App\Queries\MatchQuery;
 
@@ -31,6 +32,7 @@ class SeasonController extends Controller
 			'seasons' => $seasons->except('all')->sortKeysDesc(),
 			'allTime' => $seasons->get('all'),
 			'champions' => $champions,
+			'playerCounts' => (new SeasonPlayerCountQuery)->get(),
 			'currentYear' => (int)date('Y'),
 		]);
 	}

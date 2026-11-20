@@ -10,6 +10,7 @@
 			'title' => $year,
 			'href' => route('seasons.show', $year),
 			'season' => $season,
+			'players' => $playerCounts->get($year, 0),
 			'champion' => $champions->get($year),
 			'inProgress' => $year == $currentYear,
 		])
@@ -20,6 +21,7 @@
 			'title' => 'All time',
 			'href' => '/players',
 			'season' => $allTime,
+			'players' => $playerCounts->get('all', 0),
 			'champion' => null,
 			'inProgress' => false,
 			'modifier' => 'season-block--all-time',
