@@ -12,6 +12,7 @@ class SingleSeasonQuery
 	protected $players;
 	protected $matches;
 	protected $query = [];
+	protected $distinctPlayers;
 
 	public function __construct(Request $request)
 	{
@@ -32,6 +33,7 @@ class SingleSeasonQuery
 				return is_numeric($value) ? (str_contains($value, '.') ? (float)$value : (int)$value) : $value;
 			})
 			->merge($this->endDate($year))
+			->merge($this->distinctPlayers($year))
 			->merge($this->stats($year))
 			->merge($this->leaderboard())
 			->merge($this->matches($year));
@@ -111,6 +113,36 @@ SQL;
 	protected function seasonHasEnded($year)
 	{
 		return $year && $year < (new DateTime)->format('Y');
+	}
+
+	// Distinct named people who played, unlike total_players, which
+	// counts appearances. Anonymous players are excluded.
+	protected function distinctPlayers($year)
+	{
+		if (is_null($this->distinctPlayers)) {
+			$query = <<<SQL
+			SELECT YEAR(matches.date) AS year, COUNT(DISTINCT players.id) AS players
+			FROM matches
+			INNER JOIN teams ON teams.match_id = matches.id
+			INNER JOIN player_team ON player_team.team_id = teams.id
+			INNER JOIN players ON players.id = player_team.player_id
+			WHERE players.last_name != '(anon)' AND matches.date BETWEEN ? AND ?
+			GROUP BY year WITH ROLLUP
+SQL;
+
+			$placeholders = [
+				(new Filters\FromDate)->get($this->request),
+				(new Filters\ToDate)->get($this->request)
+			];
+
+			$this->distinctPlayers = collect(\DB::select($query, $placeholders))->mapWithKeys(function($row) {
+				return [$row->year ?? 'all' => (int)$row->players];
+			});
+		}
+
+		return [
+			'distinct_players' => $this->distinctPlayers->get($year ?: 'all', 0)
+		];
 	}
 
 	protected function stats($year)
