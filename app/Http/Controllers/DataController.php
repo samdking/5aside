@@ -9,7 +9,6 @@ use App\Queries\VenueQuery;
 use App\Queries\SeasonQuery;
 use App\Queries\SingleSeasonQuery;
 use App\Queries\AllSeasonsQuery;
-use App\MatchResult;
 use Illuminate\Http\Request;
 
 class DataController extends Controller
@@ -35,7 +34,7 @@ class DataController extends Controller
 	public function matches(Request $request)
 	{
 		return response()->json([
-			'matches' => $this->v2MatchData($request)
+			'matches' => (new MatchQuery($request))->get()
 		]);
 	}
 
@@ -71,37 +70,5 @@ class DataController extends Controller
 		return response()->json([
 			'season' => $season->get()
 		]);
-	}
-
-	protected function v1MatchData($request)
-	{
-		$matches = MatchResult::with('teams.players', 'venue')->latest('date')->get()->keyBy('id');
-
-		return $matches->map(function($match) {
-			return [
-				'date' => $match->date->format('Y-m-d'),
-				'short' => $match->is_short == 1,
-				'handicap' => $match->teams->contains(function($i, $team) {
-					return $team->handicap;
-				}),
-				'teams' => $match->teams->map(function($team) use ($match) {
-					return [
-						'won' => $team->winners == 1,
-						'drew' => $team->draw == 1,
-						'lost' => $team->draw == 0 && $team->winners = 0,
-						'handicap' => $team->handicap == 1,
-						'goals_for' => $team->scored,
-						'goals_against' => $match->getOpposition($team)->scored,
-						'player_ids' => $team->players->pluck('id'),
-						'player_names' => $team->players->map(function($p) { return $p->shortName(); })
-					];
-				})
-			];
-		});
-	}
-
-	protected function v2MatchData($request)
-	{
-		return (new MatchQuery($request))->get();
 	}
 }
