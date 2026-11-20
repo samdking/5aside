@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Player;
+use App\Queries\AllSeasonsQuery;
 use App\Venue;
 use Tests\TestCase;
 use Tests\Concerns\SeedsMatches;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SeasonApiTest extends TestCase
@@ -105,6 +107,27 @@ class SeasonApiTest extends TestCase
 
         $this->getJson('/api/v2/seasons/2023')->assertOk()->assertJsonPath('season.distinct_players', 2);
         $this->getJson('/api/v2/seasons/2024')->assertOk()->assertJsonPath('season.distinct_players', 1);
+    }
+
+    public function test_all_seasons_query_scopes_each_leaderboard_to_its_own_year()
+    {
+        [$alice, $bob] = $this->seedTwoSeasons();
+
+        $request = Request::create('/');
+        $request['show_inactive'] = true;
+
+        $seasons = (new AllSeasonsQuery($request))->get();
+
+        // 2023: Alice won both. 2024: a draw, so both have a point.
+        // All time: Alice 7, Bob 1. Each season must use its own points.
+        $points = fn($year, $player) => $seasons[$year]['leaderboard']->firstWhere('id', $player->id)->points;
+
+        $this->assertEquals(6, $points(2023, $alice));
+        $this->assertEquals(0, $points(2023, $bob));
+        $this->assertEquals(1, $points(2024, $alice));
+        $this->assertEquals(1, $points(2024, $bob));
+        $this->assertEquals(7, $points('all', $alice));
+        $this->assertEquals(1, $points('all', $bob));
     }
 
     // Seeds three matches across two seasons between Alice and Bob:

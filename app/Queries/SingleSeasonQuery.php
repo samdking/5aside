@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 class SingleSeasonQuery
 {
 	protected $request;
-	protected $players;
 	protected $matches;
 	protected $query = [];
 	protected $distinctPlayers;
@@ -17,7 +16,6 @@ class SingleSeasonQuery
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
-		$this->players = new PlayerQuery($request);
 		$this->matches = new MatchQuery($request);
 		$this->distinctPlayers = new DistinctPlayersQuery($request);
 	}
@@ -36,7 +34,7 @@ class SingleSeasonQuery
 			->merge($this->endDate($year))
 			->merge($this->distinctPlayers($year))
 			->merge($this->stats($year))
-			->merge($this->leaderboard())
+			->merge($this->leaderboard($year))
 			->merge($this->matches($year));
 	}
 
@@ -130,12 +128,17 @@ SQL;
 		return $matches ? (new MatchStats($matches))->get() : [];
 	}
 
-	protected function leaderboard()
+	protected function leaderboard($year)
 	{
 		if ($this->request->hide_leaderboard) return [];
 
+		// PlayerQuery takes its date range from the request, so scope a copy
+		// of it to the year being built rather than whatever was requested.
+		$request = $this->request->duplicate();
+		$request['year'] = $year;
+
 		return [
-			'leaderboard' => $this->players->get()
+			'leaderboard' => (new PlayerQuery($request))->get()
 		];
 	}
 
