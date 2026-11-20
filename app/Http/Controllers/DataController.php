@@ -14,15 +14,6 @@ use Illuminate\Http\Request;
 
 class DataController extends Controller
 {
-	public function all(Request $request)
-	{
-		return response()->json([
-			'players' => (new PlayerQuery($request))->get(),
-			'matches' => $this->{'v' . $request->get('v', '2') . 'matchData'}($request),
-			'venues' => (new VenueQuery($request))->get(['name']),
-		]);
-	}
-
 	public function player(Request $request)
 	{
 		$request->short_form = true;
