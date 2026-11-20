@@ -23,7 +23,6 @@ Route::group(['middleware' => ['web']], function() {
 	Route::post('matches', 'AdminController@storeMatch');
 });
 
-Route::get('data.json', 'DataController@all');
 Route::group(['prefix' => 'api'], function() {
 	Route::get('players', 'DataController@players');
 	Route::get('players/{player}', 'DataController@player');
