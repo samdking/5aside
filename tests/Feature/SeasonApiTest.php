@@ -84,6 +84,31 @@ class SeasonApiTest extends TestCase
         $this->assertTrue($matches->every(fn($m) => $m['year'] === 2024));
     }
 
+    public function test_seasons_count_distinct_named_players()
+    {
+        $venue = Venue::factory()->create();
+        $alice = Player::factory()->create(['last_name' => 'Anderson']);
+        $bob   = Player::factory()->create(['last_name' => 'Brown']);
+        $carol = Player::factory()->create(['last_name' => 'Clark']);
+        $anon  = Player::factory()->create(['last_name' => '(anon)']);
+
+        // 2023: Alice and Bob twice - 2 distinct players from 4 appearances.
+        // 2024: Carol plus an anonymous player, who isn't counted.
+        $this->createMatch($venue, [$alice], [$bob], ['date' => '2023-03-01', 'a_scored' => 3, 'b_scored' => 1]);
+        $this->createMatch($venue, [$alice], [$bob], ['date' => '2023-09-01', 'a_scored' => 2, 'b_scored' => 0]);
+        $this->createMatch($venue, [$carol], [$anon], ['date' => '2024-02-01', 'a_scored' => 1, 'b_scored' => 0]);
+
+        $seasons = $this->getJson('/api/v2/seasons')->assertOk()->json('seasons');
+
+        $this->assertSame(2, $seasons['2023']['distinct_players']);
+        $this->assertSame(4, $seasons['2023']['total_players']);
+        $this->assertSame(1, $seasons['2024']['distinct_players']);
+        $this->assertSame(3, $seasons['all']['distinct_players']);
+
+        $this->getJson('/api/v2/seasons/2023')->assertOk()->assertJsonPath('season.distinct_players', 2);
+        $this->getJson('/api/v2/seasons/2024')->assertOk()->assertJsonPath('season.distinct_players', 1);
+    }
+
     public function test_all_seasons_query_scopes_each_leaderboard_to_its_own_year()
     {
         [$alice, $bob] = $this->seedTwoSeasons();

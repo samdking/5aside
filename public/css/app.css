@@ -421,3 +421,78 @@ h2 small { font-size: 0.7em; color: #666; }
     margin: 0 -20px;
   }
 }
+
+.season-blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: 20px;
+  max-width: 1200px;
+}
+
+.season-block {
+  display: flex;
+  flex-direction: column;
+  background: #DDD;
+}
+
+.season-block__title {
+  background: #AAA;
+  border-top: 1px solid #888;
+  color: #FFF;
+  display: block;
+  font-size: 22px;
+  font-weight: bold;
+  padding: 10px 15px;
+}
+
+.season-block__title small {
+  float: right;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 26px;
+}
+
+.season-block__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px 10px;
+  margin: 0;
+  padding: 18px 15px;
+  flex-grow: 1;
+}
+
+.season-block__stats dt {
+  color: #666;
+  font-size: 12px;
+}
+
+.season-block__stats dd {
+  font-size: 22px;
+  margin: 2px 0 0;
+}
+
+.season-block__champion {
+  background: lightgreen;
+  padding: 10px 15px;
+}
+
+.season-block__champion a {
+  color: #333;
+  font-weight: bold;
+}
+
+.season-block__champion-label {
+  color: #555;
+  display: block;
+  font-size: 12px;
+}
+
+.season-block__points {
+  color: #555;
+  float: right;
+}
+
+.season-block--all-time .season-block__title {
+  background: #666;
+  border-top-color: #444;
+}

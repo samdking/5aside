@@ -11,11 +11,13 @@ class SingleSeasonQuery
 	protected $request;
 	protected $matches;
 	protected $query = [];
+	protected $distinctPlayers;
 
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
 		$this->matches = new MatchQuery($request);
+		$this->distinctPlayers = new DistinctPlayersQuery($request);
 	}
 
 	public function get($year = null)
@@ -30,6 +32,7 @@ class SingleSeasonQuery
 				return is_numeric($value) ? (str_contains($value, '.') ? (float)$value : (int)$value) : $value;
 			})
 			->merge($this->endDate($year))
+			->merge($this->distinctPlayers($year))
 			->merge($this->stats($year))
 			->merge($this->leaderboard($year))
 			->merge($this->matches($year));
@@ -109,6 +112,13 @@ SQL;
 	protected function seasonHasEnded($year)
 	{
 		return $year && $year < (new DateTime)->format('Y');
+	}
+
+	protected function distinctPlayers($year)
+	{
+		return [
+			'distinct_players' => $this->distinctPlayers->forYear($year)
+		];
 	}
 
 	protected function stats($year)
