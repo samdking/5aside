@@ -3,6 +3,8 @@
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Queries\AllSeasonsQuery;
+use App\Queries\PlayerQuery;
 use App\Queries\SingleSeasonQuery;
 use App\Queries\MatchQuery;
 
@@ -10,6 +12,29 @@ use Carbon\Carbon;
 
 class SeasonController extends Controller
 {
+	public function index(Request $request)
+	{
+		$request['show_inactive'] = true;
+		$request['hide_leaderboard'] = true;
+		$request['hide_matches'] = true;
+
+		$seasons = (new AllSeasonsQuery($request))->get();
+
+		// One row per player per year, sorted like each season's leaderboard,
+		// so the first row of each year is that season's champion.
+		$champions = (new PlayerQuery($request))
+			->get('YEAR(date)', 'players.id, year', 'year, ' . PlayerQuery::DEFAULT_ORDER)
+			->groupBy('year')
+			->map->first();
+
+		return view('seasons.index')->with([
+			'seasons' => $seasons->except('all')->sortKeysDesc(),
+			'allTime' => $seasons->get('all'),
+			'champions' => $champions,
+			'currentYear' => (int)date('Y'),
+		]);
+	}
+
 	public function show(Request $request)
 	{
 		$request['show_inactive'] = true;
