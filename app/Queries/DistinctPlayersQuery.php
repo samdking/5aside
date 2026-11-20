@@ -16,8 +16,7 @@ class DistinctPlayersQuery
 
 	/**
 	 * Distinct named people who played in each season, keyed by year, plus
-	 * an "all" total. Unlike total_players, this counts people rather than
-	 * appearances. Anonymous players are excluded.
+	 * an "all" total. Anonymous players are excluded.
 	 */
 	public function get()
 	{
