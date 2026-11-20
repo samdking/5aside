@@ -117,6 +117,7 @@ class PlayerController extends Controller
 	public function show(Request $request)
 	{
 		$request['form_matches'] = 10;
+		$request['include_cancelled'] = true;
 
 		$form = new FormQuery($request);
 
@@ -125,7 +126,7 @@ class PlayerController extends Controller
 		$opponents = (new OpponentsQuery($request, $form))->get();
 
 		$stats = (new PlayedWithAgainst($request))->get()->reject(function($p) use ($player) {
-			return ($p->against + $p->with) < $player->results->count() / 4;
+			return ($p->against + $p->with) < $player->results->where('cancelled', false)->count() / 4;
 		});
 
 		return view('players.show')->with([

@@ -3,6 +3,7 @@
 namespace Tests\Concerns;
 
 use App\MatchResult;
+use App\CancelledMatch;
 use App\Team;
 use App\Venue;
 
@@ -46,5 +47,19 @@ trait SeedsMatches
         $teamBModel->players()->attach(
             collect($teamB)->mapWithKeys(fn($p) => [$p->id => ['injured' => 0]])
         );
+    }
+
+    /**
+     * Persist a cancelled match with the players who put their name down.
+     *
+     * @param  \App\Player[]  $players
+     */
+    private function createCancelledMatch(array $players, string $date): CancelledMatch
+    {
+        $cancelled = CancelledMatch::factory()->create(['date' => $date]);
+
+        $cancelled->players()->attach(collect($players)->pluck('id'));
+
+        return $cancelled;
     }
 }

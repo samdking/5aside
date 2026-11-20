@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\MatchCreator;
+use App\MatchResult;
+use App\CancelledMatch;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
@@ -19,11 +21,18 @@ class AdminController extends Controller
 
 		\DB::transaction(function() use ($request, $creator, &$match) {
 			$match = $creator->parse($request->get('match'));
-			$match->push();
+
+			if ($match instanceof MatchResult) {
+				$match->push();
+			}
 
 			$client = new Client();
 			$res = $client->request('POST', 'https://api.netlify.com/build_hooks/637de03bcc1086005c254056?trigger_title=New+Match+Added');
 		});
+
+		if ($match instanceof CancelledMatch) {
+			return redirect()->route('players.index');
+		}
 
 		return redirect()->route('matches.show', [$match->id]);
 	}
