@@ -7,6 +7,29 @@
 	{{ $player->first_initial }} {{ $player->last_name }}
 </h2>
 
+@php
+	$medals = [
+		1 => ['label' => '1st', 'class' => 'gold'],
+		2 => ['label' => '2nd', 'class' => 'silver'],
+		3 => ['label' => '3rd', 'class' => 'bronze'],
+	];
+
+	// Only count finishes from completed seasons (exclude the current, in-progress year).
+	$podiums = $player->seasons->filter(fn($s, $year) => $year < now()->year && $s->ranking >= 1 && $s->ranking <= 3);
+@endphp
+
+@if ($podiums->isNotEmpty())
+	<div class="badges">
+		@foreach ($medals as $rank => $medal)
+			@foreach ($podiums->filter(fn($s) => $s->ranking == $rank)->sortKeys() as $year => $season)
+				<span class="badge badge--{{ $medal['class'] }}" title="{{ $medal['label'] }} place in {{ $year }}">
+					{{ $medal['label'] }} <span class="badge__year">{{ $year }}</span>
+				</span>
+			@endforeach
+		@endforeach
+	</div>
+@endif
+
 <table class="leaderboard">
 	<thead>
 		<tr>

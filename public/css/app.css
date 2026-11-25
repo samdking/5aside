@@ -391,6 +391,23 @@ nav a {
 
 h2 small { font-size: 0.7em; color: #666; }
 
+.badges { display: flex; gap: 8px; margin: 0 0 1em; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #3a2f00;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+.badge__year { font-weight: normal; opacity: 0.8; }
+.badge--gold { background: linear-gradient(#ffe27a, #f5c518); }
+.badge--silver { background: linear-gradient(#f0f0f0, #c4c4c4); color: #333; }
+.badge--bronze { background: linear-gradient(#e6a86b, #cd7f32); color: #3a2400; }
+
 @media only screen and (max-width: 600px) {
   body {
     margin: 1em;
