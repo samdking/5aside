@@ -6,7 +6,7 @@
 	"type": "project",
 	"require": {
 		"php": "^8.2",
-		"laravel/framework": "^11.0",
+		"laravel/framework": "^12.71",
 		"guzzlehttp/guzzle": "^7.5",
 		"spatie/laravel-html": "^3.5"
 	},
