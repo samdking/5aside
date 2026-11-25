@@ -8,7 +8,7 @@ class ToDate
 {
 	function get($request)
 	{
-		$to = new DateTime($request->to);
+		$to = new DateTime($request->to ?: 'now');
 
 		$year = $request->year ?: $request->season;
 

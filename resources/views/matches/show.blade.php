@@ -3,7 +3,7 @@
 @section('content')
 
 <h2>
-	{!! link_to_route('matches.index', 'Matches') !!}
+	<a href="{{ route('matches.index') }}">Matches</a>
 	>
 	{{ $match->date->format('jS F Y') }}
 	@if ($match->is_short)
@@ -18,7 +18,7 @@
 			<ul>
 			@foreach($team->players as $player)
 				<li>
-					{!! link_to_route('players.show', $player->last_name, $player->id) !!}<!--
+					<a href="{{ route('players.show', $player->id) }}">{{ $player->last_name }}</a><!--
 					@if ($player->first_name)
 						-->, {{ $player->first_name }}<!--
 					@endif-->

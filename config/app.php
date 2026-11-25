@@ -122,7 +122,6 @@ return [
 		'Illuminate\Translation\TranslationServiceProvider',
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
-		'Collective\Html\HtmlServiceProvider',
 		'Illuminate\Broadcasting\BroadcastServiceProvider',
 		'Illuminate\Notifications\NotificationServiceProvider',
 
@@ -186,7 +185,6 @@ return [
 		'URL'          => 'Illuminate\Support\Facades\URL',
 		'Validator'    => 'Illuminate\Support\Facades\Validator',
 		'View'         => 'Illuminate\Support\Facades\View',
-		'Form'         => 'Collective\Html\FormFacade'
 
 	],
 
